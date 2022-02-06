@@ -1,0 +1,2 @@
+# DO_decay
+This project focuses on the decay of dissolved oxygen during the winter and summer periods, with year-round, high-frequency observations. This project uses time-series analysis to look at the high-frequency DO and temperature data alongside morphological characteristics as well as productivity and nutrient analyses. The R code focuses on 1) cleaning disaggregated data, 2) aggregating cleaned DO, temperature, oxygen isopote, and water chemistry data, 3) time series analysis on high-frequency DO and temperature data, and 4) statistical analyses of all data
