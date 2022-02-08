@@ -104,16 +104,59 @@ cedar_6 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.10.14_raw.txt'), delim
 #water as they cool down in the water (see README_cedar.TXT)
 
 cedar_1_cleaned <- cedar_1 %>%
-  slice(-c(1:41)) 
+  slice(-c(1:41)) %>%
+  na.omit()
 #this eliminates all times before 11:00am on 2021/06/15
 #HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
 #was necessary to filter data after retrieval. 
+#-------------
 
-cedar_2_plt <- ggplot(data = cedar_2) +
-  geom_line(aes(x = date_time, y = temp_c), size = 1.5)+
-  theme_classic()
-ggplotly(cedar_1_plt)
- 
+cedar_2_cleaned <- cedar_2 %>%
+  slice(-c(1:2)) %>% 
+  slice(-c(1125:1157)) 
+#eliminates times when sensor was turned on, but not yet in water
+#eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
+#large storm on 6/14 prevented the redeployment of the cedar thermistor chain
+#-------------
+
+cedar_3_cleaned <- cedar_3 %>%
+  slice(-c(1:41)) %>%
+  na.omit()
+#this eliminates all times before 11:00am on 2021/06/15
+#HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
+#was necessary to filter data after retrieval. 
+#-------------
+
+cedar_4_cleaned <- cedar_4 %>%
+  slice(-c(1)) %>%
+  slice(-c(1126:1158))
+#eliminates times when sensor was turned on, but not yet in water
+#eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
+#large storm on 6/14 prevented the redeployment of the cedar thermistor chain
+#-------------
+
+cedar_5_cleaned <- cedar_5 %>%
+  slice(-c(1:312)) %>%
+  slice(-c(10670:10672))
+#this eliminates all times before 11:00am on 2021/06/15
+#HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
+#was necessary to filter data after retrieval. 
+#-------------
+
+cedar_6_cleaned <- cedar_6 %>%
+  slice(-c(1:13)) %>%
+  slice(-c(6740:6859))
+#eliminates times when sensor was turned on, but not yet in water
+#eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
+#large storm on 6/14 prevented the redeployment of the cedar thermistor chain
+#-------------
+
+
+# cedar_plt <- ggplot(data = cedar_6_cleaned) +
+#   geom_line(aes(x = pst, y = temp_c), size = 1.5)+
+#   theme_classic()
+# ggplotly(cedar_plt)
+#  
   
   
   
