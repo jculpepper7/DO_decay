@@ -68,34 +68,31 @@ gumboot_3 <- read_delim(here('data/raw/gumboot/gumboot_miniDOT_2021.10.14_raw.tx
 #water as they cool down in the water (see README_gumboot.TXT)
 
 gumboot_1_cleaned <- gumboot_1 %>%
-  slice(-c(1:41)) %>%
+  slice(-c(2951:2978)) %>%
   na.omit()
-#this eliminates all times before 11:00am on 2021/06/15
-#HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
-#was necessary to filter data after retrieval. 
+#removed all recordings after 15:00 on 10/14/2021 when the sensor was removed 
+#from the water, but not yet shut off
 #-------------
 
 gumboot_2_cleaned <- gumboot_2 %>%
-  slice(-c(1:2)) %>% 
-  slice(-c(1125:1157)) 
-#eliminates times when sensor was turned on, but not yet in water
-#eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
-#large storm on 6/14 prevented the redeployment of the gumboot thermistor chain
+  slice(-c(2951:2978)) 
+#removed all recordings after 15:00 on 10/14/2021 when the sensor was removed 
+#from the water, but not yet shut off
 #-------------
 
 gumboot_3_cleaned <- gumboot_3 %>%
-  slice(-c(1:41)) %>%
+  slice(-c(1:66)) %>%
+  slice(-c(17699:17805)) %>%
   na.omit()
-#this eliminates all times before 11:00am on 2021/06/15
-#HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
-#was necessary to filter data after retrieval. 
+#Buoy in water at approx. 17:30, so removed all times before 18:00 on 6/13/2021
+#Buoy out of water at approx. 15:45; removed all times after 15:31 on 10/14/2021
 #-------------
 
 # 4. Write cleaned data to processed folder-------------------------------------
 
-write_csv(gumboot_1_cleaned, here('data/processed/gumboot/gumboot_hobo_2m_2021.08.28_cleaned.csv'))
-write_csv(gumboot_2_cleaned, here('data/processed/gumboot/gumboot_hobo_2m_2021.10.14_cleaned.csv'))
-write_csv(gumboot_3_cleaned, here('data/processed/gumboot/gumboot_hobo_sediment_2021.08.28_cleaned.csv'))
+write_csv(gumboot_1_cleaned, here('data/processed/gumboot/gumboot_hobo_2m_2021.10.14_cleaned.csv'))
+write_csv(gumboot_2_cleaned, here('data/processed/gumboot/gumboot_hobo_sediment_2021.10.14_cleaned.csv'))
+write_csv(gumboot_3_cleaned, here('data/processed/gumboot/gumboot_DOT_2021.10.14_cleaned.csv'))
 
 
 

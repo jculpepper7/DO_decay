@@ -3,6 +3,7 @@
 ## 1. Load libraries
 ## 2. Read in data
 ## 3. Remove "bad" data using field notes
+## 4. Write cleaned data to processed folder
 
 # 1. Load libraries-------------------------------------------------------------
 
@@ -151,13 +152,15 @@ cedar_6_cleaned <- cedar_6 %>%
 #large storm on 6/14 prevented the redeployment of the cedar thermistor chain
 #-------------
 
+# 4. Write cleaned data to processed folder-------------------------------------
 
-# cedar_plt <- ggplot(data = cedar_6_cleaned) +
-#   geom_line(aes(x = pst, y = temp_c), size = 1.5)+
-#   theme_classic()
-# ggplotly(cedar_plt)
-#  
-  
+write_csv(cedar_1_cleaned, here('data/processed/cedar/cedar_hobo_2m_2021.08.28_cleaned.csv'))
+write_csv(cedar_2_cleaned, here('data/processed/cedar/cedar_hobo_2m_2021.10.14_cleaned.csv'))
+write_csv(cedar_3_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2021.08.28_cleaned.csv'))
+write_csv(cedar_4_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2021.10.14_cleaned.csv'))
+write_csv(cedar_5_cleaned, here('data/processed/cedar/cedar_DOT_2021.08.28_cleaned.csv'))
+write_csv(cedar_6_cleaned, here('data/processed/cedar/cedar_DOT_2021.10.14_cleaned.csv'))
+
   
   
   
