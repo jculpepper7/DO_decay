@@ -30,14 +30,28 @@ library(plotly) #For interactive plots if desired
 #read data from hobo U22 logger placed 2m from sediment  
 cedar_2m_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2020.06.18_cleaned.csv')) 
 cedar_2m_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2020.07.16_cleaned.csv'))
+#for some reason, temp_c reading as a chr rather than num
+cedar_2m_2 <- cedar_2m_2 %>%
+  mutate(temp_c = as.numeric(temp_c))%>%
+  na.omit()
+#----------
 cedar_2m_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2020.10.10_cleaned.csv'))
 cedar_2m_4 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2021.06.12_cleaned.csv'))
+cedar_2m_5 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2021.08.28_cleaned.csv'))
+cedar_2m_6 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2021.10.14_cleaned.csv'))
 
 #read data from hobo U22 logger placed in sediment 
 cedar_sed_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2020.06.18_cleaned.csv'))
 cedar_sed_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2020.07.16_cleaned.csv'))
+#for some reason, temp_c reading as a chr rather than num
+cedar_sed_2 <- cedar_sed_2 %>%
+  mutate(temp_c = as.numeric(temp_c))%>%
+  na.omit()
+#----------
 cedar_sed_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2020.10.10_cleaned.csv'))
 cedar_sed_4 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2021.06.12_cleaned.csv'))
+cedar_sed_5 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2021.08.28_cleaned.csv'))
+cedar_sed_6 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2021.10.14_cleaned.csv'))
 
 #read data from hobo light pendant logger placed ~1m from surface 
 cedar_pend_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_light_pendant_2020.06.18_cleaned.csv'))
@@ -49,18 +63,28 @@ cedar_DOT_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2020
 cedar_DOT_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2020.07.15_cleaned.csv'))
 cedar_DOT_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2020.10.10_cleaned.csv'))
 cedar_DOT_4 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2021.06.11_cleaned.csv'))
+cedar_DOT_5 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2021.08.28_cleaned.csv'))
+cedar_DOT_6 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2021.10.14_cleaned.csv'))
 
 #bind dataframes
-cedar_2m_all <- rbind(cedar_2m_1, cedar_2m_2, cedar_2m_3, cedar_2m_4)
-cedar_sed_all <- rbind(cedar_sed_1, cedar_sed_2, cedar_sed_3, cedar_sed_4)
-cedar_pend_all <- rbind(cedar_pend_1, cedar_pend_2, cedar_pend_3)
-cedar_DOT_all <- rbind(cedar_DOT_1, cedar_DOT_2, cedar_DOT_3, cedar_DOT_4)
+cedar_2m_all <- bind_rows(cedar_2m_1, cedar_2m_2, cedar_2m_3, cedar_2m_4, cedar_2m_5, cedar_2m_6)
+cedar_sed_all <- bind_rows(cedar_sed_1, cedar_sed_2, cedar_sed_3, cedar_sed_4, cedar_sed_5, cedar_sed_6)
+cedar_pend_all <- bind_rows(cedar_pend_1, cedar_pend_2, cedar_pend_3)
+cedar_DOT_all <- bind_rows(cedar_DOT_1, cedar_DOT_2, cedar_DOT_3, cedar_DOT_4, cedar_DOT_5, cedar_DOT_6) %>%
+  mutate(
+    date_time = pst #add date_time as pst in order to bind the dataframe for easier plotting and data manipulation (averaging etc.)
+  )
+
+#bind all dataframes 
+cedar_all_data <- bind_rows(cedar_2m_all, cedar_sed_all, cedar_pend_all, cedar_DOT_all)
+
+
 
 #add depth name so that all dataframes can be combined
-cedar_2m_all$depth <- c('2m') #2m from sediment
-cedar_sed_all$depth <- c('sediment')
-cedar_pend_all$depth <- c('surface') #approx 1m from surface, considering surface temp, since lake is shallow.
-cedar_DOT_all$depth <- c('1m')
+# cedar_2m_all$depth <- c('2m') #2m from sediment
+# cedar_sed_all$depth <- c('sediment')
+# cedar_pend_all$depth <- c('surface') #approx 1m from surface, considering surface temp, since lake is shallow.
+# cedar_DOT_all$depth <- c('1m')
 
 #remove DO and additional date_time from cedar_DOT_all
 cedar_DOT_all_temp <- cedar_DOT_all[,-c(1,2,5,6)]
