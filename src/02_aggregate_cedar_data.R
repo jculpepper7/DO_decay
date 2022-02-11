@@ -11,13 +11,13 @@
 
 #libraries
 library(here) #for organization
-library(tidyverse) #for clear code writing
+library(tidyverse) #for tidy data
 library(lubridate) #To adjust dates easily
 library(padr) #for date_time padding
 library(wesanderson) #for color palette
 library(viridis) #for color palette
 library(scales) # to adjust the date axis and add tick marks
-library(plotly) #For interactive plots if desired
+library(plotly) #For interactive plots (if desired)
 
 
 #################################
@@ -72,70 +72,39 @@ cedar_sed_all <- bind_rows(cedar_sed_1, cedar_sed_2, cedar_sed_3, cedar_sed_4, c
 cedar_pend_all <- bind_rows(cedar_pend_1, cedar_pend_2, cedar_pend_3)
 cedar_DOT_all <- bind_rows(cedar_DOT_1, cedar_DOT_2, cedar_DOT_3, cedar_DOT_4, cedar_DOT_5, cedar_DOT_6) %>%
   mutate(
-    date_time = pst #add date_time as pst in order to bind the dataframe for easier plotting and data manipulation (averaging etc.)
-  )
+    date_time = pst, #add date_time as pst in order to bind the dataframe for easier plotting and data manipulation (averaging etc.)
+    lake = c('cedar'),
+    depth = c('1m')
+    )
 
 #bind all dataframes 
 cedar_all_data <- bind_rows(cedar_2m_all, cedar_sed_all, cedar_pend_all, cedar_DOT_all)
 
+#write_csv(cedar_all_data, here('data/processed/cedar/cedar_clean_agg_data.csv'))
 
-
-#add depth name so that all dataframes can be combined
-# cedar_2m_all$depth <- c('2m') #2m from sediment
-# cedar_sed_all$depth <- c('sediment')
-# cedar_pend_all$depth <- c('surface') #approx 1m from surface, considering surface temp, since lake is shallow.
-# cedar_DOT_all$depth <- c('1m')
-
-#remove DO and additional date_time from cedar_DOT_all
-cedar_DOT_all_temp <- cedar_DOT_all[,-c(1,2,5,6)]
-#rename columns 
-names(cedar_DOT_all_temp) <- c('date_time', 'temp_C', 'depth')
-
-#remove light intensity from cedar_pend_all
-cedar_pend_all_temp <- cedar_pend_all[,-c(3)]
-
-################
-#combine all cedar data
-################
-
-#first, complete the time series by correcting time using lubridate and padding time series using padr
-#2m
-cedar_2m_all$date_time <- mdy_hm(cedar_2m_all$date_time) 
-cedar_2m_all$temp_C <- as.numeric(cedar_2m_all$temp_C)
-#str(cedar_2m_all)
-pad(cedar_2m_all) #this function fills gaps in incomplete date_time variables
-
-#sediment
-cedar_sed_all$date_time <- mdy_hm(cedar_sed_all$date_time) 
-cedar_sed_all$temp_C <- as.numeric(cedar_sed_all$temp_C)
-#str(cedar_2m_all)
-pad(cedar_sed_all) #this function fills gaps in incomplete date_time variables
-
-#pendant
-cedar_pend_all_temp$date_time <- mdy_hm(cedar_pend_all_temp$date_time) 
-cedar_pend_all_temp$temp_C <- as.numeric(cedar_pend_all_temp$temp_C)
-#str(cedar_2m_all)
-pad(cedar_pend_all_temp) #this function fills gaps in incomplete date_time variables
-
-#1m
-#cedar_DOT_all_temp$date_time <- mdy_hm(cedar_DOT_all_temp$date_time) 
-#cedar_DOT_all_temp$temp_C <- as.numeric(cedar_DOT_all_temp$temp_C)
-#str(cedar_2m_all)
-#pad(cedar_DOT_all_temp) #this function fills gaps in incomplete date_time variables
-
-#######
-#now combine all cedar data with rbind
-cedar_all <- rbind(cedar_2m_all, cedar_sed_all, cedar_pend_all_temp, cedar_DOT_all_temp)
-str(cedar_all)
-#check str of cedar_all because I am having an issue with the below code on creating a mean. "Warning()" says that temp_C is a chr not num
-#therefore convert to  num
-str(cedar_all)
-cedar_all$temp_C <- as.numeric(cedar_all$temp_C)
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+######################################################################
 
 #visualize cedar
-cedar_plt <- ggplot(data = cedar_all, aes(x = date_time, y = temp_C))+
+cedar_plt <- ggplot(data = cedar_all_data, aes(x = date_time, y = do_mg_l))+
   geom_line(aes(color = depth), size = 2)+
-  theme_bw()
+  theme_classic()
 cedar_plt
 
 #########
