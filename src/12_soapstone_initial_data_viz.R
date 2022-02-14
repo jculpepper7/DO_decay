@@ -76,27 +76,31 @@ soapstone_avg_plt
 soapstone_facet <- ggplot(data = soapstone) +
   geom_line(aes(x = date_time, y = temp_c))+
   theme_classic()+  
-  facet_wrap(~depth) +
-  ggtitle('Cedar Temperature')+
+  facet_wrap(~depth, ncol = 1) +
+  ggtitle('Soapstone Temperature')+
   ylim(c(0, 32))
 soapstone_facet
 
-ggsave(here('output/plots/soapstone_facet_20_21.png'), dpi = 500)
+#ggsave(here('output/plots/soapstone_facet_20_21.png'), dpi = 500)
 
 soapstone_do_conc <- ggplot(data = soapstone) +
   geom_line(aes(x = date_time, y = do_mg_l)) +
   theme_classic()+
-  ggtitle('Cedar DO [mg/L]')
+  ggtitle('Soapstone DO [mg/L]')
 soapstone_do_conc
 
-ggsave(here('output/plots/soapstone_do_concentration_20_21.png'), dpi = 500)
+ggplotly(soapstone_do_conc)
+
+#ggsave(here('output/plots/soapstone_do_concentration_20_21.png'), dpi = 500)
 
 soapstone_do_sat <- ggplot(data = soapstone)+
   geom_line(aes(x = date_time, y = do_sat))+
   theme_classic()+
-  ggtitle('Cedar DO Saturation [%]')
+  ggtitle('Soapstone DO Saturation [%]')
 soapstone_do_sat
 
-ggsave(here('output/plots/soapstone_do_saturation_20_21.png'), dpi = 500)
+ggplotly(soapstone_do_sat)
+
+#ggsave(here('output/plots/soapstone_do_saturation_20_21.png'), dpi = 500)
 
 
