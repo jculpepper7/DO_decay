@@ -187,7 +187,6 @@ coeff_2 <- 100
 
 do_rad_plt <- ggplot()+
   geom_line(data = ponds_trunc_2021, aes(x = date_time, y = do_mg_l), size = 1.5)+
-  #geom_line(data = cal_licor_trunc, aes(x = date_time, y = solar_rad/coeff_2), size = 1.5, color = 'light gray')+
   scale_y_continuous(
     name = 'Water T [°C]',
     sec.axis = sec_axis(~.*coeff, name = 'Solar Radiation [Wm-2]')
