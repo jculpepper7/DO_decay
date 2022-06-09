@@ -146,36 +146,48 @@ ggplotly(do_soapstone)
 #NOTE: Ice data comes from a combination of on-site game cameras as well as
 #      Sentinel-HUB EO Browser
 
-#Cedar
+#4a. Cedar-----
 cedar_ice_2020 <- do_daily %>% 
   filter(water_year == 2020,
          lake == 'cedar',
          date_time >= as.POSIXct("2019-11-26"),
-         date_time <= as.POSIXct("2020-04-12"))
+         date_time <= as.POSIXct("2020-01-26")) #Truncated to lowest point in winter period (61 days)
+         #date_time <= as.POSIXct("2020-04-12")) #Complete ice off
 
 cedar_ice_2021 <- do_daily %>% 
   filter(water_year == 2021,
          lake == 'cedar',
-         date_time >= as.POSIXct("2020-12-18"),
-         date_time <= as.POSIXct("2021-04-17"))
+         date_time >= as.POSIXct("2020-12-18"), #Truncated to lowest point in winter period (99 days)
+         date_time <= as.POSIXct("2021-03-27")) #Complete ice off
+         #date_time <= as.POSIXct("2021-04-17"))
 
-#Gumboot
+#4b. Gumboot-----
 
 #Water year 2020
 gb_ice_2020 <- do_daily %>% 
   filter(water_year == 2020,
          lake == 'gumboot',
-         date_time >= as.POSIXct("2019-11-29"),
-         date_time <= as.POSIXct("2020-05-04"))
+         date_time >= as.POSIXct("2019-11-23"),
+         date_time <= as.POSIXct("2020-02-01")) #Truncated to first instance of anoxia (70 days)
+         #date_time <= as.POSIXct("2020-05-04")) #Complete ice off
+
+#The second decay period likely caused by an incursion of water or snow that raised DO above hypoxia (2.0 mg/L)
+#Time series truncated from peak of incursion to nadir
+gb_ice_2020_2 <- do_daily %>% 
+  filter(water_year == 2020,
+         lake == 'gumboot',
+         date_time >= as.POSIXct("2020-03-14"),
+         date_time <= as.POSIXct("2020-04-08"))
 
 #Water year 2021
 gb_ice_2021 <- do_daily %>% 
   filter(water_year == 2021,
          lake == 'gumboot',
          date_time >= as.POSIXct("2020-11-18"),
-         date_time <= as.POSIXct("2021-05-02"))
+         date_time <= as.POSIXct("2021-01-19")) #Truncated to first instance of anoxia (62 days)
+         #date_time <= as.POSIXct("2021-05-02")) #Complete ice off
 
-#Soapstone
+#4c. Soapstone-----
 
 #Water year 2020
 ss_ice_2020 <- do_daily %>% 
@@ -196,13 +208,13 @@ ss_ice_2020_2 <- do_daily %>%
 ss_ice_2021 <- do_daily %>% 
   filter(water_year == 2021,
          lake == 'soapstone',
-         date_time >= as.POSIXct("2020-11-07"),
-         date_time <= as.POSIXct("2020-11-09"))  #Truncated to first instance of anoxia (2 days)
+         date_time >= as.POSIXct("2020-11-06"),
+         date_time <= as.POSIXct("2020-11-11"))  #Truncated to first instance of anoxia (2 days)
          #date_time <= as.POSIXct("2020-04-24")) #Complete ice off
 
 #The second decay period likely caused by an incursion of water or snow that raised DO above hypoxia
 ss_ice_2021_2 <- do_daily %>% 
-  filter(water_year == 2020,
+  filter(water_year == 2021,
          lake == 'soapstone',
          date_time >= as.POSIXct("2020-11-19"),
          date_time <= as.POSIXct("2020-11-28"))
@@ -211,7 +223,7 @@ ss_ice_2021_2 <- do_daily %>%
 #NOTE: Chanegpoints indicate where DO variance changes
 
 #change data to time series format
-DO.ts <- ts(cedar_ice_2020$do_mg_l, frequency = 365, start = as.POSIXct('2019-11-25'))
+DO.ts <- ts(gb_ice_2020$do_mg_l, frequency = 365, start = as.POSIXct('2019-11-23'))
 # DO.ts <- ts(MeanDaily.clipped[,grep('DO',names(MeanDaily.clipped))],frequency=365, start=c(year(MeanDaily$day[1]),
 #                                                                                                month(MeanDaily$day[1]),
 #                                                                                                day(MeanDaily$day[1])))
@@ -235,15 +247,13 @@ chgpts <- out@cpts
 #6. Split time series at discovered changepoints--------------------------------
 #NOTE: Number of changepoints  will vary by dataset
 
-#DO.data <-data.frame(MeanDaily.clipped)
-#chgpts.dates <- DO.data$day[chgpts]
-DO.data <- cedar_ice_2020 %>% 
+DO.data <- gb_ice_2020 %>% 
   mutate(
     day = day(date_time)
   )
 chgpts.dates <- DO.data$day[chgpts]
 
-#DO.ts1 <- DO.data #use this if there are no significant changepoints
+DO.ts1 <- DO.data #use this if there are no significant changepoints
 
 DO.ts1 <- DO.data[1:chgpts[1],]
 DO.ts2 <- DO.data[(chgpts[1]+1):chgpts[2],]
@@ -267,11 +277,11 @@ DO.ts8 <- DO.data[(chgpts[7]+1):chgpts[8],]
 #check if data is stationary around a level (if not, should have small p-value)
 # kpss1 <-kpss.test(DO.ts1[,grep('DO',names(DO.ts1))], null="Level")
 # pacf(DO.ts1[,grep('DO',names(DO.ts1))])#check pacf to see how much AR makes sense...
-kpss1 <-kpss.test(DO.ts1$do_mg_l, null="Level")
+kpss1 <-kpss.test(DO.ts1$do_mg_l, null="Level") #Test checks for stationary data. p value > 0.01 indicates stationary data
 pacf(DO.ts1$do_mg_l) #check pacf to see how much AR makes sense...
-fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,1), include.constant=TRUE)
-summary(fit1)
-checkresiduals(fit1)
+fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,0), include.constant=TRUE)
+summary(fit1) #drift gives the slope of the time series
+checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that the residuals are independently distributed
 #plot(fit1$fitted)
 
 
@@ -279,7 +289,7 @@ checkresiduals(fit1)
 #check if data is stationary around a level (if not, should have small p-value)
 kpss2 <- kpss.test(DO.ts2$do_mg_l, null="Level")
 pacf(DO.ts2$do_mg_l)
-fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,1), include.constant=TRUE)
+fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,0), include.constant=TRUE)
 summary(fit2)
 checkresiduals(fit2)
 
@@ -334,15 +344,27 @@ checkresiduals(fit7)
 
 
 #output.list <- list(chosen.lake, DO.data, chgpts.dates, DO.ts1, DO.ts2, DO.ts3, kpss1, kpss2, kpss3, fit1,fit2,fit3 )
+
 output.list <- list(DO.data, 
                     chgpts.dates, 
-                    DO.ts1, DO.ts2, DO.ts3, DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
-                    kpss1, kpss2, kpss3, kpss4, kpss5, kpss6, kpss7,
-                    fit1, fit2, fit3, fit4, fit5, fit6, fit7)
-save(output.list, file = paste("04",'soapstone','2021','arima_output.Rdata', sep="_"))
+                    DO.ts1, DO.ts2,# DO.ts3, DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
+                    kpss1, kpss2,# kpss3, kpss4, kpss5, kpss6, kpss7,
+                    fit1, fit2#, fit3, fit4, fit5, fit6, fit7
+                    )
+save(output.list, file = paste('gumboot','2020','arima_output.Rdata', sep="_"))
+
+
+#ARIMA values
+#Cedar 2020 - section 1 (1,1,1), section 2 (1,1,0) 
+#Cedar 2021 - section 1 (1,1,2), section 2 (1,1,0)
+#Gumboot 2020 1 - section 1 (1,1,0), section 2 (1,1,0)
+#Gumboot 2020 2 - section 1 (1,1,0), section 2 (1,1,3)
+#Gumboot 2021 1 - section 1 (1,1,0)
+#Soapstone 2020 1 - section 1 (1,1,0)
+#Soapstone 2020 2 - section 1 (1,1,0), section 2 (1,1,2)
+#Soapstone 2021 1 - section 1 (0,1,0)
+#Soapstone 2021 2 - section 1 ()
 
 
 
-
-
-
+#Soapstone 2020 1 - section 1 ()

@@ -702,4 +702,4 @@ cal_30m_plt <- ggplot()+
   ylim(c(0,12))+
   theme(text = element_text(size = 20))
 
-ggsave(filename = "cal_30m_20_21_plt.png", path = here('output/plots'), dpi = 500)
+ggsave(filename = "cal_30m_20_21_plt.png", path = here('output/plots'), dpi = 300)
