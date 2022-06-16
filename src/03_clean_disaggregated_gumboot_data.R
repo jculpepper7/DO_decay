@@ -60,6 +60,31 @@ gumboot_3 <- read_delim(here('data/raw/gumboot/gumboot_miniDOT_2021.10.14_raw.tx
     do_sat = as.numeric(do_sat)
   )
 
+gumboot_4 <- read_delim(here('data/raw/gumboot/gumboot_miniDOT_2022.06.12_raw.txt'), delim = ',', skip = 7) %>%
+  clean_names() %>%#clean names from miniDOT software default
+  slice(-c(1)) %>%
+  select(1,2,3,5,6,7) %>%
+  rename(
+    unix = unix_timestamp, 
+    utc = utc_date_time,
+    pst = pacific_standard_time,
+    temp_c = temperature,
+    do_mg_l = dissolved_oxygen,
+    do_sat = dissolved_oxygen_saturation
+  ) %>%
+  mutate(
+    unix = as.numeric(unix),
+    utc = ymd_hms(utc),
+    pst = ymd_hms(pst),
+    temp_c = as.numeric(temp_c),
+    do_mg_l = as.numeric(do_mg_l),
+    do_sat = as.numeric(do_sat)
+  )
+
+ggplot(data = gumboot_4)+
+  geom_line(aes(x = pst, y = do_mg_l))+
+  theme_classic()
+
 # 3. Remove "bad" data using field notes----------------------------------------
 
 #This code removes data that recorded when the sensors were out of the water
