@@ -35,7 +35,16 @@ cedar_2 <- read_csv(here('data/raw/cedar/cedar_hobo_2m_2021.10.14_raw.csv'), ski
          depth = '2m') %>%
   select(lake, date_time, temp_c, depth)
 
-cedar_3 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2021.08.28_raw.csv'), skip = 1) %>%
+cedar_3 <- read_csv(here('data/raw/cedar/cedar_hobo_2m_2022.06.11_raw.csv'), skip = 1) %>%
+  clean_names() %>% #clean names from HOBO software default
+  select(2,3) %>% #Only columns 2 and 3 have data
+  rename(date_time = 1, temp_c = 2) %>% #rename columns to more intuitive names from HOBO software defaults
+  mutate(date_time = mdy_hms(date_time),
+         lake = 'cedar',
+         depth = '2m') %>%
+  select(lake, date_time, temp_c, depth)
+  
+cedar_4 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2021.08.28_raw.csv'), skip = 1) %>%
   clean_names() %>% #clean names from HOBO software default
   select(2,3) %>% #Only columns 2 and 3 have data
   rename(date_time = 1, temp_c = 2) %>% #rename columns to more intuitive names from HOBO software defaults
@@ -44,7 +53,7 @@ cedar_3 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2021.08.28_raw.csv'
          depth = 'sediment') %>%
   select(lake, date_time, temp_c, depth)
 
-cedar_4 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2021.10.14_raw.csv'), skip = 1) %>%
+cedar_5 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2021.10.14_raw.csv'), skip = 1) %>%
   clean_names() %>% #clean names from HOBO software default
   select(2,3) %>% #Only columns 2 and 3 have data
   rename(date_time = 1, temp_c = 2) %>% #rename columns to more intuitive names from HOBO software defaults
@@ -52,10 +61,19 @@ cedar_4 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2021.10.14_raw.csv'
          lake = 'cedar',
          depth = 'sediment') %>%
   select(lake, date_time, temp_c, depth)
+
+cedar_6 <- read_csv(here('data/raw/cedar/cedar_hobo_sediment_2022.06.11_raw.csv'), skip = 1) %>% 
+  clean_names() %>% #clean names from HOBO software default
+  select(2,3) %>% #Only columns 2 and 3 have data
+  rename(date_time = 1, temp_c = 2) %>% #rename columns to more intuitive names from HOBO software defaults
+  mutate(date_time = mdy_hms(date_time),
+         lake = 'cedar',
+         depth = 'sediment') %>%
+  select(lake, date_time, temp_c, depth)  
 
 # Reading raw miniDOT data
 
-cedar_5 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.08.28_raw.txt'), delim = ',', skip = 7) %>%
+cedar_7 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.08.28_raw.txt'), delim = ',', skip = 7) %>%
   clean_names() %>%#clean names from miniDOT software default
   slice(-c(1)) %>%
   select(1,2,3,5,6,7) %>%
@@ -76,7 +94,7 @@ cedar_5 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.08.28_raw.txt'), delim
     do_sat = as.numeric(do_sat)
   )
 
-cedar_6 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.10.14_raw.txt'), delim = ',', skip = 7) %>%
+cedar_8 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.10.14_raw.txt'), delim = ',', skip = 7) %>%
   clean_names() %>%#clean names from miniDOT software default
   slice(-c(1)) %>%
   select(1,2,3,5,6,7) %>%
@@ -97,7 +115,7 @@ cedar_6 <- read_delim(here('data/raw/cedar/cedar_DOT_2021.10.14_raw.txt'), delim
     do_sat = as.numeric(do_sat)
   )
 
-cedar_7 <- read_delim(here('data/raw/cedar/cedar_DOT_2022.06.12_raw.txt'), delim = ',', skip = 7) %>%
+cedar_9 <- read_delim(here('data/raw/cedar/cedar_DOT_2022.06.12_raw.txt'), delim = ',', skip = 7) %>%
   clean_names() %>%#clean names from miniDOT software default
   slice(-c(1)) %>%
   select(1,2,3,5,6,7) %>%
@@ -139,48 +157,61 @@ cedar_2_cleaned <- cedar_2 %>%
 #eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
 #large storm on 6/14 prevented the redeployment of the cedar thermistor chain
 
-cedar_3_cleaned <- cedar_3 %>%
+cedar_3_cleaned <- cedar_3 %>% 
+  slice(-c(5689:5765)) %>% 
+  na.omit()
+#eliminates times after 2022.06.11 15:00:00, as the sensor was removed from the water
+#but not shut off for download.
+
+cedar_4_cleaned <- cedar_4 %>%
   slice(-c(1:41)) %>%
   na.omit()
 #this eliminates all times before 11:00am on 2021/06/15
 #HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
 #was necessary to filter data after retrieval. 
 
-cedar_4_cleaned <- cedar_4 %>%
+cedar_5_cleaned <- cedar_5 %>%
   slice(-c(1)) %>%
   slice(-c(1126:1158))
 #eliminates times when sensor was turned on, but not yet in water
 #eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
 #large storm on 6/14 prevented the redeployment of the cedar thermistor chain
 
-cedar_5_cleaned <- cedar_5 %>%
+cedar_6_cleaned <- cedar_6 %>% 
+  slice(-c(5689:5765)) %>% 
+  na.omit()
+#eliminates times after 2022.06.11 15:00:00, as the sensor was removed from the water
+#but not shut off for download.
+
+cedar_7_cleaned <- cedar_7 %>%
   slice(-c(1:312)) %>%
   slice(-c(10670:10672))
 #this eliminates all times before 11:00am on 2021/06/15
 #HOBO was turned off before the recording at 13:00 on 2021/08/28, so no action
 #was necessary to filter data after retrieval. 
 
-cedar_6_cleaned <- cedar_6 %>%
+cedar_8_cleaned <- cedar_8 %>%
   slice(-c(1:13)) %>%
   slice(-c(6740:6859))
 #eliminates times when sensor was turned on, but not yet in water
 #eliminates times when sensor was removed from water for download, but was recording air temps and oxygen
 #large storm on 6/14 prevented the redeployment of the cedar thermistor chain, but sensor remained on
 
-cedar_7_cleaned <- cedar_7 %>% 
-  filter(
-    pst >= 
-  )
+cedar_9_cleaned <- cedar_9 %>% 
+  slice(-c(1:57)) %>% 
+  slice(-c(34070:34281))
 
 # 4. Write cleaned data to processed folder-------------------------------------
 
 write_csv(cedar_1_cleaned, here('data/processed/cedar/cedar_hobo_2m_2021.08.28_cleaned.csv'))
 write_csv(cedar_2_cleaned, here('data/processed/cedar/cedar_hobo_2m_2021.10.14_cleaned.csv'))
-write_csv(cedar_3_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2021.08.28_cleaned.csv'))
-write_csv(cedar_4_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2021.10.14_cleaned.csv'))
-write_csv(cedar_5_cleaned, here('data/processed/cedar/cedar_DOT_2021.08.28_cleaned.csv'))
-write_csv(cedar_6_cleaned, here('data/processed/cedar/cedar_DOT_2021.10.14_cleaned.csv'))
-#write_csv(cedar_7_cleaned, here('data/processed/cedar/cedar_DOT_2022.06.12_cleaned.csv'))
+write_csv(cedar_3_cleaned, here('data/processed/cedar/cedar_hobo_2m_2022.06.11_cleaned.csv'))
+write_csv(cedar_4_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2021.08.28_cleaned.csv'))
+write_csv(cedar_5_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2021.10.14_cleaned.csv'))
+write_csv(cedar_6_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2022.06.11_cleaned.csv'))
+write_csv(cedar_7_cleaned, here('data/processed/cedar/cedar_DOT_2021.08.28_cleaned.csv'))
+write_csv(cedar_8_cleaned, here('data/processed/cedar/cedar_DOT_2021.10.14_cleaned.csv'))
+write_csv(cedar_9_cleaned, here('data/processed/cedar/cedar_DOT_2022.06.11_cleaned.csv'))
   
   
   
