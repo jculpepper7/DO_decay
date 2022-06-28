@@ -13,7 +13,7 @@ library(zoo) #for time series manipulation (e.g. rolling mean)
 
 # 1. Read cleaned, aggregated data----------------------------------------------
 
-cedar <- read_csv(here('data/processed/cedar/cedar_clean_agg_data.csv'),
+cedar <- read_csv(here('data/processed/cedar/cedar_clean_agg_data_2022.csv'),
                  guess_max = 80000) #use guess max to increase the number of 
                                     #rows that 'readr' reads prior to guess the     
                                     #column type. 
@@ -37,13 +37,13 @@ cedar_plt_non_avg <- ggplot(data = cedar)+
   theme(text = element_text(size = 20),
         axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
         axis.text.y = element_text(size = 20),
-        plot.title = element_text(hjust = 0.5))+
-  scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
+        plot.title = element_text(hjust = 0.5))
+  #scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
   #scale_color_viridis(discrete = TRUE, option = "D")+ #for colorblind friendly option
   #scale_x_date(breaks = "month", labels = date_format("%b %Y"))
 cedar_plt_non_avg
 
-ggsave(here('output/plots/cedar_20_21.png'), dpi = 500)
+ggsave(here('output/plots/cedar_20_21_22.png'), dpi = 300)
 
 ggplotly(cedar_plt_non_avg)
 
@@ -55,23 +55,31 @@ cedar_w_avg <- cedar %>%
     month = month(date_time),
     year = year(date_time)
   ) %>%
+  select(-date_time) %>% 
   group_by(depth, year, month, day) %>%
+  summarise(
+    temp_c = mean(temp_c),
+    do_mg_l = mean(do_mg_l),
+    do_sat = mean(do_sat),
+    light_intensity_lux = mean(light_intensity_lux),
+    ) %>% 
+  ungroup() %>% 
   mutate(
-    temp_c_avg = mean(temp_c),
-    do_mg_l_avg = mean(do_mg_l),
-    do_sat_avg = mean(do_sat),
-    daily = make_date(year = year, month = month, day = day)
-    )
+    date = make_date(year = year, month = month, day = day),
+    lake = c('cedar')
+  ) %>% 
+  select(lake, date, depth, light_intensity_lux, temp_c, do_mg_l, do_sat)
 
 # 4. data viz of averaged data (daily average)
 
-cedar_avg_plt <- ggplot(data = cedar_w_avg)+
-  #geom_line(aes(x = daily, y = temp_c_avg, color = depth), size = 1.5)+
-  geom_line(aes(x = date_time, y = do_mg_l), size = 1.5, color = 'black')+
+cedar_avg_plt <- ggplot(data = cedar_w_avg %>% filter(depth =='1m'))+
+  #geom_line(aes(x = date, y = temp_c, color = depth), size = 1.5)+
+  geom_line(aes(x = date, y = do_mg_l), size = 1.5)+
   theme_classic()
 cedar_avg_plt
+ggplotly(cedar_avg_plt)
 
-
+as.POSIXct('2021-04-07') - as.POSIXct('2021-03-18')
 # 5. Alt visualizations
 
 cedar_facet <- ggplot(data = cedar) +

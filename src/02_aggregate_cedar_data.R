@@ -28,49 +28,55 @@ library(plotly) #For interactive plots (if desired)
 
 #read data
 #read data from hobo U22 logger placed 2m from sediment  
-cedar_2m_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2020.06.18_cleaned.csv')) 
-cedar_2m_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2020.07.16_cleaned.csv'))
+cedar_2m_1 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2020.06.18_cleaned.csv')) 
+cedar_2m_2 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2020.07.16_cleaned.csv'))
 #for some reason, temp_c reading as a chr rather than num
 cedar_2m_2 <- cedar_2m_2 %>%
   mutate(temp_c = as.numeric(temp_c))%>%
   na.omit()
 #----------
-cedar_2m_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2020.10.10_cleaned.csv'))
-cedar_2m_4 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2021.06.12_cleaned.csv'))
-cedar_2m_5 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2021.08.28_cleaned.csv'))
-cedar_2m_6 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_2m_2021.10.14_cleaned.csv'))
+cedar_2m_3 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2020.10.10_cleaned.csv'))
+cedar_2m_4 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2021.06.12_cleaned.csv'))
+cedar_2m_5 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2021.08.28_cleaned.csv'))
+cedar_2m_6 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2021.10.14_cleaned.csv'))
+cedar_2m_7 <- read_csv(here('data/processed/cedar/cedar_hobo_2m_2022.06.11_cleaned.csv'))
 
 #read data from hobo U22 logger placed in sediment 
-cedar_sed_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2020.06.18_cleaned.csv'))
-cedar_sed_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2020.07.16_cleaned.csv'))
+cedar_sed_1 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2020.06.18_cleaned.csv'))
+cedar_sed_2 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2020.07.16_cleaned.csv'))
 #for some reason, temp_c reading as a chr rather than num
 cedar_sed_2 <- cedar_sed_2 %>%
   mutate(temp_c = as.numeric(temp_c))%>%
   na.omit()
 #----------
-cedar_sed_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2020.10.10_cleaned.csv'))
-cedar_sed_4 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2021.06.12_cleaned.csv'))
-cedar_sed_5 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2021.08.28_cleaned.csv'))
-cedar_sed_6 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_hobo_sediment_2021.10.14_cleaned.csv'))
+cedar_sed_3 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2020.10.10_cleaned.csv'))
+cedar_sed_4 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2021.06.12_cleaned.csv'))
+cedar_sed_5 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2021.08.28_cleaned.csv'))
+cedar_sed_6 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2021.10.14_cleaned.csv'))
+cedar_sed_7 <- read_csv(here('data/processed/cedar/cedar_hobo_sediment_2022.06.11_cleaned.csv'))
 
 #read data from hobo light pendant logger placed ~1m from surface 
-cedar_pend_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_light_pendant_2020.06.18_cleaned.csv'))
-cedar_pend_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_light_pendant_2020.07.16_cleaned.csv'))
-cedar_pend_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_light_pendant_2020.10.10_cleaned.csv'))
+cedar_pend_1 <- read_csv(here('data/processed/cedar/cedar_light_pendant_2020.06.18_cleaned.csv'))
+cedar_pend_2 <- read_csv(here('data/processed/cedar/cedar_light_pendant_2020.07.16_cleaned.csv'))
+cedar_pend_3 <- read_csv(here('data/processed/cedar/cedar_light_pendant_2020.10.10_cleaned.csv'))
+cedar_pend_4 <- read_csv(here('data/processed/cedar/cedar_light_pendant_2022.06.11_cleaned.csv'))
+cedar_pend_5 <- read_csv(here('data/processed/cedar/cedar_light_pendant_80cm_2022.06.11_cleaned.csv'))
+cedar_pend_6 <- read_csv(here('data/processed/cedar/cedar_light_pendant_150cm_2022.06.11_cleaned.csv'))
 
 #read data from miniDOT logger placed 1m from sediment 
-cedar_DOT_1 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2020.06.17_cleaned.csv'))
-cedar_DOT_2 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2020.07.15_cleaned.csv'))
-cedar_DOT_3 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2020.10.10_cleaned.csv'))
-cedar_DOT_4 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2021.06.11_cleaned.csv'))
-cedar_DOT_5 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2021.08.28_cleaned.csv'))
-cedar_DOT_6 <- read_csv(here::here('data', 'processed', 'cedar', 'cedar_DOT_2021.10.14_cleaned.csv'))
+cedar_DOT_1 <- read_csv(here('data/processed/cedar/cedar_DOT_2020.06.17_cleaned.csv'))
+cedar_DOT_2 <- read_csv(here('data/processed/cedar/cedar_DOT_2020.07.15_cleaned.csv'))
+cedar_DOT_3 <- read_csv(here('data/processed/cedar/cedar_DOT_2020.10.10_cleaned.csv'))
+cedar_DOT_4 <- read_csv(here('data/processed/cedar/cedar_DOT_2021.06.11_cleaned.csv'))
+cedar_DOT_5 <- read_csv(here('data/processed/cedar/cedar_DOT_2021.08.28_cleaned.csv'))
+cedar_DOT_6 <- read_csv(here('data/processed/cedar/cedar_DOT_2021.10.14_cleaned.csv'))
+cedar_DOT_7 <- read_csv(here('data/processed/cedar/cedar_DOT_2022.06.11_cleaned.csv'))
 
 #bind dataframes
-cedar_2m_all <- bind_rows(cedar_2m_1, cedar_2m_2, cedar_2m_3, cedar_2m_4, cedar_2m_5, cedar_2m_6)
-cedar_sed_all <- bind_rows(cedar_sed_1, cedar_sed_2, cedar_sed_3, cedar_sed_4, cedar_sed_5, cedar_sed_6)
-cedar_pend_all <- bind_rows(cedar_pend_1, cedar_pend_2, cedar_pend_3)
-cedar_DOT_all <- bind_rows(cedar_DOT_1, cedar_DOT_2, cedar_DOT_3, cedar_DOT_4, cedar_DOT_5, cedar_DOT_6) %>%
+cedar_2m_all <- bind_rows(cedar_2m_1, cedar_2m_2, cedar_2m_3, cedar_2m_4, cedar_2m_5, cedar_2m_6, cedar_2m_7)
+cedar_sed_all <- bind_rows(cedar_sed_1, cedar_sed_2, cedar_sed_3, cedar_sed_4, cedar_sed_5, cedar_sed_6, cedar_sed_7)
+cedar_pend_all <- bind_rows(cedar_pend_1, cedar_pend_2, cedar_pend_3, cedar_pend_4, cedar_pend_5, cedar_pend_6)
+cedar_DOT_all <- bind_rows(cedar_DOT_1, cedar_DOT_2, cedar_DOT_3, cedar_DOT_4, cedar_DOT_5, cedar_DOT_6, cedar_DOT_7) %>%
   mutate(
     date_time = pst, #add date_time as pst in order to bind the dataframe for easier plotting and data manipulation (averaging etc.)
     lake = c('cedar'),
@@ -80,7 +86,7 @@ cedar_DOT_all <- bind_rows(cedar_DOT_1, cedar_DOT_2, cedar_DOT_3, cedar_DOT_4, c
 #bind all dataframes 
 cedar_all_data <- bind_rows(cedar_2m_all, cedar_sed_all, cedar_pend_all, cedar_DOT_all)
 
-#write_csv(cedar_all_data, here('data/processed/cedar/cedar_clean_agg_data.csv'))
+write_csv(cedar_all_data, here('data/processed/cedar/cedar_clean_agg_data_2022.csv'))
 
 ######################################################################
 ######################################################################
@@ -102,7 +108,7 @@ cedar_all_data <- bind_rows(cedar_2m_all, cedar_sed_all, cedar_pend_all, cedar_D
 ######################################################################
 
 #visualize cedar
-cedar_plt <- ggplot(data = cedar_all_data, aes(x = date_time, y = do_mg_l))+
+cedar_plt <- ggplot(data = cedar_all_data, aes(x = date_time, y = temp_c))+
   geom_line(aes(color = depth), size = 2)+
   theme_classic()
 cedar_plt

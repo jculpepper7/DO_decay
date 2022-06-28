@@ -136,6 +136,38 @@ cedar_9 <- read_delim(here('data/raw/cedar/cedar_DOT_2022.06.12_raw.txt'), delim
     do_sat = as.numeric(do_sat)
   )
 
+# Reading light pendant data
+
+cedar_10 <- read_csv(here('data/raw/cedar/cedar_light_pendant_2022.06.11_raw.csv'), skip = 1) %>% 
+  mutate(
+    lake = c('cedar'),
+    depth = c('2.5m')
+  ) %>% 
+  select(lake, date_time = 2, temp_c = 3, light_intensity_lux = 4, depth) %>% 
+  mutate(
+    date_time = mdy_hms(date_time)
+  )
+
+cedar_11 <- read_csv(here('data/raw/cedar/cedar_light_pendant_80cm_2022.06.11_raw.csv'), skip = 1) %>% 
+  mutate(
+    lake = c('lake'),
+    depth = c('0.8m')
+  ) %>% 
+  select(lake, date_time = 2, temp_c = 3, light_intensity_lux = 4, depth) %>% 
+  mutate(
+    date_time = mdy_hms(date_time)
+  )
+
+cedar_12 <- read_csv(here('data/raw/cedar/cedar_light_pendant_150cm_2022.06.11_raw.csv'), skip = 1) %>% 
+  mutate(
+    lake = c('lake'),
+    depth = c('1.5m')
+  ) %>% 
+  select(lake, date_time = 2, temp_c = 3, light_intensity_lux = 4, depth) %>% 
+  mutate(
+    date_time = mdy_hms(date_time)
+  )
+
 # 3. Clean inappropriate data using field notes----------------------------------------
 
 #This code removes data that recorded when the sensors were out of the water
@@ -201,6 +233,28 @@ cedar_9_cleaned <- cedar_9 %>%
   slice(-c(1:57)) %>% 
   slice(-c(34070:34281))
 
+cedar_10_cleaned <- cedar_10 %>% 
+  slice(-c(5689:5765)) %>% 
+  na.omit()
+#eliminates times after 2022.06.11 15:00:00, as the sensor was removed from the water
+#but not shut off for download.
+
+cedar_11_cleaned <- cedar_11 %>% 
+  slice(-c(5689:5765)) %>% 
+  slice(-c(1:19)) %>% 
+  na.omit()
+#eliminates the first 19 observations before sensor was submerged
+#eliminates times after 2022.06.11 15:00:00, as the sensor was removed from the water
+#but not shut off for download.
+
+cedar_12_cleaned <- cedar_12 %>% 
+  slice(-c(5689:5765)) %>% 
+  slice(-c(1:19)) %>% 
+  na.omit()
+#eliminates the first 19 observations before sensor was submerged
+#eliminates times after 2022.06.11 15:00:00, as the sensor was removed from the water
+#but not shut off for download.
+
 # 4. Write cleaned data to processed folder-------------------------------------
 
 write_csv(cedar_1_cleaned, here('data/processed/cedar/cedar_hobo_2m_2021.08.28_cleaned.csv'))
@@ -212,6 +266,9 @@ write_csv(cedar_6_cleaned, here('data/processed/cedar/cedar_hobo_sediment_2022.0
 write_csv(cedar_7_cleaned, here('data/processed/cedar/cedar_DOT_2021.08.28_cleaned.csv'))
 write_csv(cedar_8_cleaned, here('data/processed/cedar/cedar_DOT_2021.10.14_cleaned.csv'))
 write_csv(cedar_9_cleaned, here('data/processed/cedar/cedar_DOT_2022.06.11_cleaned.csv'))
+write_csv(cedar_10_cleaned, here('data/processed/cedar/cedar_light_pendant_2022.06.11_cleaned.csv'))
+write_csv(cedar_11_cleaned, here('data/processed/cedar/cedar_light_pendant_80cm_2022.06.11_cleaned.csv'))
+write_csv(cedar_12_cleaned, here('data/processed/cedar/cedar_light_pendant_150cm_2022.06.11_cleaned.csv'))
   
   
   
