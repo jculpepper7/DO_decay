@@ -292,11 +292,78 @@ cal_ice_2019_2 <- cal %>%
          date_time >= as.POSIXct("2019-06-11"),
          date_time <= as.POSIXct("2019-08-18"))
 
+#Water year 2020
+cal_ice_2020 <- cal %>% 
+  filter(water_year == 2020,
+         lake == 'castle',
+         date_time >= as.POSIXct("2019-12-20"),
+         date_time <= as.POSIXct("2020-02-20"))
+
+#Period of increased DO while under ice to ice out
+cal_ice_2020_2 <- cal %>% 
+  filter(water_year == 2020,
+         lake == 'castle',
+         date_time >= as.POSIXct("2020-03-06"),
+         date_time <= as.POSIXct("2020-04-25"))
+
+#Period of ice our to increased DO
+cal_ice_2020_3 <- cal %>% 
+  filter(water_year == 2020,
+         lake == 'castle',
+         date_time >= as.POSIXct("2020-04-26"),
+         date_time <= as.POSIXct("2020-06-16"))
+
+#Final DO increase to anoxia
+cal_ice_2020_4 <- cal %>% 
+  filter(water_year == 2020,
+         lake == 'castle',
+         date_time >= as.POSIXct("2020-06-19"),
+         date_time <= as.POSIXct("2020-08-25"))
+
+#Water year 2021
+
+#Ice on to ice off
+cal_ice_2021 <- cal %>% 
+  filter(water_year == 2021,
+         lake == 'castle',
+         date_time >= as.POSIXct("2020-12-20"),
+         date_time <= as.POSIXct("2021-05-02"))
+
+#Ice off to DO increase
+cal_ice_2021_2 <- cal %>% 
+  filter(water_year == 2021,
+         lake == 'castle',
+         date_time >= as.POSIXct("2021-05-06"),
+         date_time <= as.POSIXct("2021-06-11"))
+
+#DO increase to DO 
+cal_ice_2021_3 <- cal %>% 
+  filter(water_year == 2021,
+         lake == 'castle',
+         date_time >= as.POSIXct("2021-06-13"),
+         date_time <= as.POSIXct("2021-07-17"))
+
+#Water year 2022
+
+#Ice on to anoxia
+cal_ice_2022 <- cal %>% 
+  filter(water_year == 2022,
+         lake == 'castle',
+         date_time >= as.POSIXct("2021-12-15"),
+         date_time <= as.POSIXct("2022-01-15"))
+
+#Trend changed after 2022-01-15
+cal_ice_2022_2 <- cal %>% 
+  filter(water_year == 2022,
+         lake == 'castle',
+         date_time >= as.POSIXct("2022-01-16"),
+         date_time <= as.POSIXct("2022-02-01"))
+
 #5. Apply changepoint analysis to DO  time series-------------------------------
 #NOTE: Chanegpoints indicate where DO variance changes
 
 #change data to time series format
-DO.ts <- ts(cal_ice_2019_2$do_mg_l, frequency = 365, start = as.POSIXct('2019-06-11'))
+DO.ts <- ts(cal_ice_2022_2$do_mg_l, frequency = 365, start = as.POSIXct('2022-01-16'))
 # DO.ts <- ts(MeanDaily.clipped[,grep('DO',names(MeanDaily.clipped))],frequency=365, start=c(year(MeanDaily$day[1]),
 #                                                                                                month(MeanDaily$day[1]),
 #                                                                                                day(MeanDaily$day[1])))
@@ -320,7 +387,7 @@ chgpts <- out@cpts
 #6. Split time series at discovered changepoints--------------------------------
 #NOTE: Number of changepoints  will vary by dataset
 
-DO.data <- cal_ice_2019_2 %>% 
+DO.data <- cal_ice_2022_2 %>% 
   mutate(
     day = day(date_time)
   )
@@ -352,7 +419,7 @@ DO.ts2 <- DO.data[(chgpts[1]+1):chgpts[2],]
 # pacf(DO.ts1[,grep('DO',names(DO.ts1))])#check pacf to see how much AR makes sense...
 kpss1 <-kpss.test(DO.ts1$do_mg_l, null="Level") #Test checks for stationary data. p value > 0.01 indicates stationary data
 pacf(DO.ts1$do_mg_l) #check pacf to see how much AR makes sense...
-fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,5), include.constant=TRUE)
+fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,0), include.constant=TRUE)
 summary(fit1) #drift gives the slope of the time series
 checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that the residuals are independently distributed
 #plot(fit1$fitted)
@@ -362,7 +429,7 @@ checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that
 #check if data is stationary around a level (if not, should have small p-value)
 kpss2 <- kpss.test(DO.ts2$do_mg_l, null="Level")
 pacf(DO.ts2$do_mg_l)
-fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,0), include.constant=TRUE)
+fit2 <- Arima(DO.ts2$do_mg_l,order=c(2,1,0), include.constant=TRUE)
 summary(fit2)
 checkresiduals(fit2)
 
@@ -370,7 +437,7 @@ checkresiduals(fit2)
 #check if data is stationary around a mean level (if not, should have small p-value)
 kpss3 <-kpss.test(DO.ts3$do_mg_l, null="Level")
 pacf(DO.ts3$do_mg_l)
-fit3 <- Arima(DO.ts3$do_mg_l,order=c(0,1,0), include.constant=TRUE)
+fit3 <- Arima(DO.ts3$do_mg_l,order=c(1,1,0), include.constant=TRUE)
 summary(fit3)
 checkresiduals(fit3)
  
@@ -420,12 +487,12 @@ checkresiduals(fit7)
 
 output.list <- list(DO.data, 
                     chgpts.dates, 
-                    DO.ts1, #DO.ts2,# DO.ts3, DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
-                    kpss1, #kpss2,# kpss3, kpss4, kpss5, kpss6, kpss7,
-                    fit1#, fit2#, fit3, fit4, fit5, fit6, fit7
+                    DO.ts1, #DO.ts2, #DO.ts3, #DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
+                    kpss1, #kpss2, #kpss3, #kpss4, kpss5, kpss6, kpss7,
+                    fit1#, fit2#, fit3#, fit4, fit5, fit6, fit7
                     )
 
-save(output.list, file = paste('castle','2019','arima_output.Rdata', sep="_"))
+save(output.list, file = paste('castle','2022_2','arima_output.Rdata', sep="_"))
 
 
 #ARIMA values
@@ -433,7 +500,17 @@ save(output.list, file = paste('castle','2019','arima_output.Rdata', sep="_"))
 #Castle 2018 2 - section 1 (1,1,0), section 2 (0,1,0)
 #Castle 2018 3 - section 1 (1,1,0), section 2 (1,1,0)
 #Castle 2018 4 - section 1 (1,1,1), section 2 (0,1,0)
-#Castle 2019 - section 1 (1,1,5)
+#Castle 2019 - section 1 (1,1,0), section 2 (1,1,0)
+#Castle 2019 2 - section 1 (1,1,5)
+#Castle 2020 - section 1 (1,1,0), section 2 (1,1,0)
+#Castle 2020 2 - section 1 (1,1,0)
+#Castle 2020 3 - section 1 (1,1,1), section 2 (0,1,0), section 3 (1,1,0)
+#Castle 2020 4 - section 1 (1,1,0), section 2 (1,1,0)
+#Castle 2021 - section 1 (1,1,0), section 2 (2,1,0)
+#Castlle 2021 2 - section (1,1,0)
+#Castle 2021 3 - section 1 (1,1,0)
+#Castle 2022 - section 1 (1,1,0)
+#Castle 2022 -  section (1,1,0)
 #Cedar 2020 - section 1 (1,1,1), section 2 (1,1,0) 
 #Cedar 2021 - section 1 (1,1,2), section 2 (1,1,0)
 #Cedar 2022 - section 1 (1,1,2)

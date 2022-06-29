@@ -86,13 +86,14 @@ ggplotly(cal_full_fixed)
 
 # Water year 2020 -- ice on: 2019-12-20, ice off: 2020-04-25
 #First: 2019-12-20 through 2020-02-20 prior to DO increase while under ice
-#Second: 2020-03-06 through 2020-06-16 prior to a second bump in DO
-#Third: 2020-06-19 through 2020-08-25 I included a short break from missing data, but the general trend continued.
+#Second: 2020-03-06 through 2020-04-25 from increase in DO to ice off
+#Third: 2020-04-26 through 2020-06-16 from ice off to a second bump in DO
+#Fourth: 2020-06-19 through 2020-08-25 I included a short break from missing data, but the general trend continued.
 
 #Water year 2021 -- ice on: 2020-12-20, ice off: 2021-05-02
 #First: 2020-12-20 through 2021-05-02
-#second: 2021-05-06 through 2021.06.11
-#Third: 2021-06-03 through 2021-07-03 (through to anoxia)
+#second: 2021-05-06 through 2021-06-11
+#Third: 2021-06-13 through 2021-07-17 (through to anoxia)
 
 #Water year 2022 -- ice on: 2021-12-15, ice off: 2022-04-02
 #First: 2021-12-15 through 2022-01-15 -- trend significantly changes after 2022-02-15 
