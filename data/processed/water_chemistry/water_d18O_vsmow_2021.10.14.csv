@@ -1,9 +1,3 @@
-lakename,date,depth,d18O_vsmow,dD_vsmow
-CDR,2021.10.14,0m,-8.6,-75
-CDR,2021.10.14,2m,-8.6,-74
-CDR,2021.10.14,4m,-8.6,-74
-GB,2021.10.14,0m,-4.7,-58
-GB,2021.10.14,2m,-4.8,-58
-GB,2021.10.14,4m,-4.6,-57
-SS,2021.10.14,0m,1.4,-29
-SS,2021.10.14,sed,1.5,-28
+version https://git-lfs.github.com/spec/v1
+oid sha256:f626d75733e80696d65708d2576a9cc60edc9223cf17124a79e66c06554ae8e8
+size 259

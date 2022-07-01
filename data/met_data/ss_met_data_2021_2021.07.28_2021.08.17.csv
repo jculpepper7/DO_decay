@@ -1,7 +1,3 @@
-﻿,"(deg C) Mean Temperature (gridMET), Polygon 1 ,2021-08-10 to 2021-08-15","(W/m2) Downward Shortwave Radiation (gridMET), Polygon 1 ,2021-08-10 to 2021-08-15"
-"2021-08-10",22.35,327
-"2021-08-11",23.35,323.7
-"2021-08-12",23,317.7
-"2021-08-13",23.2,294.3
-"2021-08-14",24,246.2
-"2021-08-15",23.7,311.9
+version https://git-lfs.github.com/spec/v1
+oid sha256:1c4c1627dfb017b74c6773a5a14f635bcdc66f66a7219671bdd5a9c233b2d438
+size 302
