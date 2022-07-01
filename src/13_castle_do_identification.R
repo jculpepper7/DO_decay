@@ -96,8 +96,8 @@ ggplotly(cal_full_fixed)
 #Third: 2021-06-13 through 2021-07-17 (through to anoxia)
 
 #Water year 2022 -- ice on: 2021-12-15, ice off: 2022-04-02
-#First: 2021-12-15 through 2022-01-15 -- trend significantly changes after 2022-02-15 
-#Second: 2022-01-16 through 2022-02-01 -- this is the remaining decay to complete annoxia
+#First: 2021-12-15 through 2022-01-15 -- trend significantly changes after 2022-01-15 
+#Second: 2022-01-16 through 2022-02-01 -- this is the remaining decay to complete anoxia
 
 
 
