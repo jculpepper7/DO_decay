@@ -255,9 +255,9 @@ str(water_d18O_vsmow_4)
 water_d18O_vsmow <- bind_rows(water_d18O_vsmow_1, water_d18O_vsmow_2, water_d18O_vsmow_3, water_d18O_vsmow_4) %>%
   arrange(lakename, date)
 
-#2. Visualize the imported data-------------------------------------------------
+# 2. Visualize the imported data------------------------------------------------
 
-#ash free dry mass viz----------------------------------------------------------
+# 2a. ash free dry mass viz-----------------------------------------------------
 
 dry_mass_plt <- ggplot(data = ash_free_dry_mass)+
   geom_point(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 5)+
@@ -270,7 +270,7 @@ dry_mass_plt <- ggplot(data = ash_free_dry_mass)+
   
 dry_mass_plt
 
-#sediment C:N ratio viz---------------------------------------------------------
+# 2b. sediment C:N ratio viz----------------------------------------------------
 
 sed_C_and_N_plt <- ggplot(data = sediment_CN)+
   geom_point(aes(x = date, y = C_mcgC_g, color = lakename), size = 5)+
@@ -296,7 +296,7 @@ sed_CN_plt <- ggplot(data = sediment_CN)+
 
 sed_CN_plt
 
-#water chemistry viz------------------------------------------------------------
+# 2c. water chemistry viz-------------------------------------------------------
 
 #Here I'm trying to reorder the lakename and depth so that the depths will be "stacked" on top of one another, rather than side-by-side (as they are currently in the below ggplot)
 water_chem_reorder <- water_chem %>%
@@ -324,7 +324,7 @@ water_chem_plt <- ggplot(data = water_chem_reorder)+
   xlab('')
 water_chem_plt  
   
-#water column C:N ratio viz-----------------------------------------------------
+# 2d. water column C:N ratio viz------------------------------------------------
 
 water_CN_plt <- ggplot(data = water_CN)+
   geom_point(aes(x = date, y = CN_ratio, color = depth), size = 5)+
@@ -337,7 +337,7 @@ water_CN_plt <- ggplot(data = water_CN)+
   facet_wrap(~lakename, ncol = 1)
 water_CN_plt
 
-#dO18 isotope viz---------------------------------------------------------------
+# 2e. dO18 isotope viz----------------------------------------------------------
 
 d18O_isotope_plt <- ggplot(data = d18_isotope)+
   geom_point(aes(x = date, y = O2_d18O, color = depth), size = 5)+
@@ -349,16 +349,219 @@ d18O_isotope_plt <- ggplot(data = d18_isotope)+
   facet_wrap(~lakename+sample,  ncol =2)
 d18O_isotope_plt
 
-#water d18O VSMOW viz-----------------------------------------------------------
+# 2f. water d18O VSMOW viz------------------------------------------------------
 
 water_isotope <- ggplot(data = water_d18O_vsmow)+
-  geom_point(aes(x = date, y = ))
+  geom_line(aes(x = date, y = d18O_vsmow, color = depth), size = 2)+
+  theme_classic()+
+  facet_wrap(~lakename)
+water_isotope  
+
+# 3. Averaging across depth and whole lake--------------------------------------
+
+# 3a. Mean ash-free drymass (grams)----
+
+afdm_mean <- ash_free_dry_mass %>% 
+  group_by(lakename) %>% 
+  summarise(
+    afdm_mean = mean(ash_free_dry_mass),
+    afdm_median = median(ash_free_dry_mass)
+  )
+
+# 3b. Mean sediment C:N ratio----
+
+sediment_CN_mean <- sediment_CN %>% 
+  filter(duplicate == 'no') %>% 
+  na.omit() %>% 
+  group_by(lakename) %>% 
+  summarise(
+    mass_mcg_mean = mean(mass_mcg),
+    mass_mcg_med = median(mass_mcg),
+    C_mcgC_g_mean = mean(C_mcgC_g),
+    C_mcgC_g_med = median(C_mcgC_g),
+    N_mcgN_g_mean = mean(N_mcgN_g),
+    N_mcgN_g_med = median(N_mcgN_g),
+    CN_ratio_mean = mean(CN_ratio),
+    CN_ratio_med = median(CN_ratio)
+  )
+
+# 3c. Mean water chemistry----
+
+#water chem by lake and depth
+water_chem_mean <- water_chem %>% 
+  select(-time) %>% 
+  group_by(lakename, species, depth_m) %>% 
+  summarise(
+    mean = mean(ppb),
+    med = median(ppb)
+  ) %>% 
+  pivot_wider(names_from = species, values_from = c(mean, med))
+
+#water chem averaged over whole lake
+water_chem_mean_total <-  water_chem %>% 
+  group_by(lakename, species) %>% 
+  summarise(
+    mean_total = mean(ppb),
+    med_total = median(ppb)
+  )
+
+# 3d. Water CN average----
+
+water_CN_mean <- water_CN %>% 
+  group_by(lakename, depth) %>% 
+  summarise(
+    C_ug_L_mean = mean(na.omit(C_ug_L)),
+    N_ug_L_mean = mean(na.omit(N_ug_L)),
+    CN_ratio_mean = mean(na.omit(CN_ratio)),
+    C_ug_L_med = median(na.omit(C_ug_L)),
+    N_ug_L_med = median(na.omit(N_ug_L)),
+    CN_ratio_med = median(na.omit(CN_ratio))
+  )
+
+# 3e. Water CN total average----
+
+water_CN_total_mean <- water_CN %>% 
+  group_by(lakename) %>% 
+  summarise(
+    C_ug_L_mean_total = mean(na.omit(C_ug_L)),
+    N_ug_L_mean_total = mean(na.omit(N_ug_L)),
+    CN_ratio_mean_total = mean(na.omit(CN_ratio)),
+    C_ug_L_med_total = median(na.omit(C_ug_L)),
+    N_ug_L_med_total = median(na.omit(N_ug_L)),
+    CN_ratio_med_total = median(na.omit(CN_ratio))
+  )
+
+# 3f. Oxygen isotope averaging----
+
+isotope_avg <- d18_isotope %>% 
+  group_by(lakename, depth) %>% 
+  summarise(
+    O2_d18O_mean = mean(na.omit(O2_d18O)),
+    O2_d18O_med = median(na.omit(O2_d18O))
+  )
+
+# 3g. Oxygen isotope total averaging----
+
+isotope_total_avg <- d18_isotope %>% 
+  group_by(lakename) %>% 
+  summarise(
+    O2_d18O_mean_total = mean(na.omit(O2_d18O)),
+    O2_d18O_med_total = median(na.omit(O2_d18O))
+  )
+
+# 3h. d18O VSMOW averaging----
+
+VSMOW_avg <- water_d18O_vsmow %>% 
+  group_by(lakename, depth) %>% 
+  summarise(
+    d18O_vsmow_mean = mean(na.omit(d18O_vsmow)),
+    d18O_vsmow_med = median(na.omit(d18O_vsmow)),
+    dD_vsmow_mean = mean(na.omit(dD_vsmow)),
+    dD_vsmow_med = median(na.omit(dD_vsmow))
+  )
+
+# 3i. d18O VSMOW total averaging----
+
+VSMOW_total_avg <- water_d18O_vsmow %>% 
+  group_by(lakename) %>% 
+  summarise(
+    d18O_vsmow_total_mean = mean(na.omit(d18O_vsmow)),
+    d18O_vsmow_total_med = median(na.omit(d18O_vsmow)),
+    dD_vsmow_total_mean = mean(na.omit(dD_vsmow)),
+    dD_vsmow_total_med = median(na.omit(dD_vsmow))
+  )
+
+# 4. Combine the averaged values------------------------------------------------
+
+# 4a. Combine by lake----
+
+mean_val_by_lake <- afdm_mean %>% 
+  full_join(sediment_CN_mean, by = 'lakename') %>%  
+  full_join(water_chem_mean_total, by = 'lakename') %>% 
+  full_join(water_CN_total_mean, by = 'lakename') %>% 
+  full_join(isotope_total_avg, by = 'lakename') %>% 
+  full_join(VSMOW_total_avg, by = 'lakename')
   
+# 4b Combine by lake and depth----
 
+mean_val_by_depth <- water_chem_mean %>% 
+  rename(depth = depth_m) %>% 
+  full_join(water_CN_mean) %>% 
+  full_join(isotope_avg) %>% 
+  full_join(VSMOW_avg)
 
+# 5. Visualize water chemistry--------------------------------------------------
 
+# 5a. NH4 plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = mean_nh4_ppb, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'NH4 [ppb]')
 
+#ggsave(here('output/water_chem_boxplots/nh4.jpeg'), dpi = 300)  
 
+# 5b. NO3-NO2 plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = mean_no3_no2_ppb, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'NO3-NO2 [ppb]')
 
+#ggsave(here('output/water_chem_boxplots/no3_no2.jpeg'), dpi = 300) 
+
+# 5c. SRP plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = mean_srp_ppb, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'SRP [ppb]')
+
+#ggsave(here('output/water_chem_boxplots/srp.jpeg'), dpi = 300) 
+
+# 5d. TP plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = mean_tp_ppb, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'TP [ppb]')
+
+#ggsave(here('output/water_chem_boxplots/tp.jpeg'), dpi = 300) 
+
+# 5e. C ug_L plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = C_ug_L_mean, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'C [ug/L]')
+
+#ggsave(here('output/water_chem_boxplots/C_ug_L.jpeg'), dpi = 300) 
+
+# 5f. N ug_L plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = N_ug_L_mean, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'N [ug/L]')
+
+#ggsave(here('output/water_chem_boxplots/N_ug_L.jpeg'), dpi = 300) 
+
+# 5g. C:N ratio plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = CN_ratio_mean, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'C:N')
+
+#ggsave(here('output/water_chem_boxplots/CN_ratio.jpeg'), dpi = 300) 
+
+# 5h. O2_d18O_mean plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = O2_d18O_mean, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'd18O')
+
+#ggsave(here('output/water_chem_boxplots/O2_d18O_mean.jpeg'), dpi = 300) 
+
+# 5i. d18O_vsmow_mean plots----
+ggplot(data = mean_val_by_depth)+
+  geom_boxplot(aes(x = lakename, y = d18O_vsmow_mean, fill = lakename))+
+  theme_classic()+
+  labs( x = '', y = 'VSMOW')
+
+#ggsave(here('output/water_chem_boxplots/d18O_vsmow_mean.jpeg'), dpi = 300) 
 
 
