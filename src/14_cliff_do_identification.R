@@ -212,10 +212,3 @@ cliff_temp_plt <- ggplot(data = cliff)+
   facet_wrap(~water_year)
 cliff_temp_plt  
 
-
-
-
-
-
-
-
