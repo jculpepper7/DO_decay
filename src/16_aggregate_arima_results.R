@@ -9,7 +9,7 @@ library(here)
 library(janitor)
 library(lubridate)
 
-# 2. Import data----------------------------------------------------------------
+# 2. Import Castle data----------------------------------------------------------------
 
 # 2a. Castle 2018 1----
 load(here('output/ARIMA_results/castle_2018_arima_output.Rdata'))
@@ -156,7 +156,9 @@ cal_results_2022_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('castle_2022_2.1')
   ) 
 
-# 2p. Cedar 2020 1----
+# 3. Import Cedar data-----------------------------------------------
+
+# 3a. Cedar 2020 1----
 load(here('output/ARIMA_results/cedar_2020_arima_output.Rdata'))
 
 cdr_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -166,5 +168,189 @@ cdr_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cedar_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
+# 3b. Cedar 2021 1----
+load(here('output/ARIMA_results/cedar_2021_arima_output.Rdata'))
 
+cdr_results_2021 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cedar_2021_1.1')
+  ) %>% 
+  add_row(segment = 'cedar_2021_1.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+# 3c. Cedar 2022 1----
+load(here('output/ARIMA_results/cedar_2022_arima_output.Rdata'))
+
+cdr_results_2022 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cedar_2022_1.1')
+  ) 
+
+# 4. Import Cliff data-----------------------------------------------
+
+# 4a. Cliff 2020 1----
+load(here('output/ARIMA_results/cliff_2020_arima_output.Rdata'))
+
+clf_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2020_1.1')
+  ) %>% 
+  add_row(segment = 'cliff_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+# 4b. Cliff 2021 1----
+load(here('output/ARIMA_results/cliff_2021_arima_output.Rdata'))
+
+clf_results_2021 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2021_1.1')
+  ) 
+
+# 5. Import Gumboot data---------------------------------------------
+
+# 5a. Gumboot 2020 1----
+load(here('output/ARIMA_results/gumboot_2020_arima_output.Rdata'))
+
+gb_results_2020_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('gumboot_2020_1.1')
+  ) %>% 
+  add_row(segment = 'gumboot_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+# 5b. Gumboot 2020 2----
+load(here('output/ARIMA_results/gumboot_2020_2_arima_output.Rdata'))
+
+gb_results_2020_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('gumboot_2020_2.1')
+  )
+
+# 5c. Gumboot 2021 1----
+load(here('output/ARIMA_results/gumboot_2021_arima_output.Rdata'))
+
+gb_results_2021_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('gumboot_2021_1.1')
+  ) %>% 
+  add_row(segment = 'gumboot_2021_1.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+# 5d. Gumboot 2022 1----
+load(here('output/ARIMA_results/gumboot_2022_arima_output.Rdata'))
+
+gb_results_2022_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('gumboot_2022_1.1')
+  ) 
+
+# 6. Import Soapstone data-------------------------------------------
+
+# 6a. Soapstone 2020 1----
+load(here('output/ARIMA_results/soapstone_2020_arima_output.Rdata'))
+
+ss_results_2020_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('soapstone_2020_1.1')
+  )
+
+# 6b. Soapstone 2020 2----
+load(here('output/ARIMA_results/soapstone_2020_2_arima_output.Rdata'))
+
+ss_results_2020_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('soapstone_2020_2.1')
+  ) %>% 
+  add_row(segment = 'soapstone_2020_2.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+# 6c. Soapstone 2021 1----
+load(here('output/ARIMA_results/soapstone_2021_arima_output.Rdata'))
+
+ss_results_2021_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('soapstone_2021_1.1')
+  ) 
+
+# 6d. Soapstone 2021 2----
+load(here('output/ARIMA_results/soapstone_2021_2_arima_output.Rdata'))
+
+ss_results_2021_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('soapstone_2021_2.1')
+  )
+
+# 6e. Soapstone 2022 1----
+load(here('output/ARIMA_results/soapstone_2022_arima_output.Rdata'))
+
+ss_results_2022_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('soapstone_2022_1.1')
+  ) %>% 
+  add_row(segment = 'soapstone_2022_1.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+# 7. Aggregate all lake DO decay rates-------------------------------------
+
+# Bind the above data
+
+do_decay <- bind_rows(
+  cal_results_2018_1, cal_results_2018_2, cal_results_2018_3, cal_results_2018_4,
+  cal_results_2019_1, cal_results_2019_2,
+  cal_results_2020_1, cal_results_2020_2, cal_results_2020_3, cal_results_2020_4,
+  cal_results_2021_1, cal_results_2021_2, cal_results_2021_3,
+  cal_results_2022_1, cal_results_2022_2,
+  cdr_results_2020, cdr_results_2021, cdr_results_2022,
+  clf_results_2020, clf_results_2021,
+  gb_results_2020_1, gb_results_2020_2,
+  gb_results_2021_1, 
+  gb_results_2022_1,
+  ss_results_2020_1, ss_results_2020_2,
+  ss_results_2021_1, ss_results_2021_2,
+  ss_results_2022_1
+) %>% 
+  separate(segment, c('lake', 'water_year', 'segment', 'changepoint'))
+
+write_csv(do_decay, here('output/ARIMA_results/do_decay_aggregated.csv'))
+
+# 8. Summary statistics-----------------------------------------------
+
+do_decay_summary <- do_decay %>% 
+  group_by(lake, water_year) %>% 
+  summarise(
+    mean = mean(drift),
+    median = median(drift),
+    max = max(drift),
+    min = min(drift)
+  )
+
+do_decay_summary_lake <- do_decay %>% 
+  group_by(lake) %>% 
+  summarise(
+    mean = mean(drift),
+    median = median(drift),
+    max = max(drift),
+    min = min(drift)
+  )
+
+# 9. Data visualization-----------------------------------------------
+
+ggplot(data = do_decay)+
+  geom_point(aes(x = water_year, y = drift, color = lake, shape = changepoint), stroke = 1, size = 4)+
+  theme_classic()+
+  facet_wrap(~segment, scales = 'free')
+
+ggplot(data = do_decay)+
+  geom_boxplot(aes(x = lake, y = drift))+
+  geom_jitter(aes(x = lake, y = drift, fill = water_year), pch = 21, width = 0.2, size = 3, stroke = 1.2)+
+  theme_classic()
+
+ggsave(here('output/ARIMA_results/do_decay_boxplot.jpeg'), dpi = 300)
 
