@@ -350,7 +350,8 @@ ggplot(data = do_decay)+
 ggplot(data = do_decay)+
   geom_boxplot(aes(x = lake, y = drift))+
   geom_jitter(aes(x = lake, y = drift, fill = water_year), pch = 21, width = 0.2, size = 3, stroke = 1.2)+
-  theme_classic()
+  theme_classic()+
+  facet_wrap(~lake, scales = 'free')
 
-ggsave(here('output/ARIMA_results/do_decay_boxplot.jpeg'), dpi = 300)
+#ggsave(here('output/ARIMA_results/do_decay_boxplot.jpeg'), dpi = 300)
 
