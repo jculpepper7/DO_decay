@@ -564,4 +564,322 @@ ggplot(data = mean_val_by_depth)+
 
 #ggsave(here('output/water_chem_boxplots/d18O_vsmow_mean.jpeg'), dpi = 300) 
 
+# 5j. DOC and TN mean plots----
+
+doc_tn <- read_csv(here('data/processed/water_chemistry/shallow_lake_nutrients.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+doc_tn_mean <- doc_tn %>% 
+  mutate(
+    year = year(date),
+    month = month(date),
+    day = day(date)
+  ) %>% 
+  group_by(lake) %>% 
+  summarise(
+    tn_ppb_mean = mean(tn_ppb),
+    tn_ppb_med = median(tn_ppb),
+    doc_ppm_mean = mean(doc_ppm),
+    doc_ppm_med = median(doc_ppm)
+  ) %>%
+  ungroup()
+
+# 5k. TN plot----
+ggplot(data = doc_tn)+
+  geom_boxplot(aes(x = lake, y = tn_ppb, fill = lake))+
+  theme_classic()
+
+#ggsave(here('output/water_chem_boxplots/tn_ppb.jpeg'), dpi = 300)
+
+# 5l. DOC plot----
+ggplot(data = doc_tn)+
+  geom_boxplot(aes(x = lake, y = doc_ppm, fill = lake))+
+  theme_classic()
+
+#ggsave(here('output/water_chem_boxplots/doc_ppm.jpeg'), dpi = 300)
+
+# 6. Castle and cliff water chemistry, chl-a, and PPr---------------------------
+
+#NOTE: Castle and Cliff data collected by Castle Lake reseach team. See
+#      script_00 for data citations
+
+# 6a. Import Castle and Cliff data----
+
+#Castle DOC
+cal_doc <- read_csv(here('data/nutrients/cal_clf_DIC_DOC_TN/castle_doc.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+#Cliff DOC
+clf_doc <- read_csv(here('data/nutrients/cal_clf_DIC_DOC_TN/cliff_doc.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+#Castle TN
+cal_tn <- read_csv(here('data/nutrients/cal_clf_DIC_DOC_TN/castle_tn.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  ) %>% 
+  rename(tn_ppb = tn_ppm) %>% 
+  filter(tn_ppb>0)
+
+#Cliff TN
+clf_tn <- read_csv(here('data/nutrients/cal_clf_DIC_DOC_TN/cliff_tn.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  ) %>% 
+  rename(tn_ppb = tn_ppm) %>% 
+  filter(tn_ppb>0)
+
+# 6b. Combine datasets----
+
+cal_clf_doc_tn <- bind_rows(cal_doc, clf_doc, cal_tn, clf_tn) 
+
+# 6c. DOC data viz----
+ggplot(data = cal_clf_doc_tn %>% filter(doc_ppm<13))+ #eliminate two strong outliers
+  geom_boxplot(aes(x = lake, y = doc_ppm, fill = lake))+
+  geom_jitter(aes(x = lake, y = doc_ppm, fill = lake, color = year(date)), size = 1)+
+  theme_classic()+
+  scale_color_viridis()+
+  facet_wrap(~year(date))
+
+#ggsave(here('output/water_chem_boxplots/cal_clf_DOC_yearly.jpeg'), dpi = 300)
+
+# 6d. TN data viz----
+ggplot(data = cal_clf_doc_tn)+
+  geom_boxplot(aes(x = lake, y = tn_ppb, fill = lake))+
+  geom_jitter(aes(x = lake, y = tn_ppb, fill = lake, color = year(date)), size = 1)+
+  theme_classic()+
+  scale_color_viridis()+
+  facet_wrap(~year(date))
+
+#ggsave(here('output/water_chem_boxplots/cal_clf_TN_yearly.jpeg'), dpi = 300)
+
+# 6e. Import shallow lakes DOC and TN----
+
+shallow_lake_doc_tn <- read_csv(here('data/processed/water_chemistry/shallow_lake_nutrients.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+# 6f. DOC data viz----
+ggplot(data = shallow_lake_doc_tn)+ 
+  geom_boxplot(aes(x = lake, y = doc_ppm, fill = lake))+
+  #geom_jitter(aes(x = lake, y = doc_ppm, fill = lake))+
+  theme_classic()+
+  scale_color_viridis()
+
+ggsave(here('output/water_chem_boxplots/shallow_DOC.jpeg'), dpi = 300)
+
+# 6g. TN data viz----
+ggplot(data = shallow_lake_doc_tn)+
+  geom_boxplot(aes(x = lake, y = tn_ppb, fill = lake))+
+  #geom_jitter(aes(x = lake, y = tn_ppb, fill = lake))+
+  theme_classic()+
+  scale_color_viridis()
+
+ggsave(here('output/water_chem_boxplots/shallow_TN.jpeg'), dpi = 300)
+
+# 7. Water chemistry------------------------------------------------------------
+
+# 7a. Import Chl-a data----
+
+cal_chla <- read_csv(here('data/nutrients/cal_clf_nutrients/cal_chla.csv')) %>% 
+  select(1:4) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+# 7b. Import Chl-a data----
+
+clf_chla <- read_csv(here('data/nutrients/cal_clf_nutrients/clf_chla.csv')) %>% 
+  select(1:4) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+# 7c. Combine data----
+
+cal_clf_chla <- bind_rows(cal_chla, clf_chla)
+
+# 7b. Plot Chl-a----
+
+ggplot(data = cal_clf_chla %>% filter(chla_ug_l<3.5))+ #removing outliers 
+  geom_boxplot(aes(x = lake, y = chla_ug_l, fill = lake))+
+  #geom_jitter(aes(x = lake, y = chla_ug_l, color = year(date)))+
+  theme_classic()
+
+#ggsave(here('output/water_chem_boxplots/cal_clf_chla.jpeg'), dpi = 300)
+
+# 7c. Import PPr----
+
+#Castle PPr
+cal_ppr <- read_csv(here('data/nutrients/cal_clf_nutrients/cal_ppr.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+#Cliff PPr
+clf_ppr <- read_csv(here('data/nutrients/cal_clf_nutrients/clf_ppr.csv')) %>% 
+  mutate(
+    date = mdy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+
+# 7d. Combine data----
+cal_clf_ppr <- bind_rows(cal_ppr, clf_ppr)
+
+# 7e. Plot Castle and Cliff PPr----
+ggplot(data = cal_clf_ppr)+
+  geom_boxplot(aes(x = lake, y = net_ppr, fill = lake))+
+  #geom_jitter(aes(x = lake, y = net_ppr))+
+  theme_classic()+
+  facet_wrap(~year(date))
+
+# 7f. Import water chemistry----
+
+#Castle water chem
+cal_chem <- read_csv(here('data/nutrients/cal_clf_nutrients/cal_water_chemistry.csv')) %>% 
+  clean_names() %>% 
+  mutate(
+    date = dmy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth_m),
+    nh4_ppb = as.numeric(nh4_n_ppb),
+    no3_no2_ppb = as.numeric(no3_n_ppb),
+    srp_ppb = as.numeric(srp_p_ppb),
+    tp_ppb = as.numeric(tp_ppb)
+  ) %>% 
+  select(date, lake, depth, nh4_ppb, no3_no2_ppb, srp_ppb, tp_ppb) %>% 
+  mutate( #negative values are a math artifact, indicating concentration is "below detectable limits". Removing those values
+    nh4_ppb = replace(nh4_ppb, which(nh4_ppb<0), NA),
+    no3_no2_ppb = replace(no3_no2_ppb, which(no3_no2_ppb<0), NA),
+    srp_ppb = replace(srp_ppb, which(srp_ppb<0), NA),
+    tp_ppb = replace(tp_ppb, which(tp_ppb<0), NA)
+  )
+
+#Cliff water chem
+clf_chem <- read_csv(here('data/nutrients/cal_clf_nutrients/clf_water_chemistry.csv')) %>% 
+  clean_names() %>% 
+  mutate(
+    date = dmy(date),
+    lake = as.factor(lake),
+    depth = as.factor(depth_m),
+    nh4_ppb = as.numeric(nh4_n_ppb),
+    no3_no2_ppb = as.numeric(no3_n_ppb),
+    srp_ppb = as.numeric(srp_p_ppb),
+    tp_ppb = as.numeric(tp_ppb)
+  ) %>% 
+  select(date, lake, depth, nh4_ppb, no3_no2_ppb, srp_ppb, tp_ppb) %>% 
+  mutate( #negative values are a math artifact, indicating concentration is "below detectable limits". Removing those values
+    nh4_ppb = replace(nh4_ppb, which(nh4_ppb<0), NA),
+    no3_no2_ppb = replace(no3_no2_ppb, which(no3_no2_ppb<0), NA),
+    srp_ppb = replace(srp_ppb, which(srp_ppb<0), NA),
+    tp_ppb = replace(tp_ppb, which(tp_ppb<0), NA)
+  )
+
+# 7d. Combine data----
+cal_clf_chem <- bind_rows(cal_chem, clf_chem) %>% 
+  pivot_longer(
+    cols = c(4:7),
+    names_to = 'species',
+    values_to = 'ppb'
+  ) %>% 
+  filter(
+    depth != 'spring',
+    depth != 'OUTFLOW',
+    depth !='OUTPUT', 
+    depth != 'OUTLET', 
+    depth != 'B12', 
+    depth != 'B13', 
+    depth != 'B15', 
+    depth != 'OF'
+  )
+
+#Combine with shallow lake data
+
+all_lakes_water_chem <- water_chem %>%
+  select(
+    lake = lakename,
+    date,
+    depth = depth_m,
+    species,
+    ppb
+  ) %>% 
+  mutate(
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  ) %>% 
+  bind_rows(cal_clf_chem)
+  
+  
+
+# 7e. Plot all lakes NH4----
+ggplot(data = all_lakes_water_chem %>% filter(species == 'nh4_ppb'))+
+  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+  #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
+  theme_classic()+
+  ylab('NH4 [ppb]')
+  # facet_wrap(~year(date))
+
+ggsave(here('output/water_chem_boxplots/all_lakes_nh4.jpeg'), dpi = 300)
+
+# 7f. Plot all lakes NO3 NO2----
+ggplot(data = all_lakes_water_chem %>% filter(species == 'no3_no2_ppb'))+
+  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+  #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
+  #facet_wrap(~year(date))+
+  theme_classic()+
+  ylab('NO3 - NO2 [ppb]')
+
+ggsave(here('output/water_chem_boxplots/all_lakes_no3.jpeg'), dpi = 300)
+
+# 7g. Plot all lakes TP----
+ggplot(data = all_lakes_water_chem %>% filter(species == 'tp_ppb'))+
+  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+  #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
+  #facet_wrap(~year(date))+
+  theme_classic()+
+  ylab('TP [ppb]')
+
+ggsave(here('output/water_chem_boxplots/all_lakes_tp.jpeg'), dpi = 300)
+
+# 7h. Plot all lakes SRP----
+ggplot(data = all_lakes_water_chem %>% filter(species == 'srp_ppb'))+
+  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+  #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
+  #facet_wrap(~year(date))+
+  theme_classic()+
+  ylab('SRP [ppb]')
+
+ggsave(here('output/water_chem_boxplots/all_lakes_srp.jpeg'), dpi = 300)
+
+
+
+
+
+
 
