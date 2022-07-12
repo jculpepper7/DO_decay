@@ -13,6 +13,8 @@ library(janitor)
 library(here)
 library(viridis)
 library(patchwork)
+library(rLakeAnalyzer)
+library(LakeMetabolizer)
 
 # 1. Import cleaned shallow lake / pond data------------------------------------
 
@@ -201,10 +203,75 @@ ggsave(here('output/2021_do_rad_plt.png'), dpi = 500)
 do_rad_plt / rad_plt
 
 
+# Modeling with LakeMetabolizer-------------------------------------------------
 
+#First combine lakes and average to daily values----
+# Used the combined values from "ponds" tibble above
 
+#Temperature hourly average
+ponds_temp_avg <- ponds %>% 
+  select(-light_intensity_lux, -unix, -utc, -pst, -do_mg_l, -do_sat) %>% 
+  mutate(
+    year = year(date_time),
+    month = month(date_time),
+    day = day(date_time)
+  ) %>% 
+  group_by(lake, depth, year, month, day) %>% 
+  summarise(
+    temp_c = mean(temp_c)
+  ) %>% 
+  mutate(
+    datetime = make_date(year = year, month = month, day = day)
+  ) %>% 
+  ungroup() %>% 
+  select(-year, -month, -day) %>% 
+  pivot_wider(values_from = temp_c, names_from = depth)
 
+#Dissolved oxygen hourly average
+ponds_do_avg <- ponds %>% 
+  select(lake, date_time, depth, do_mg_l) %>% 
+  na.omit %>% 
+  mutate(
+    year = year(date_time),
+    month = month(date_time),
+    day = day(date_time)
+  ) %>% 
+  group_by(lake, depth, year, month, day) %>% 
+  summarise(
+    doobs = mean(na.omit(do_mg_l))
+  ) %>% 
+  mutate(
+    datetime = make_date(year = year, month = month, day = day)
+  ) %>% 
+    ungroup() %>% 
+    select(-year, -month, -day)
 
+#Combine temp and DO average tibbles
+shallow_lakes <- ponds_temp_avg %>% 
+  left_join(ponds_do_avg)
 
+#Isolate lakes
+cdr_model <- shallow_lakes %>% 
+  clean_names() %>% 
+  filter(
+    lake == 'cedar'
+  ) %>% 
+  select(-x1_5m, -x2_5m, -depth, -lake, -doobs) %>% 
+  rename(wtr_1.0 = x1m,
+         #wtr_2.5 = x2_5m,
+         wtr_2.0 = x2m,
+         wtr_4.0 = sediment)
 
+#Must write file as tab delimited (i.e. '\t')
+write_delim(cdr_model, here('data/metab_model/cedar/cdr_wtr.csv'), delim = '\t')
 
+#Get the path for the package example file included 
+cdr_path <- file.path(here('data/metab_model/cedar/cdr_wtr.csv'))
+
+#load using load.ts for basically all functions
+cdr.temp <- load.ts(cdr_path)
+
+#calculate metalimnion depth
+m.d <- ts.meta.depths(cdr.temp)
+plot(m.d$datetime, m.d$top, type='l', ylab='Meta Depths (m)', xlab='Date', col='blue')
+lines(m.d$datetime, m.d$bottom, col='red')
