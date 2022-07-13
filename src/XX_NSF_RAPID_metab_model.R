@@ -235,11 +235,11 @@ ss_do_2021 <- ss %>%
 # 4a. Write files as tab delimited (i.e. '\t')----
 
 #wind data
-write_delim(wnd_2020, here('data/metab_model/cedar/wnd_2020.csv'), delim = ' ')
+write.delim(wnd_2020, here('data/metab_model/cedar/wnd_2020.csv'), row.names = FALSE, delim = '\t')
 #wind data
-write_delim(wnd_2021, here('data/metab_model/cedar/wnd_2021.csv'), delim = '\t')
+write.csv(wnd_2021, here('data/metab_model/cedar/wnd_2021.csv'), row.names = FALSE)
 #Cedar 2020
-write_delim(cdr_do_2020, here('data/metab_model/cedar/cdr_do_2020.txt'), delim = '\t')
+write.csv(cdr_do_2020, here('data/metab_model/cedar/cdr_do_2020.txt'), row.names = FALSE)
 #Cedar 2021
 write_delim(cdr_do_2021, here('data/metab_model/cedar/cdr_do_2021.csv'), delim = '\t')
 #Gumboot 2020
@@ -283,8 +283,9 @@ metab.bookkeep(doobs[,3], do.sat, k.gas, z.mix=1, irr, datetime=doobs$datetime)
 
 
 
-
-
+ggplotly(ggplot(data = gb_do_2020 %>% mutate(datetime = as.POSIXct(datetime)))+
+  geom_line(aes(x = datetime, y = doobs))
+)
 
 
 
