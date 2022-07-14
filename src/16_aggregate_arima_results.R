@@ -318,9 +318,16 @@ do_decay <- bind_rows(
 ) %>% 
   separate(segment, c('lake', 'water_year', 'segment', 'changepoint'))
 
-write_csv(do_decay, here('output/ARIMA_results/do_decay_aggregated.csv'))
+#write_csv(do_decay, here('output/ARIMA_results/do_decay_aggregated.csv'))
 
 # 8. Summary statistics-----------------------------------------------
+
+do_decay <- read_csv(here('output/ARIMA_results/do_decay_aggregated.csv')) %>% 
+  mutate(
+    lake = as.factor(lake),
+    segment = as.factor(segment),
+    changepoint = as.factor(changepoint)
+  )
 
 do_decay_summary <- do_decay %>% 
   group_by(lake, water_year) %>% 
@@ -343,7 +350,7 @@ do_decay_summary_lake <- do_decay %>%
 # 9. Data visualization-----------------------------------------------
 
 ggplot(data = do_decay)+
-  geom_point(aes(x = water_year, y = drift, color = lake, shape = changepoint), stroke = 1, size = 4)+
+  geom_point(aes(x = water_year, y = drift, color = lake, shape = changepoint), stroke = 1, size = 2)+
   theme_classic()+
   facet_wrap(~segment, scales = 'free')
 

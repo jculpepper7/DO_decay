@@ -91,12 +91,30 @@ str(weatherhawk_raw_2)
 #NOTE: Issues with 2019 raw data from Castle Lake data repo. 
 #      Obtained air temperature and solar radiation data for missing segments
 
-weatherhawk_2019 <- read_csv(here('data/met_data/weatherhawk_new/cal_weatherhawk_2019.csv')) %>% 
+weatherhawk_2019 <- read_csv(here('data/met_data/weatherhawk/cal_weatherhawk_2019.csv')) %>% 
   clean_names() %>% 
   select(-record_id) %>% 
   mutate(
-    date_time = mdy_hm(date_time)
-  )
+    date_time = ymd_hms(date_time),
+    air_temp_avg = as.numeric(air_temp_avg),
+    air_temp_min = as.numeric(air_temp_min),
+    air_temp_min_time = ymd_hms(air_temp_min_time),
+    air_temp_max = as.numeric(air_temp_max),
+    air_temp_max_time = ymd_hms(air_temp_max_time),
+    humidity = as.numeric(humidity),
+    barometer = as.numeric(barometer),
+    battery = as.numeric(battery),
+    min_battery = as.numeric(min_battery),
+    e_to = as.numeric(e_to),
+    rain_yearly = as.numeric(rain_yearly),
+    solar_avg = as.numeric(solar_avg),
+    wind_speed_avg = as.numeric(wind_speed_avg),
+    wind_speed_max = as.numeric(wind_speed_max),
+    wind_speed_max_time = ymd_hms(wind_speed_max_time),
+    wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
+    wind_direction = as.numeric(wind_direction)
+  ) %>% 
+  select(-wind_speed_avg_1)
 
 # 3. Combine and clean raw weatherhawk data-------------------------------------
 
@@ -132,20 +150,213 @@ weatherhawk_avg <- weatherhawk %>%
   pad()
 
 #write_csv(weatherhawk_avg, here('data/met_data/weatherhawk/weatherhawk_avg_2017_2022.csv'))
+# 
+# ggplot(data = weatherhawk_avg) +
+#   #geom_line(aes(x = date_time, y = air_temp_avg), size = 1.5)+
+#   geom_line(aes(x = date_time, y = solar_avg))
+#   #geom_line(aes(x = date_time, y = humidity_avg))
+#   
 
-ggplot(data = weatherhawk_avg) +
-  #geom_line(aes(x = date_time, y = air_temp_avg), size = 1.5)+
-  geom_line(aes(x = date_time, y = solar_avg))
-  #geom_line(aes(x = date_time, y = humidity_avg))
+# 4. Evaluate average seasonal temperatures-------------------------------------
+
+# 4a. Create seasonal column----
+
+wh_seasonal <- weatherhawk_avg %>% 
+  mutate(
+    season = if_else(month(date_time)>=3 & month(date_time)<=5, 'spring',
+                     if_else(month(date_time)>=6 & month(date_time)<=8, 'summer',
+                             if_else(month(date_time)>=9 & month(date_time)<=11, 'fall', 'winter')))
+  ) %>% 
+  na.omit() %>% 
+  mutate(
+    water_year = if_else(month(date_time)>=10, year(date_time)+1, year(date_time)),
+    water_year = as.factor(water_year)
+  )
+
+# 4b. Plot temperatures by season----
+
+#Fall average temperature plot
+wh_seasonal %>% 
+  filter(water_year != 2017,
+         season == 'fall') %>% 
+ggplot()+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  #facet_wrap(~)+
+  theme_classic()+ 
+  labs(x = 'Water Year', y = 'Fall Average Air Temperature [C]')+
+  theme(legend.position = 'none')
+
+#ggsave(here('output/met_results/fall_avg_temp.jpeg'), dpi = 300)  
+  
+#Winter average temperature plot
+wh_seasonal %>% 
+  filter(water_year != 2017,
+         season == 'winter') %>% 
+  ggplot()+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  #facet_wrap(~)+
+  theme_classic()+ 
+  labs(x = 'Water Year', y = 'Winter Average Air Temperature [C]')+
+  theme(legend.position = 'none')
+
+#ggsave(here('output/met_results/winter_avg_temp.jpeg'), dpi = 300) 
+
+#spring average temperature plot
+wh_seasonal %>% 
+  filter(water_year != 2017,
+         season == 'spring') %>% 
+  ggplot()+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  #facet_wrap(~)+
+  theme_classic()+ 
+  labs(x = 'Water Year', y = 'Spring Average Air Temperature [C]')+
+  theme(legend.position = 'none')
+
+#ggsave(here('output/met_results/spring_avg_temp.jpeg'), dpi = 300) 
+
+#Fall average temperature plot
+wh_seasonal %>% 
+  filter(water_year != 2017,
+         water_year != 2022,
+         season == 'summer') %>% 
+  ggplot()+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  #facet_wrap(~)+
+  theme_classic()+ 
+  labs(x = 'Water Year', y = 'Summer Average Air Temperature [C]')+
+  theme(legend.position = 'none')
+
+#ggsave(here('output/met_results/summer_avg_temp.jpeg'), dpi = 300) 
+
+# 4c. Get output of temperature values------------------------------------------
+
+seasonal_temp_summary <- wh_seasonal %>% 
+  group_by(water_year, season) %>% 
+  summarise(
+    temp_mean = mean(na.omit(air_temp_avg)),
+    temp_med = median(na.omit(air_temp_avg)),
+    temp_max_mean = mean(na.omit(air_max_avg)),
+    temp_max_med = median(na.omit(air_max_avg)),
+    temp_min_mean = mean(na.omit(air_min_avg)),
+    temp_min_med = median(na.omit(air_min_avg)),
+    solar_avg = mean(na.omit(solar_avg))
+  )
+
+#write_csv(seasonal_temp_summary, here('data/met_data/weatherhawk/temperature_summary_stats.csv'))
+
+# 5. Clean and plot SNODAS------------------------------------------------------
+
+# 5a. Import SNODAS data----
+cal_snodas <- read_csv(here('data/met_data/snodas/cal_snodas.csv')) %>% 
+  rename(date = 1, swe_mm = 2) %>% 
+  mutate(
+    lake = as.factor('castle'),
+    date = ymd(date),
+    swe_mm = as.numeric(swe_mm)
+  )
+  
+cdr_snodas <- read_csv(here('data/met_data/snodas/cdr_snodas.csv')) %>% 
+  rename(date = 1, swe_mm = 2) %>% 
+  mutate(
+    lake = as.factor('cedar'),
+    date = ymd(date),
+    swe_mm = as.numeric(swe_mm)
+  ) 
+
+clf_snodas <- read_csv(here('data/met_data/snodas/clf_snodas.csv')) %>% 
+  rename(date = 1, swe_mm = 2) %>% 
+  mutate(
+    lake = as.factor('cliff'),
+    date = ymd(date),
+    swe_mm = as.numeric(swe_mm)
+  )  
+
+gb_snodas <- read_csv(here('data/met_data/snodas/gb_snodas.csv')) %>% 
+  rename(date = 1, swe_mm = 2) %>% 
+  mutate(
+    lake = as.factor('gumboot'),
+    date = mdy(date), #file downloaded in a different date order (unsure why)
+    swe_mm = as.numeric(swe_mm)
+  )
+
+ss_snodas <- read_csv(here('data/met_data/snodas/ss_snodas.csv')) %>% 
+  rename(date = 1, swe_mm = 2) %>% 
+  mutate(
+    lake = as.factor('soapstone'),
+    date = ymd(date),
+    swe_mm = as.numeric(swe_mm)
+  )
+
+# 5b. Combine SNODAS data----
+snodas <- bind_rows(cal_snodas, cdr_snodas, clf_snodas, gb_snodas, ss_snodas)
+
+# 5c. SNODAS summary stats----
+
+# SNODAS summary for all lakes
+snodas_summ_total <- snodas %>% 
+  mutate(
+    water_year = if_else(month(date)>=10, year(date)+1, year(date))
+  ) %>% 
+  group_by(water_year) %>% 
+  filter(swe_mm != 0) %>% 
+  summarise(
+    swe_mm_avg = mean(na.omit(swe_mm)),
+    swe_mm_med = median(na.omit(swe_mm)),
+    swe_mm_max = max(na.omit(swe_mm))
+  )
+
+#write_csv(snodas_summ_total, here('data/met_data/snodas/snodas_total.csv'))  
+
+# SNODAS summary for each lakes
+snodas_summ_each <- snodas %>% 
+  mutate(
+    water_year = if_else(month(date)>=10, year(date)+1, year(date))
+  ) %>% 
+  group_by(water_year, lake) %>% 
+  filter(swe_mm != 0) %>% 
+  summarise(
+    swe_mm_avg = mean(na.omit(swe_mm)),
+    swe_mm_med = median(na.omit(swe_mm)),
+    swe_mm_max = max(na.omit(swe_mm))
+  ) %>% 
+  arrange(lake)
+
+#write_csv(snodas_summ_each, here('data/met_data/snodas/snodas_per_lake.csv'))   
+  
+# 5c. Plot SNODAS data----
+snodas %>% 
+  mutate(
+    water_year = as.factor(if_else(month(date)>=10, year(date)+1, year(date)))
+  ) %>% 
+  filter(swe_mm != 0) %>% 
+ggplot()+
+  geom_boxplot(aes(x = lake, y = swe_mm, fill = lake))+
+  theme_classic()+
+  labs(x = '', y = 'SWE [mm]')+
+  facet_wrap(~water_year, scales = 'free')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+#ggsave(here('output/met_results/snodas_by_lake.jpeg'), dpi = 300)  
+
+snodas %>% 
+  mutate(
+    water_year = as.factor(if_else(month(date)>=10, year(date)+1, year(date)))
+  ) %>% 
+  filter(swe_mm != 0) %>% 
+  ggplot()+
+  geom_boxplot(aes(x = water_year, y = swe_mm, fill = water_year))+
+  theme_classic()+
+  labs(x = '', y = 'SWE [mm]')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = 'none')
+
+#ggsave(here('output/met_results/snodas_by_year.jpeg'), dpi = 300)  
+  
+  
   
 
-  
-  
 
 
 
 
-  
-  
-  
 
