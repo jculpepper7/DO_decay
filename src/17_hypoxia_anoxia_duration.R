@@ -7,6 +7,8 @@
 
 library(tidyverse)
 library(here)
+library(lubridate)
+library(janitor)
 
 # 2. Import data---------------------------------------------------------
 
@@ -18,7 +20,7 @@ cal_do <- read_csv(here('data/processed/castle/castle_clean_agg_data_daily.csv')
   select(lake, date, do_mg_l)
 
 #Cedar lake aggregated data and isolate DO
-cdr_do <- read_csv(here('data/processed/cedar/cedar_clean_agg_data_2022.csv'), guess_max = 50000) %>% 
+cdr_do <- read_csv(here('data/processed/cedar/cedar_clean_agg_data_2022.csv'), guess_max = 100000) %>% 
   select(lake, pst, do_mg_l) %>% 
   na.omit() %>% 
   mutate(
@@ -47,7 +49,7 @@ clf_do <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily.csv')) 
   select(lake, date, do_mg_l)
 
 #Gumboot lake aggregated data and isolate DO
-gb_do <- read_csv(here('data/processed/gumboot/gumboot_clean_agg_data_2022.csv'), guess_max = 50000) %>% 
+gb_do <- read_csv(here('data/processed/gumboot/gumboot_clean_agg_data_2022.csv'), guess_max = 100000) %>% 
   select(lake, pst, do_mg_l) %>% 
   na.omit() %>% 
   mutate(
