@@ -159,6 +159,10 @@ cliff_2021_raw <- cliff_2021 %>%
 cliff_2020_mean <- read_csv(here('data/raw/cliff/cliff_2020_winter_raw.csv'))
 cliff_2021_mean <- read_csv(here('data/raw/cliff/cliff_2021_winter_raw.csv'))
 
+clf_all <- bind_rows(cliff_2020_mean, cliff_2021_mean)
+
+#write_csv(clf_all, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+
 #Cliff 2020 plot
 cliff_plt_20 <- ggplot(data = cliff_2020_mean, aes(x = date, y = do_mg_l))+
   geom_line(size = 1.5)+

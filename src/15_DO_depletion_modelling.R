@@ -180,8 +180,8 @@ cedar_ice_2021 <- do_daily %>%
   filter(water_year == 2021,
          lake == 'cedar',
          date_time >= as.POSIXct("2020-12-18"), #Truncated to lowest point in winter period (99 days)
-         date_time <= as.POSIXct("2021-03-27")) #Complete ice off
-         #date_time <= as.POSIXct("2021-04-17"))
+         date_time <= as.POSIXct("2021-03-27")) 
+         #date_time <= as.POSIXct("2021-04-17")) #Complete ice off
 
 cedar_ice_2022 <- do_daily %>% 
   filter(water_year == 2022,

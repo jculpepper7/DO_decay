@@ -10,6 +10,13 @@ library(here)
 
 # 2. Import data---------------------------------------------------------
 
+#Castle lake aggregated data and isolate DO
+cal_do <- read_csv(here('data/processed/castle/castle_clean_agg_data_daily.csv')) %>% 
+  mutate(
+    lake = 'castle'
+  ) %>% 
+  select(lake, date, do_mg_l)
+
 #Cedar lake aggregated data and isolate DO
 cdr_do <- read_csv(here('data/processed/cedar/cedar_clean_agg_data_2022.csv'), guess_max = 50000) %>% 
   select(lake, pst, do_mg_l) %>% 
@@ -31,9 +38,15 @@ cdr_do <- read_csv(here('data/processed/cedar/cedar_clean_agg_data_2022.csv'), g
     lake = c('cedar')
   ) %>% 
   select(lake, date, do_mg_l)
-  
 
-#Gumboot lake aggregated data
+#Cliff lake aggregated data and isolate DO
+clf_do <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily.csv')) %>% 
+  mutate(
+    lake = 'cliff'
+  ) %>% 
+  select(lake, date, do_mg_l)
+
+#Gumboot lake aggregated data and isolate DO
 gb_do <- read_csv(here('data/processed/gumboot/gumboot_clean_agg_data_2022.csv'), guess_max = 50000) %>% 
   select(lake, pst, do_mg_l) %>% 
   na.omit() %>% 
@@ -55,7 +68,7 @@ gb_do <- read_csv(here('data/processed/gumboot/gumboot_clean_agg_data_2022.csv')
   ) %>% 
   select(lake, date, do_mg_l)  
 
-#Soapstone Pond aggregated data
+#Soapstone Pond aggregated data and isolate DO
 ss_do <- read_csv(here('data/processed/soapstone/soapstone_clean_agg_data_2022.csv'), guess_max = 50000) %>% 
   select(lake, pst, do_mg_l) %>% 
   na.omit() %>% 
@@ -79,7 +92,7 @@ ss_do <- read_csv(here('data/processed/soapstone/soapstone_clean_agg_data_2022.c
 
 #3. Join data------------------------------------------------------------
 
-all_do <- bind_rows(cdr_do, gb_do, ss_do) %>% 
+all_do <- bind_rows(cal_do, cdr_do, clf_do, gb_do, ss_do) %>% 
   mutate(
     water_year = if_else(month(date)>=10, year(date)+1, year(date))
   )
@@ -130,4 +143,4 @@ anoxia_duration <- all_do %>%
 low_do <- hypox_total %>% 
   full_join(anoxia_total)
 
-write_csv(low_do, here('output/hypoxia_results/hypoxia_anoxia_total.csv'))
+#write_csv(low_do, here('output/hypoxia_results/hypoxia_anoxia_total.csv'))
