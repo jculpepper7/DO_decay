@@ -326,7 +326,8 @@ do_decay <- read_csv(here('output/ARIMA_results/do_decay_aggregated.csv')) %>%
   mutate(
     lake = as.factor(lake),
     segment = as.factor(segment),
-    changepoint = as.factor(changepoint)
+    changepoint = as.factor(changepoint),
+    water_year = as.factor(water_year)
   )
 
 do_decay_summary <- do_decay %>% 

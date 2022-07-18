@@ -104,7 +104,7 @@ all_do <- bind_rows(cal_do, cdr_do, clf_do, gb_do, ss_do) %>%
 #Count the total number of days when oxygen was <=2 mg/L
 hypox_total <- all_do %>%
   group_by(lake, water_year) %>% 
-  filter(do_mg_l <= 2) %>% 
+  filter(do_mg_l <= 2 & do_mg_l > 1) %>% 
   summarise(
     hypox_total = n()
   )
@@ -112,7 +112,7 @@ hypox_total <- all_do %>%
 #Count the total number of days when oxygen was <1 mg/L
 anoxia_total <- all_do %>%
   group_by(lake, water_year) %>% 
-  filter(do_mg_l < 1) %>% 
+  filter(do_mg_l <= 1) %>% 
   summarise(
     anoxia_total = n()
   )

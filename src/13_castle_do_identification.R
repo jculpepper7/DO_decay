@@ -6,6 +6,7 @@
 library(tidyverse)
 library(lubridate)
 library(padr)
+library(plotly)
 
 # 2. Import Castle clean, aggregated data-------------------
 
