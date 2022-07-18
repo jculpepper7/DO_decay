@@ -286,15 +286,19 @@ sed_C_and_N_plt <- ggplot(data = sediment_CN)+
 sed_C_and_N_plt
 
 sed_CN_plt <- ggplot(data = sediment_CN)+
-  geom_point(aes(x = date, y = CN_ratio, color = lakename), size = 5)+
-  geom_line(aes(x = date, y = CN_ratio, color = lakename), size = 1.5)+
+  # geom_point(aes(x = date, y = CN_ratio, color = lakename), size = 5)+
+  # geom_line(aes(x = date, y = CN_ratio, color = lakename), size = 1.5)+
+  geom_boxplot(aes(x = lakename, y = CN_ratio, fill = lakename))+
   theme_classic()+
   xlab('')+
   ylab('C:N Ratio')+
   ggtitle('Sediment C:N Ratio')+
-  scale_color_viridis_d(begin = 0.1, end = 0.9)
+  scale_color_viridis_d(begin = 0.1, end = 0.9)+
+  theme(legend.position = 'none')
 
 sed_CN_plt
+
+#ggsave(here('output/sediment_plots/sediment_CN_ratio.jpeg'), dpi = 300)
 
 # 2c. water chemistry viz-------------------------------------------------------
 
