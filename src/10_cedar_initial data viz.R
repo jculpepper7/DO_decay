@@ -68,22 +68,43 @@ cedar_w_avg <- cedar %>%
     date = make_date(year = year, month = month, day = day),
     lake = c('cedar')
   ) %>% 
+  group_by(depth) %>% 
+  complete(date = seq.Date(min(date), max(date), by = 'day')) %>% #10/2020 through 10/2021 missing (due to faulty sensor)
+  ungroup() %>% 
   select(lake, date, depth, light_intensity_lux, temp_c, do_mg_l, do_sat)
 
 # 4. data viz of averaged data (daily average)
 
-cedar_avg_plt <- ggplot(data = cedar_w_avg %>% filter(depth =='1m'))+
+cedar_avg_plt <- ggplot()+ 
   #geom_line(aes(x = date, y = temp_c, color = depth), size = 1.5)+
-  geom_line(aes(x = date, y = do_mg_l), size = 1.5)+
-  theme_classic()
+  geom_vline(xintercept = as.numeric(
+    c(
+      as.Date("2019-11-26"), 
+      as.Date("2020-04-12"),
+      as.Date("2020-11-18"), 
+      as.Date("2021-04-17"),
+      as.Date("2021-12-12"), 
+      as.Date("2022-04-02")
+      )))+
+  geom_line(data = cedar_w_avg %>% complete(date = seq.Date(min(date), max(date), by = 'day')), 
+            aes(x = date, y = temp_c, color = depth), size = 1.2)+
+  geom_line(data = cedar_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
+  scale_color_grey(name = 'Depth   ')+
+  theme_classic()+
+  labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
+  #theme(legend.title = 'Depth')#+
+  theme(legend.position = 'bottom',
+        legend.title = element_text(size = 13),
+        axis.title.y = element_text(size = 13),
+        axis.text = element_text(size = 10))
 cedar_avg_plt
 ggplotly(cedar_avg_plt)
 
 as.POSIXct('2021-04-07') - as.POSIXct('2021-03-18')
 # 5. Alt visualizations
 
-cedar_facet <- ggplot(data = cedar) +
-  geom_line(aes(x = date_time, y = temp_c))+
+cedar_facet <- ggplot(data = cedar_w_avg) +
+  geom_line(aes(x = date, y = temp_c))+
   theme_classic()+  
   facet_wrap(~depth) +
   ggtitle('Cedar Temperature')+
