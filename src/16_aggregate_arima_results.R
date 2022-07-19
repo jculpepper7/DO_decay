@@ -208,6 +208,19 @@ clf_results_2021 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('cliff_2021_1.1')
   ) 
 
+# 4b. Cliff 2021 2----
+#NOTE: Mislabels in ARIMA code as 2021, but these ARIMA results 
+#      are for the summer period DO decay during the summer of 2020
+load(here('output/ARIMA_results/cliff_2021_2_arima_output.Rdata'))
+
+clf_results_2020_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2020_2.1')
+  ) %>% 
+  add_row(segment = 'cliff_2020_2.2', drift = output.list[[8]][["coef"]][["drift"]])
+
+
 # 5. Import Gumboot data---------------------------------------------
 
 # 5a. Gumboot 2020 1----
@@ -308,7 +321,7 @@ do_decay <- bind_rows(
   cal_results_2021_1, cal_results_2021_2, cal_results_2021_3,
   cal_results_2022_1, cal_results_2022_2,
   cdr_results_2020, cdr_results_2021, cdr_results_2022,
-  clf_results_2020, clf_results_2021,
+  clf_results_2020, clf_results_2020_2, clf_results_2021, 
   gb_results_2020_1, gb_results_2020_2,
   gb_results_2021_1, 
   gb_results_2022_1,
@@ -361,5 +374,5 @@ ggplot(data = do_decay)+
   theme_classic()+
   facet_wrap(~lake, scales = 'free')
 
-#ggsave(here('output/ARIMA_results/do_decay_boxplot.jpeg'), dpi = 300)
+#ggsave(here('output/ARIMA_results/do_decay_boxplot_update_2022.07.18.jpeg'), dpi = 300)
 

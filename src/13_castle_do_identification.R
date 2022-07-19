@@ -66,6 +66,10 @@ cal_daily_fixed <- cal_daily_fixed[-c(1075:1081),] #Unclear why this increase oc
 write_csv(cal_daily_fixed, here('data/processed/castle/castle_clean_agg_data_daily.csv'))
 # 6. Visualize fully cleaned data----------------------------
 
+cal_daily_fixed <- cal_daily_fixed %>% 
+  group_by(water_year) %>% 
+  complete(date = seq.Date(min(date), max(date), by = 'day'))
+
 cal_full_fixed <- ggplot(data = cal_daily_fixed)+
   geom_line(aes(x = date, y = do_mg_l))+
   theme_classic()
@@ -100,7 +104,53 @@ ggplotly(cal_full_fixed)
 #First: 2021-12-15 through 2022-01-15 -- trend significantly changes after 2022-01-15 
 #Second: 2022-01-16 through 2022-02-01 -- this is the remaining decay to complete anoxia
 
+# 8. Final plot for Castle-------------------------------------
 
+castle_avg_plt <- ggplot()+ 
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2018-01-06')),
+    xmax = as.numeric(as.Date('2018-04-11')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2018-12-24')),
+    xmax = as.numeric(as.Date('2019-06-01')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2019-12-20')),
+    xmax = as.numeric(as.Date('2020-04-25')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2020-12-20')),
+    xmax = as.numeric(as.Date('2021-05-21')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2021-12-15')),
+    xmax = as.numeric(as.Date('2022-04-02')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_line(data = cal_daily_fixed, aes(x = date, y = do_mg_l), size = 1.5)+
+  scale_color_grey(name = 'Depth   ')+
+  theme_classic()+
+  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
+  #theme(legend.title = 'Depth')#+
+  theme(legend.position = 'bottom',
+        legend.title = element_text(size = 13),
+        axis.title.y = element_text(size = 13),
+        axis.text = element_text(size = 10))
+castle_avg_plt
+#ggplotly(castle_avg_plt)
+
+#ggsave(here('output/lake_final_plts/castle_do_plt.jpeg'), dpi = 300)
 
 
 

@@ -33,6 +33,14 @@ ash_free_dry_mass <- read_csv(here('data/processed/water_chemistry/ash_free_dry_
 #take a look
 str(ash_free_dry_mass)
 
+#Summarise ash free dry mass
+afdm_summ <- ash_free_dry_mass %>% 
+  group_by(lakename) %>% 
+  summarise(
+    afdm_mean = mean(ash_free_dry_mass),
+    afdm_med = median(ash_free_dry_mass)
+  )
+
 #1b. import water chemistry-----------------------------------------------------
 
 water_chem <- read_csv(here('data/processed/water_chemistry/cdr_gb_ss_water_chem.csv')) %>%
@@ -260,15 +268,19 @@ water_d18O_vsmow <- bind_rows(water_d18O_vsmow_1, water_d18O_vsmow_2, water_d18O
 # 2a. ash free dry mass viz-----------------------------------------------------
 
 dry_mass_plt <- ggplot(data = ash_free_dry_mass)+
-  geom_point(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 5)+
-  geom_line(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 1.5)+
+  # geom_point(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 5)+
+  # geom_line(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 1.5)+
+  geom_boxplot(aes(x = lakename, y = ash_free_dry_mass, fill = lakename))+
   theme_classic()+
+  theme(legend.position = 'none')+
   xlab('')+
   ylab('Ash-Free Dry Mass [g]')+
   ggtitle('Ash-Free Dry Mass')+
   scale_color_viridis_d(begin = 0.1, end = 0.9)
   
 dry_mass_plt
+
+#ggsave(here('output/sediment_plots/afdm_plot.jpeg'), dpi = 300)
 
 # 2b. sediment C:N ratio viz----------------------------------------------------
 

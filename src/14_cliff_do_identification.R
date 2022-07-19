@@ -212,7 +212,34 @@ cliff_temp_plt <- ggplot(data = cliff)+
   geom_line(aes(x = date, y = do_mg_l))+
   theme_classic()+
   xlab("Date")+
-  ylab("DO [mg/L] & Temperature [C]")+
-  facet_wrap(~water_year)
+  ylab("DO [mg/L] & Temperature [C]")
+  #facet_wrap(~water_year)
 cliff_temp_plt  
 
+# 6. Final plot for Cliff---------------------------------------------
+
+cliff_avg_plt <- ggplot()+ 
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2019-12-09')),
+    xmax = as.numeric(as.Date('2020-05-01')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2020-12-01')),
+    xmax = as.numeric(as.Date('2021-04-11')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_line(data = cliff, aes(x = date, y = do_mg_l), size = 1.5)+
+  #scale_color_grey(name = 'Depth   ')+
+  theme_classic()+
+  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  theme(legend.position = 'bottom',
+        legend.title = element_text(size = 13),
+        axis.title.y = element_text(size = 13),
+        axis.text = element_text(size = 10))
+cliff_avg_plt
+ggplotly(cliff_avg_plt)
+
+#ggsave(here('output/lake_final_plts/cliff_do_plt.jpeg'), dpi = 300)

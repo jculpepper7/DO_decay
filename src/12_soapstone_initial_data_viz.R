@@ -13,7 +13,7 @@ library(zoo) #for time series manipulation (e.g. rolling mean)
 
 # 1. Read cleaned, aggregated data----------------------------------------------
 
-soapstone <- read_csv(here('data/processed/soapstone/soapstone_clean_agg_data.csv'),
+soapstone <- read_csv(here('data/processed/soapstone/soapstone_clean_agg_data_2022.csv'),
                     guess_max = 80000) #use guess max to increase the number of 
 #rows that 'readr' reads prior to guess the     
 #column type. 
@@ -42,9 +42,9 @@ soapstone_plt_non_avg <- ggplot(data = soapstone)+
 #scale_x_date(breaks = "date_time", labels = date_format("%b %Y"))
 soapstone_plt_non_avg
 
-ggsave(here('output/plots/soapstone_20_21.png'), dpi = 500)
+#ggsave(here('output/plots/soapstone_20_21.png'), dpi = 500)
 
-ggplotly(soapstone_plt_non_avg)
+#ggplotly(soapstone_plt_non_avg)
 
 # 3. Include moving averages----------------------------------------------------
 
@@ -54,22 +54,59 @@ soapstone_w_avg <- soapstone %>%
     month = month(date_time),
     year = year(date_time)
   ) %>%
+  select(-date_time) %>% 
   group_by(depth, year, month, day) %>%
+  summarise(
+    temp_c = mean(temp_c),
+    do_mg_l = mean(do_mg_l),
+    do_sat = mean(do_sat),
+    light_intensity_lux = mean(light_intensity_lux),
+  ) %>% 
+  ungroup() %>% 
   mutate(
-    temp_c_avg = mean(temp_c),
-    do_mg_l_avg = mean(do_mg_l),
-    do_sat_avg = mean(do_sat),
-    daily = make_date(year = year, month = month, day = day)
-  )
+    date = make_date(year = year, month = month, day = day),
+    lake = c('soapstone')
+  ) %>% 
+  group_by(depth) %>% 
+  complete(date = seq.Date(min(date), max(date), by = 'day')) %>% #10/2020 through 10/2021 missing (due to faulty sensor)
+  ungroup() %>% 
+  select(lake, date, depth, light_intensity_lux, temp_c, do_mg_l, do_sat)
 
 # 4. data viz of averaged data (daily average)
 
-soapstone_avg_plt <- ggplot(data = soapstone_w_avg)+
-  #geom_line(aes(x = daily, y = temp_c_avg, color = depth), size = 1.5)+
-  geom_line(aes(x = date_time, y = do_mg_l), size = 1.5, color = 'black')+
-  theme_classic()
+soapstone_avg_plt <- ggplot()+ 
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2019-11-21')),
+    xmax = as.numeric(as.Date('2020-05-04')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2020-11-06')),
+    xmax = as.numeric(as.Date('2021-04-24')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2021-12-11')),
+    xmax = as.numeric(as.Date('2022-04-24')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
+  scale_color_grey(name = 'Depth   ')+
+  theme_classic()+
+  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
+  #theme(legend.title = 'Depth')#+
+  theme(legend.position = 'bottom',
+        legend.title = element_text(size = 13),
+        axis.title.y = element_text(size = 13),
+        axis.text = element_text(size = 10))
 soapstone_avg_plt
+#ggplotly(soapstone_avg_plt)
 
+#ggsave(here('output/lake_final_plts/soapstone_do_plt.jpeg'), dpi = 300)
 
 # 5. Alt visualizations
 

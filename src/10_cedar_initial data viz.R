@@ -43,9 +43,9 @@ cedar_plt_non_avg <- ggplot(data = cedar)+
   #scale_x_date(breaks = "month", labels = date_format("%b %Y"))
 cedar_plt_non_avg
 
-ggsave(here('output/plots/cedar_20_21_22.png'), dpi = 300)
+#ggsave(here('output/plots/cedar_20_21_22.png'), dpi = 300)
 
-ggplotly(cedar_plt_non_avg)
+#ggplotly(cedar_plt_non_avg)
 
 # 3. Include moving averages----------------------------------------------------
 
@@ -76,31 +76,49 @@ cedar_w_avg <- cedar %>%
 # 4. data viz of averaged data (daily average)
 
 cedar_avg_plt <- ggplot()+ 
-  #geom_line(aes(x = date, y = temp_c, color = depth), size = 1.5)+
-  geom_vline(xintercept = as.numeric(
-    c(
-      as.Date("2019-11-26"), 
-      as.Date("2020-04-12"),
-      as.Date("2020-11-18"), 
-      as.Date("2021-04-17"),
-      as.Date("2021-12-12"), 
-      as.Date("2022-04-02")
-      )))+
-  geom_line(data = cedar_w_avg %>% complete(date = seq.Date(min(date), max(date), by = 'day')), 
-            aes(x = date, y = temp_c, color = depth), size = 1.2)+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2019-11-26')),
+    xmax = as.numeric(as.Date('2020-04-12')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2020-11-18')),
+    xmax = as.numeric(as.Date('2021-04-17')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  geom_rect(aes(
+    xmin = as.numeric(as.Date('2021-12-12')),
+    xmax = as.numeric(as.Date('2022-04-02')),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'gray')+
+  # geom_vline(xintercept = as.numeric(
+  #   c(
+  #     as.Date("2019-11-26"), 
+  #     as.Date("2020-04-12"),
+  #     as.Date("2020-11-18"), 
+  #     as.Date("2021-04-17"),
+  #     as.Date("2021-12-12"), 
+  #     as.Date("2022-04-02")
+  #     )))+
+  #geom_line(data = cedar_w_avg, aes(x = date, y = temp_c, color = depth), size = 1.2)+
   geom_line(data = cedar_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
-  labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
+  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
   theme(legend.position = 'bottom',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
         axis.text = element_text(size = 10))
 cedar_avg_plt
-ggplotly(cedar_avg_plt)
+#ggplotly(cedar_avg_plt)
 
-as.POSIXct('2021-04-07') - as.POSIXct('2021-03-18')
+#ggsave(here('output/lake_final_plts/cedar_do_plt.jpeg'), dpi = 300)
+
 # 5. Alt visualizations
 
 cedar_facet <- ggplot(data = cedar_w_avg) +

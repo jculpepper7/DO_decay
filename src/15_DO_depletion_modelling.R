@@ -389,11 +389,17 @@ clf_ice_2021 <- clf_21 %>%
          date_time >= as.POSIXct("2020-12-01"),
          date_time <= as.POSIXct("2021-03-19"))
 
+clf_ice_2021_2 <- clf_21 %>% 
+  filter(
+         lake == 'cliff',
+         date_time >= as.POSIXct("2020-05-26"),
+         date_time <= as.POSIXct("2020-08-18"))
+
 #5. Apply changepoint analysis to DO  time series-------------------------------
 #NOTE: Chanegpoints indicate where DO variance changes
 
 #change data to time series format
-DO.ts <- ts(clf_ice_2021$do_mg_l, frequency = 365, start = as.POSIXct('2020-12-01'))
+DO.ts <- ts(clf_ice_2021_2$do_mg_l, frequency = 365, start = as.POSIXct('2020-05-26'))
 # DO.ts <- ts(MeanDaily.clipped[,grep('DO',names(MeanDaily.clipped))],frequency=365, start=c(year(MeanDaily$day[1]),
 #                                                                                                month(MeanDaily$day[1]),
 #                                                                                                day(MeanDaily$day[1])))
@@ -417,7 +423,7 @@ chgpts <- out@cpts
 #6. Split time series at discovered changepoints--------------------------------
 #NOTE: Number of changepoints  will vary by dataset
 
-DO.data <- clf_ice_2021 %>% 
+DO.data <- clf_ice_2021_2 %>% 
   mutate(
     day = day(date_time)
   )
@@ -449,7 +455,7 @@ DO.ts2 <- DO.data[(chgpts[1]+1):chgpts[2],]
 # pacf(DO.ts1[,grep('DO',names(DO.ts1))])#check pacf to see how much AR makes sense...
 kpss1 <-kpss.test(DO.ts1$do_mg_l, null="Level") #Test checks for stationary data. p value > 0.01 indicates stationary data
 pacf(DO.ts1$do_mg_l) #check pacf to see how much AR makes sense...
-fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,1), include.constant=TRUE)
+fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,0), include.constant=TRUE)
 summary(fit1) #drift gives the slope of the time series
 checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that the residuals are independently distributed
 #plot(fit1$fitted)
@@ -459,7 +465,7 @@ checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that
 #check if data is stationary around a level (if not, should have small p-value)
 kpss2 <- kpss.test(DO.ts2$do_mg_l, null="Level")
 pacf(DO.ts2$do_mg_l)
-fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,0), include.constant=TRUE)
+fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,1), include.constant=TRUE)
 summary(fit2)
 checkresiduals(fit2)
 
@@ -517,12 +523,12 @@ checkresiduals(fit7)
 
 output.list <- list(DO.data, 
                     chgpts.dates, 
-                    DO.ts1, #DO.ts2, #DO.ts3, #DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
-                    kpss1, #kpss2, #kpss3, #kpss4, kpss5, kpss6, kpss7,
-                    fit1#, fit2#, fit3#, fit4, fit5, fit6, fit7
+                    DO.ts1, DO.ts2, #DO.ts3, #DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
+                    kpss1, kpss2, #kpss3, #kpss4, kpss5, kpss6, kpss7,
+                    fit1, fit2#, fit3#, fit4, fit5, fit6, fit7
                     )
 
-save(output.list, file = paste('cliff','2021','arima_output.Rdata', sep="_"))
+save(output.list, file = paste('cliff','2021_2','arima_output.Rdata', sep="_"))
 
 
 #ARIMA values
@@ -546,6 +552,7 @@ save(output.list, file = paste('cliff','2021','arima_output.Rdata', sep="_"))
 #Cedar 2022 - section 1 (1,1,2)
 #Cliff 2020 - section 1 (1,1,7), section 2 (1,1,0)
 #Cliff 2021 - section 1 (1,1,1)
+#Cliff 2021 2 - section 1 (1,1,0), section 2 (1,1,1)
 #Gumboot 2020 1 - section 1 (1,1,0), section 2 (1,1,0)
 #Gumboot 2020 2 - section 1 (1,1,0), section 2 (1,1,3)
 #Gumboot 2021 1 - section 1 (1,1,0)
