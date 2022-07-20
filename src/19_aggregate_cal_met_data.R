@@ -124,6 +124,7 @@ weatherhawk <- bind_rows(weatherhawk_raw_1, weatherhawk_raw_2, weatherhawk_2019)
 #write_csv(weatherhawk, here('data/met_data/weatherhawk_new/cal_weatherhawk_2020.csv'))
 
 # 3b. Take daily averages for the important variables----
+
 weatherhawk_avg <- weatherhawk %>% 
   select(1,2,3,5,7,8,12,13,14) %>%
   mutate(
@@ -159,6 +160,10 @@ weatherhawk_avg <- weatherhawk %>%
 
 # 4. Evaluate average seasonal temperatures-------------------------------------
 
+#Read in weatherhawk average data from 3b
+
+weatherhawk_avg <- read_csv(here('data/met_data/weatherhawk/weatherhawk_avg_2017_2022.csv'))
+
 # 4a. Create seasonal column----
 
 wh_seasonal <- weatherhawk_avg %>% 
@@ -167,7 +172,7 @@ wh_seasonal <- weatherhawk_avg %>%
                      if_else(month(date_time)>=6 & month(date_time)<=8, 'summer',
                              if_else(month(date_time)>=9 & month(date_time)<=11, 'fall', 'winter')))
   ) %>% 
-  na.omit() %>% 
+  #na.omit() %>% 
   mutate(
     water_year = if_else(month(date_time)>=10, year(date_time)+1, year(date_time)),
     water_year = as.factor(water_year)
@@ -230,7 +235,11 @@ wh_seasonal %>%
 
 # 4c. Get output of temperature values------------------------------------------
 
-seasonal_temp_summary <- wh_seasonal %>% 
+seasonal_temp_summary <- wh_seasonal %>%
+  select(-water_year) %>% #remove water year and add revised water year
+  mutate(
+    water_year = if_else(month(date_time)>=9, year(date_time)+1, year(date_time)) #NOTE: requires water year to start in september, because otherwise, water_year will split fall season between years, since fall includes september (e.g. October, November of 2018 and September 2019 would make up fall for water year 2019)
+  ) %>% 
   group_by(water_year, season) %>% 
   summarise(
     temp_mean = mean(na.omit(air_temp_avg)),
@@ -242,7 +251,7 @@ seasonal_temp_summary <- wh_seasonal %>%
     solar_avg = mean(na.omit(solar_avg))
   )
 
-#write_csv(seasonal_temp_summary, here('data/met_data/weatherhawk/temperature_summary_stats.csv'))
+write_csv(seasonal_temp_summary, here('data/met_data/weatherhawk/temperature_summary_stats.csv'))
 
 # 5. Clean and plot SNODAS------------------------------------------------------
 

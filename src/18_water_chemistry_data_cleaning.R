@@ -28,18 +28,14 @@ ash_free_dry_mass <- read_csv(here('data/processed/water_chemistry/ash_free_dry_
     ),
     date = ymd(date)
   ) %>%
-  arrange(lakename, date)
+  arrange(lakename, date) %>% 
+  mutate(
+    org_matter = initial_mass_g - ash_free_dry_mass,
+    percent_org = (org_matter/initial_mass_g)*100
+  )
 
 #take a look
 str(ash_free_dry_mass)
-
-#Summarise ash free dry mass
-afdm_summ <- ash_free_dry_mass %>% 
-  group_by(lakename) %>% 
-  summarise(
-    afdm_mean = mean(ash_free_dry_mass),
-    afdm_med = median(ash_free_dry_mass)
-  )
 
 #1b. import water chemistry-----------------------------------------------------
 
@@ -893,9 +889,21 @@ ggplot(data = all_lakes_water_chem %>% filter(species == 'srp_ppb'))+
 
 ggsave(here('output/water_chem_boxplots/all_lakes_srp.jpeg'), dpi = 300)
 
+# 8. AFDM & CN Sediment values----------------------------------------
 
+# 8a. AFDM----
 
+afdm_summ <- ash_free_dry_mass %>%
+  group_by(lakename) %>% 
+  summarise(
+    org_mean = mean(org_matter),
+    org_med = median(org_matter),
+    percent_org_mean = mean(percent_org)
+  )
 
+#write_csv(afdm_summ, here('output/sediment_results/afdm_results.csv'))
+
+# 8b. 
 
 
 
