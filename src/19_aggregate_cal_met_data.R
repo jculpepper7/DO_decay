@@ -31,14 +31,14 @@ weatherhawk_raw <- list.files(
 weatherhawk_raw_1 <- weatherhawk_raw %>% 
   slice(c(9398:16598)) %>% 
   clean_names() %>% 
-  select(-1) %>% 
+  select(-1,-5,-7, -17, -18) %>% 
   mutate(
     date_time = mdy_hm(date_time),
     air_temp_avg = as.numeric(air_temp_avg),
     air_temp_min = as.numeric(air_temp_min),
-    air_temp_min_time = mdy_hm(air_temp_min_time),
+    #air_temp_min_time = mdy_hm(air_temp_min_time),
     air_temp_max = as.numeric(air_temp_max),
-    air_temp_max_time = mdy_hm(air_temp_max_time),
+    #air_temp_max_time = mdy_hm(air_temp_max_time),
     humidity = as.numeric(humidity),
     barometer = as.numeric(barometer),
     battery = as.numeric(battery),
@@ -48,11 +48,11 @@ weatherhawk_raw_1 <- weatherhawk_raw %>%
     solar_avg = as.numeric(solar_avg),
     wind_speed_avg = as.numeric(wind_speed_avg),
     wind_speed_max = as.numeric(wind_speed_max),
-    wind_speed_max_time = mdy_hm(wind_speed_max_time),
-    wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
+    #wind_speed_max_time = mdy_hm(wind_speed_max_time),
+    #wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
     wind_direction = as.numeric(wind_direction)
-  ) %>% 
-  select(-wind_speed_avg_1)
+  ) #%>% 
+#select(-wind_speed_avg_1)
 
 #Take a look
 str(weatherhawk_raw_1)  
@@ -61,14 +61,14 @@ str(weatherhawk_raw_1)
 weatherhawk_raw_2 <- weatherhawk_raw %>% 
   slice(-c(9398:16598)) %>% 
   clean_names() %>% 
-  select(-1) %>% 
+  select(-1,-5,-7, -17, -18) %>% 
   mutate(
     date_time = ymd_hms(date_time),
     air_temp_avg = as.numeric(air_temp_avg),
     air_temp_min = as.numeric(air_temp_min),
-    air_temp_min_time = ymd_hms(air_temp_min_time),
+    #air_temp_min_time = ymd_hms(air_temp_min_time),
     air_temp_max = as.numeric(air_temp_max),
-    air_temp_max_time = ymd_hms(air_temp_max_time),
+    #air_temp_max_time = ymd_hms(air_temp_max_time),
     humidity = as.numeric(humidity),
     barometer = as.numeric(barometer),
     battery = as.numeric(battery),
@@ -78,11 +78,11 @@ weatherhawk_raw_2 <- weatherhawk_raw %>%
     solar_avg = as.numeric(solar_avg),
     wind_speed_avg = as.numeric(wind_speed_avg),
     wind_speed_max = as.numeric(wind_speed_max),
-    wind_speed_max_time = ymd_hms(wind_speed_max_time),
-    wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
+    #wind_speed_max_time = ymd_hms(wind_speed_max_time),
+    #wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
     wind_direction = as.numeric(wind_direction)
-  ) %>% 
-  select(-wind_speed_avg_1)
+  ) #%>% 
+  #select(-wind_speed_avg_1)
 
 #Take a look
 str(weatherhawk_raw_2)  
@@ -91,42 +91,43 @@ str(weatherhawk_raw_2)
 #NOTE: Issues with 2019 raw data from Castle Lake data repo. 
 #      Obtained air temperature and solar radiation data for missing segments
 
-weatherhawk_2019 <- read_csv(here('data/met_data/weatherhawk/cal_weatherhawk_2019.csv')) %>% 
-  clean_names() %>% 
-  select(-record_id) %>% 
-  mutate(
-    date_time = ymd_hms(date_time),
-    air_temp_avg = as.numeric(air_temp_avg),
-    air_temp_min = as.numeric(air_temp_min),
-    air_temp_min_time = ymd_hms(air_temp_min_time),
-    air_temp_max = as.numeric(air_temp_max),
-    air_temp_max_time = ymd_hms(air_temp_max_time),
-    humidity = as.numeric(humidity),
-    barometer = as.numeric(barometer),
-    battery = as.numeric(battery),
-    min_battery = as.numeric(min_battery),
-    e_to = as.numeric(e_to),
-    rain_yearly = as.numeric(rain_yearly),
-    solar_avg = as.numeric(solar_avg),
-    wind_speed_avg = as.numeric(wind_speed_avg),
-    wind_speed_max = as.numeric(wind_speed_max),
-    wind_speed_max_time = ymd_hms(wind_speed_max_time),
-    wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
-    wind_direction = as.numeric(wind_direction)
-  ) %>% 
-  select(-wind_speed_avg_1)
+# weatherhawk_2019 <- read_csv(here('data/met_data/weatherhawk/cal_weatherhawk_2019.csv')) %>% 
+#   clean_names() %>% 
+#   select(-record_id) %>% 
+#   mutate(
+#     date_time = ymd_hms(date_time),
+#     air_temp_avg = as.numeric(air_temp_avg),
+#     air_temp_min = as.numeric(air_temp_min),
+#     air_temp_min_time = ymd_hms(air_temp_min_time),
+#     air_temp_max = as.numeric(air_temp_max),
+#     air_temp_max_time = ymd_hms(air_temp_max_time),
+#     humidity = as.numeric(humidity),
+#     barometer = as.numeric(barometer),
+#     battery = as.numeric(battery),
+#     min_battery = as.numeric(min_battery),
+#     e_to = as.numeric(e_to),
+#     rain_yearly = as.numeric(rain_yearly),
+#     solar_avg = as.numeric(solar_avg),
+#     wind_speed_avg = as.numeric(wind_speed_avg),
+#     wind_speed_max = as.numeric(wind_speed_max),
+#     wind_speed_max_time = ymd_hms(wind_speed_max_time),
+#     wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
+#     wind_direction = as.numeric(wind_direction)
+#   ) %>% 
+#   select(-wind_speed_avg_1)
 
 # 3. Combine and clean raw weatherhawk data-------------------------------------
 
 # 3a. Combine data----
-weatherhawk <- bind_rows(weatherhawk_raw_1, weatherhawk_raw_2, weatherhawk_2019)
+weatherhawk <- bind_rows(weatherhawk_raw_1, weatherhawk_raw_2) %>% 
+  arrange(date_time) #, weatherhawk_2019
 
-#write_csv(weatherhawk, here('data/met_data/weatherhawk_new/cal_weatherhawk_2020.csv'))
+#write_csv(weatherhawk, here('data/met_data/cal_weatherhawk_2017_2022.csv'))
 
 # 3b. Take daily averages for the important variables----
 
 weatherhawk_avg <- weatherhawk %>% 
-  select(1,2,3,5,7,8,12,13,14) %>%
+  #select(1,2,3,5,7,8,12,13,14) %>%
   mutate(
     year = year(date_time),
     month = month(date_time),
@@ -150,19 +151,19 @@ weatherhawk_avg <- weatherhawk %>%
   select(12, 4:11) %>% 
   pad()
 
-#write_csv(weatherhawk_avg, here('data/met_data/weatherhawk/weatherhawk_avg_2017_2022.csv'))
-# 
-# ggplot(data = weatherhawk_avg) +
-#   #geom_line(aes(x = date_time, y = air_temp_avg), size = 1.5)+
-#   geom_line(aes(x = date_time, y = solar_avg))
-#   #geom_line(aes(x = date_time, y = humidity_avg))
-#   
+#write_csv(weatherhawk_avg, here('data/met_data/weatherhawk_avg_2017_2022.csv'))
+
+ggplot(data = weatherhawk_avg) +
+  geom_line(aes(x = date_time, y = wind_speed_avg), size = 1.5)
+  #geom_line(aes(x = date_time, y = solar_avg))
+  #geom_line(aes(x = date_time, y = humidity_avg))
+
 
 # 4. Evaluate average seasonal temperatures-------------------------------------
 
 #Read in weatherhawk average data from 3b
 
-weatherhawk_avg <- read_csv(here('data/met_data/weatherhawk/weatherhawk_avg_2017_2022.csv'))
+weatherhawk_avg <- read_csv(here('data/met_data/weatherhawk_avg_2017_2022.csv'))
 
 # 4a. Create seasonal column----
 
@@ -251,7 +252,7 @@ seasonal_temp_summary <- wh_seasonal %>%
     solar_avg = mean(na.omit(solar_avg))
   )
 
-write_csv(seasonal_temp_summary, here('data/met_data/weatherhawk/temperature_summary_stats.csv'))
+#write_csv(seasonal_temp_summary, here('data/met_data/temperature_summary_stats.csv'))
 
 # 5. Clean and plot SNODAS------------------------------------------------------
 

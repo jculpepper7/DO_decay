@@ -266,17 +266,17 @@ water_d18O_vsmow <- bind_rows(water_d18O_vsmow_1, water_d18O_vsmow_2, water_d18O
 dry_mass_plt <- ggplot(data = ash_free_dry_mass)+
   # geom_point(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 5)+
   # geom_line(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 1.5)+
-  geom_boxplot(aes(x = lakename, y = ash_free_dry_mass, fill = lakename))+
+  geom_boxplot(aes(x = lakename, y = percent_org, fill = lakename))+
   theme_classic()+
   theme(legend.position = 'none')+
   xlab('')+
-  ylab('Ash-Free Dry Mass [g]')+
-  ggtitle('Ash-Free Dry Mass')+
+  ylab('Percent Organic Matter')+
+  ggtitle('')+
   scale_color_viridis_d(begin = 0.1, end = 0.9)
   
 dry_mass_plt
 
-#ggsave(here('output/sediment_plots/afdm_plot.jpeg'), dpi = 300)
+ggsave(here('output/sediment_plots/afdm_plot.jpeg'), dpi = 300)
 
 # 2b. sediment C:N ratio viz----------------------------------------------------
 
@@ -903,7 +903,26 @@ afdm_summ <- ash_free_dry_mass %>%
 
 #write_csv(afdm_summ, here('output/sediment_results/afdm_results.csv'))
 
-# 8b. 
+# 8b. Sediment C:N----
 
+sed_summ <- sediment_CN %>% 
+  filter(
+    duplicate == 'no'
+  ) %>% 
+  group_by(lakename) %>% 
+  summarise(
+    C_percent_mean = mean(C_percent),
+    C_percent_med = median(C_percent),
+    N_percent_mean = mean(N_percent),
+    N_percent_med = median(N_percent),
+    C_mass_mean = mean(C_mcgC_g),
+    C_mass_med = median(C_mcgC_g),
+    N_mass_mean = mean(N_mcgN_g),
+    N_mass_med = median(N_mcgN_g),
+    CN_ratio_mean = mean(CN_ratio),
+    CN_ratio_med = median(CN_ratio)
+  )
+
+#write_csv(sed_summ, here('output/sediment_results/sed_CN_summary.csv'))
 
 
