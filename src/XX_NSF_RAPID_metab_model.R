@@ -444,3 +444,7 @@ cdr_bookkeep <- metab.bookkeep(do.obs = cdr2020$doobs,
 #     datetime, wtr_3.0, doobs
 #   )
 
+
+ggplot(data = ss_do_2021)+
+  geom_line(aes(x = datetime, y = doobs), size = 1.5)+
+  theme_classic()
