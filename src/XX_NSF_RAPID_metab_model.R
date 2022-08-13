@@ -23,7 +23,7 @@ gb <- read_csv(here('data/processed/gumboot/gumboot_clean_agg_data.csv'), guess_
 ss <- read_csv(here('data/processed/soapstone/soapstone_clean_agg_data.csv'), guess_max = 50000)
 
 weatherhawk <- read_csv(here('data/met_data/cal_weatherhawk_2017_2022.csv')) %>% 
-  select(date_time, air_temp_avg, wind_speed_avg, solar_avg)
+  select(date_time, air_temp_avg, wind_speed_avg, solar_avg, rain_yearly)
 
 # 2. Get weatherhawk data from Castle-------------------------------------------
 #NOTE: Just run script 17_aggregate_cal_met_data.R
@@ -36,7 +36,9 @@ met_2020 <- weatherhawk %>%
          month(date_time)<11) %>% 
   select(datetime = date_time,
          wnd_2.0 = wind_speed_avg,
-         irr_avg = solar_avg)
+         irr_avg = solar_avg,
+         air_temp_avg,
+         rain_yearly)
 
 met_2021 <- weatherhawk %>% 
   filter(year(date_time) == 2021,
@@ -44,7 +46,9 @@ met_2021 <- weatherhawk %>%
          month(date_time)<11) %>% 
   select(datetime = date_time,
          wnd_2.0 = wind_speed_avg,
-         irr_avg = solar_avg)
+         irr_avg = solar_avg,
+         air_temp_avg,
+         rain_yearly)
 
 # 3. Organize DO values for each lake and year----------------------------------
 
@@ -65,7 +69,7 @@ cdr_do_2020 <- cdr %>%
   ) %>% 
   group_by(year, month, day, hour) %>% 
   summarise(
-    wtr_3.0 = mean(temp_c),
+    wtr_2.0 = mean(temp_c),
     doobs = mean(do_mg_l),
     do.sat = mean(do.sat)
   ) %>% 
@@ -79,7 +83,7 @@ cdr_do_2020 <- cdr %>%
     month(datetime)<11
   ) %>% 
   select(
-    datetime, wtr_3.0, doobs, do.sat
+    datetime, wtr_2.0, doobs, do.sat
   ) %>% 
   left_join(met_2020) %>% 
   mutate(
@@ -90,13 +94,50 @@ cdr_do_2020 <- cdr %>%
     irr = (1-0.1)*irr_surface*(1-exp(-kd*z.mix))/(kd*z.mix),
     U10 = wind.scale.base(wnd=wnd_2.0, wnd.z=14),
     k600 = k.vachon.base(wnd=U10, lake.area=30000),
-    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_3.0, gas="O2"),
+    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_2.0, gas="O2"),
     irr_01 = if_else(
       irr != 0, 1, 0
     )
   ) %>% 
   na.omit %>% 
   distinct(datetime, .keep_all = TRUE)
+
+#Add temperature sensor at the 2m water depth
+cdr_do_2.0_2020 <- cdr %>% 
+  filter(year(date_time) == 2020) %>% 
+  select(datetime = date_time,
+         temp_c,
+         depth) %>% 
+  filter(depth == '2m') %>% 
+  mutate(
+    year = year(datetime),
+    month = month(datetime),
+    day = day(datetime),
+    hour = hour(datetime)
+  ) %>% 
+  group_by(year, month, day, hour) %>% 
+  summarise(
+    wtr_1.0 = mean(temp_c)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    datetime = make_datetime(year = year, month = month, day = day, hour = hour),
+    datetime = as.POSIXlt(datetime)
+  ) %>% 
+  filter(
+    month(datetime)>5,
+    month(datetime)<11
+  ) %>% 
+  select(
+    datetime, wtr_1.0
+  ) %>% 
+  na.omit %>% 
+  distinct(datetime, .keep_all = TRUE)
+
+#combine cdr_do_2.0_2020 to cdr_do_2020
+
+cdr_do_2020 <- left_join(cdr_do_2020, cdr_do_2.0_2020) %>% 
+  select(1, 18, 2:17) 
 
 # 3b. Cedar 2021----
 cdr_do_2021 <- cdr %>% 
@@ -115,7 +156,7 @@ cdr_do_2021 <- cdr %>%
   ) %>% 
   group_by(year, month, day, hour) %>% 
   summarise(
-    wtr_3.0 = mean(temp_c),
+    wtr_2.0 = mean(temp_c),
     doobs = mean(do_mg_l),
     do.sat = mean(do.sat)
   ) %>% 
@@ -129,7 +170,7 @@ cdr_do_2021 <- cdr %>%
     month(datetime)<11
   ) %>% 
   select(
-    datetime, wtr_3.0, doobs, do.sat
+    datetime, wtr_2.0, doobs, do.sat
   ) %>% 
   left_join(met_2021) %>% 
   mutate(
@@ -140,13 +181,50 @@ cdr_do_2021 <- cdr %>%
     irr = (1-0.1)*irr_surface*(1-exp(-kd*z.mix))/(kd*z.mix),
     U10 = wind.scale.base(wnd=wnd_2.0, wnd.z=14),
     k600 = k.vachon.base(wnd=U10, lake.area=30000),
-    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_3.0, gas="O2"),
+    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_2.0, gas="O2"),
     irr_01 = if_else(
       irr != 0, 1, 0
     )
   ) %>% 
   na.omit %>% 
   distinct(datetime, .keep_all = TRUE)
+
+#Add temperature sensor at the 2m water depth
+cdr_do_2.0_2021 <- cdr %>% 
+  filter(year(date_time) == 2021) %>% 
+  select(datetime = date_time,
+         temp_c,
+         depth) %>% 
+  filter(depth == '2m') %>% 
+  mutate(
+    year = year(datetime),
+    month = month(datetime),
+    day = day(datetime),
+    hour = hour(datetime)
+  ) %>% 
+  group_by(year, month, day, hour) %>% 
+  summarise(
+    wtr_1.0 = mean(temp_c)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    datetime = make_datetime(year = year, month = month, day = day, hour = hour),
+    datetime = as.POSIXlt(datetime)
+  ) %>% 
+  filter(
+    month(datetime)>5,
+    month(datetime)<11
+  ) %>% 
+  select(
+    datetime, wtr_1.0
+  ) %>% 
+  na.omit %>% 
+  distinct(datetime, .keep_all = TRUE)
+
+#combine cdr_do_2.0_2021 to cdr_do_2021
+
+cdr_do_2021 <- left_join(cdr_do_2021, cdr_do_2.0_2021) %>% 
+  select(1, 18, 2:17) 
 
 # 3c. Gumboot 2020----
 gb_do_2020 <- gb %>% 
@@ -165,7 +243,7 @@ gb_do_2020 <- gb %>%
   ) %>% 
   group_by(year, month, day, hour) %>% 
   summarise(
-    wtr_3.0 = mean(temp_c),
+    wtr_2.0 = mean(temp_c),
     doobs = mean(do_mg_l),
     do.sat = mean(do.sat)
   ) %>% 
@@ -179,7 +257,7 @@ gb_do_2020 <- gb %>%
     month(datetime)<11
   ) %>% 
   select(
-    datetime, wtr_3.0, doobs, do.sat
+    datetime, wtr_2.0, doobs, do.sat
   ) %>% 
   left_join(met_2020) %>% 
   mutate(
@@ -190,13 +268,50 @@ gb_do_2020 <- gb %>%
     irr = (1-0.1)*irr_surface*(1-exp(-kd*z.mix))/(kd*z.mix),
     U10 = wind.scale.base(wnd=wnd_2.0, wnd.z=14),
     k600 = k.vachon.base(wnd=U10, lake.area=44000),
-    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_3.0, gas="O2"),
+    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_2.0, gas="O2"),
     irr_01 = if_else(
       irr != 0, 1, 0
     )
   ) %>% 
   na.omit %>% 
   distinct(datetime, .keep_all = TRUE)
+
+#Add temperature sensor at the 2m water depth
+gb_do_2.0_2020 <- gb %>% 
+  filter(year(date_time) == 2020) %>% 
+  select(datetime = date_time,
+         temp_c,
+         depth) %>% 
+  filter(depth == '2m') %>% 
+  mutate(
+    year = year(datetime),
+    month = month(datetime),
+    day = day(datetime),
+    hour = hour(datetime)
+  ) %>% 
+  group_by(year, month, day, hour) %>% 
+  summarise(
+    wtr_1.0 = mean(temp_c)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    datetime = make_datetime(year = year, month = month, day = day, hour = hour),
+    datetime = as.POSIXlt(datetime)
+  ) %>% 
+  filter(
+    month(datetime)>5,
+    month(datetime)<11
+  ) %>% 
+  select(
+    datetime, wtr_1.0
+  ) %>% 
+  na.omit %>% 
+  distinct(datetime, .keep_all = TRUE)
+
+#combine gb_do_2.0_2020 to gb_do_2020
+
+gb_do_2020 <- left_join(gb_do_2020, gb_do_2.0_2020) %>% 
+  select(1, 18, 2:17) 
 
 # 3d. Gumboot 2021----
 gb_do_2021 <- gb %>% 
@@ -215,7 +330,7 @@ gb_do_2021 <- gb %>%
   ) %>% 
   group_by(year, month, day, hour) %>% 
   summarise(
-    wtr_3.0 = mean(temp_c),
+    wtr_2.0 = mean(temp_c),
     doobs = mean(do_mg_l),
     do.sat = mean(do.sat)
   ) %>% 
@@ -229,7 +344,7 @@ gb_do_2021 <- gb %>%
     month(datetime)<11
   ) %>% 
   select(
-    datetime, wtr_3.0, doobs, do.sat
+    datetime, wtr_2.0, doobs, do.sat
   ) %>% 
   left_join(met_2021) %>% 
   mutate(
@@ -240,13 +355,50 @@ gb_do_2021 <- gb %>%
     irr = (1-0.1)*irr_surface*(1-exp(-kd*z.mix))/(kd*z.mix),
     U10 = wind.scale.base(wnd=wnd_2.0, wnd.z=14),
     k600 = k.vachon.base(wnd=U10, lake.area=44000),
-    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_3.0, gas="O2"),
+    k.gas = k600.2.kGAS.base(k600=k600, temperature=wtr_2.0, gas="O2"),
     irr_01 = if_else(
       irr != 0, 1, 0
     )
   ) %>% 
   na.omit %>% 
   distinct(datetime, .keep_all = TRUE)
+
+#Add temperature sensor at the 2m water depth
+gb_do_2.0_2021 <- gb %>% 
+  filter(year(date_time) == 2021) %>% 
+  select(datetime = date_time,
+         temp_c,
+         depth) %>% 
+  filter(depth == '2m') %>% 
+  mutate(
+    year = year(datetime),
+    month = month(datetime),
+    day = day(datetime),
+    hour = hour(datetime)
+  ) %>% 
+  group_by(year, month, day, hour) %>% 
+  summarise(
+    wtr_1.0 = mean(temp_c)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    datetime = make_datetime(year = year, month = month, day = day, hour = hour),
+    datetime = as.POSIXlt(datetime)
+  ) %>% 
+  filter(
+    month(datetime)>5,
+    month(datetime)<11
+  ) %>% 
+  select(
+    datetime, wtr_1.0
+  ) %>% 
+  na.omit %>% 
+  distinct(datetime, .keep_all = TRUE)
+
+#combine gb_do_2.0_2020 to gb_do_2020
+
+gb_do_2021 <- left_join(gb_do_2021, gb_do_2.0_2021) %>% 
+  select(1, 18, 2:17) 
 
 # 3e. Soapstone 2020----
 ss_do_2020 <- ss %>% 
