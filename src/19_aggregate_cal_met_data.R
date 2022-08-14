@@ -20,7 +20,9 @@ weatherhawk_raw <- list.files(
   pattern = '*.csv',
   full.names = TRUE
 ) %>% 
-  map_dfr(~read_csv(., col_types = cols(.default = "c")))
+  map_dfr(~read_csv(., col_types = cols(.default = "c"))) %>% 
+  rename(wind_speed_avg = 15) %>% 
+  select(-18)
 
 #NOTE: upon inspection, the weatherhawk data changes date_time style 
 #      (from ymd_hms to dmy_hms) which causes a failure to parse all
@@ -51,8 +53,7 @@ weatherhawk_raw_1 <- weatherhawk_raw %>%
     #wind_speed_max_time = mdy_hm(wind_speed_max_time),
     #wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
     wind_direction = as.numeric(wind_direction)
-  ) #%>% 
-#select(-wind_speed_avg_1)
+  ) 
 
 #Take a look
 str(weatherhawk_raw_1)  
@@ -126,6 +127,8 @@ weatherhawk <- bind_rows(weatherhawk_raw_1, weatherhawk_raw_2) %>%
 
 # 3b. Take daily averages for the important variables----
 
+weatherhawk <- read_csv(here('data/met_data/cal_weatherhawk_2017_2022.csv'))
+
 weatherhawk_avg <- weatherhawk %>% 
   #select(1,2,3,5,7,8,12,13,14) %>%
   mutate(
@@ -154,9 +157,12 @@ weatherhawk_avg <- weatherhawk %>%
 #write_csv(weatherhawk_avg, here('data/met_data/weatherhawk_avg_2017_2022.csv'))
 
 ggplot(data = weatherhawk_avg) +
-  geom_line(aes(x = date_time, y = wind_speed_avg), size = 1.5)
-  #geom_line(aes(x = date_time, y = solar_avg))
-  #geom_line(aes(x = date_time, y = humidity_avg))
+  geom_line(aes(x = date_time, y = air_temp_avg), size = 1.5, color = 'black')+
+  geom_line(aes(x = date_time, y = rain_yearly), color = 'grey')+
+  theme_classic()+
+  xlab('')+
+  ylab('Air Temperature (ºC)') #Alt+0 = degree symbol
+  
 
 
 # 4. Evaluate average seasonal temperatures-------------------------------------

@@ -6,6 +6,7 @@
 
 # libraries
 library(tidyverse)
+library()
 library(padr)
 library(patchwork)
 library(plotly)
@@ -76,25 +77,28 @@ gumboot_w_avg <- gumboot %>%
 
 # 4. data viz of averaged data (daily average)
 
+#value for secondary axis (temperature)
+coeff <- 1
+
 gumboot_avg_plt <- ggplot()+ 
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2019-11-23')),
-    xmax = as.numeric(as.Date('2020-05-04')),
+    xmin = ymd('2019-11-23'),
+    xmax = ymd('2020-05-04'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2020-11-18')),
-    xmax = as.numeric(as.Date('2021-05-02')),
+    xmin = ymd('2020-11-18'),
+    xmax = ymd('2021-05-02'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2021-12-18')),
-    xmax = as.numeric(as.Date('2022-04-07')),
+    xmin = ymd('2021-12-18'),
+    xmax = ymd('2022-04-07'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   # geom_vline(xintercept = as.numeric(
   #   c(
   #     as.Date("2019-11-26"), 
@@ -104,11 +108,15 @@ gumboot_avg_plt <- ggplot()+
   #     as.Date("2021-12-12"), 
   #     as.Date("2022-04-02")
   #     )))+
-  #geom_line(data = cedar_w_avg, aes(x = date, y = temp_c, color = depth), size = 1.2)+
+  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth), size = 1.2)+
   geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  scale_y_continuous(
+    name = '', #Alt+0176 for degree symbol
+    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
   theme(legend.position = 'bottom',
@@ -148,3 +156,16 @@ gumboot_do_sat
 
 ggsave(here('output/plots/gumboot_do_saturation_20_21.png'), dpi = 500)
 
+
+
+
+
+
+
+
+
+
+#Patchwork for fig for paper
+
+soapstone_avg_plt / cedar_avg_plt / gumboot_avg_plt
+  
