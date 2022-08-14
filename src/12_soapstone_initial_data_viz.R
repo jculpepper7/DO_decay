@@ -6,6 +6,8 @@
 
 # libraries
 library(tidyverse)
+library(lubridate)
+library(here)
 library(padr)
 library(patchwork)
 library(plotly)
@@ -76,33 +78,39 @@ soapstone_w_avg <- soapstone %>%
 
 soapstone_avg_plt <- ggplot()+ 
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2019-11-21')),
-    xmax = as.numeric(as.Date('2020-05-04')),
+    xmin = ymd('2019-11-21'),
+    xmax = ymd('2020-05-04'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2020-11-06')),
-    xmax = as.numeric(as.Date('2021-04-24')),
+    xmin = ymd('2020-11-06'),
+    xmax = ymd('2021-04-24'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2021-12-11')),
-    xmax = as.numeric(as.Date('2022-04-24')),
+    xmin = ymd('2021-12-11'),
+    xmax = ymd('2022-04-24'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_line(data = soapstone_w_avg %>% filter(depth == '1m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth), size = 1.2)+
   geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  scale_y_continuous(
+    name = '', #Alt+0176 for degree symbol
+    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
-  theme(legend.position = 'bottom',
+  theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 10),
+        axis.text.x = element_blank())
 soapstone_avg_plt
 #ggplotly(soapstone_avg_plt)
 

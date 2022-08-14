@@ -107,15 +107,21 @@ cedar_avg_plt <- ggplot()+
   #     )))+
   geom_line(data = cedar_w_avg %>% filter(depth == '1m' | depth == '2m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth), size = 1.2)+
   geom_line(data = cedar_w_avg %>% filter(depth == '1m'), inherit.aes = FALSE, aes(x = date, y = do_mg_l), size = 1.5)+
+  geom_line(data = cedar_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
+  scale_y_continuous(
+    name = 'Dissolved Oxygen (mg/L)', #Alt+0176 for degree symbol
+    sec.axis = sec_axis(~.*coeff, name = 'Air Temperature (°C)') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
-  theme(legend.position = 'bottom',
+  theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 10),
+        axis.text.x = element_blank())
 cedar_avg_plt
 #ggplotly(cedar_avg_plt)
 
