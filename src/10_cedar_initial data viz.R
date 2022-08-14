@@ -6,6 +6,8 @@
 
 # libraries
 library(tidyverse)
+library(here)
+library(lubridate)
 library(padr)
 library(patchwork)
 library(plotly)
@@ -77,23 +79,23 @@ cedar_w_avg <- cedar %>%
 
 cedar_avg_plt <- ggplot()+ 
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2019-11-26')),
-    xmax = as.numeric(as.Date('2020-04-12')),
+    xmin = ymd('2019-11-26'),
+    xmax = ymd('2020-04-12'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2020-11-18')),
-    xmax = as.numeric(as.Date('2021-04-17')),
+    xmin = ymd('2020-11-18'),
+    xmax = ymd('2021-04-17'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2021-12-12')),
-    xmax = as.numeric(as.Date('2022-04-02')),
+    xmin = ymd('2021-12-12'),
+    xmax = ymd('2022-04-02'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   # geom_vline(xintercept = as.numeric(
   #   c(
   #     as.Date("2019-11-26"), 
@@ -103,8 +105,8 @@ cedar_avg_plt <- ggplot()+
   #     as.Date("2021-12-12"), 
   #     as.Date("2022-04-02")
   #     )))+
-  #geom_line(data = cedar_w_avg, aes(x = date, y = temp_c, color = depth), size = 1.2)+
-  geom_line(data = cedar_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
+  geom_line(data = cedar_w_avg %>% filter(depth == '1m' | depth == '2m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth), size = 1.2)+
+  geom_line(data = cedar_w_avg %>% filter(depth == '1m'), inherit.aes = FALSE, aes(x = date, y = do_mg_l), size = 1.5)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
@@ -129,7 +131,7 @@ cedar_facet <- ggplot(data = cedar_w_avg) +
   ylim(c(0, 32))
 cedar_facet
 
-ggsave(here('output/plots/cedar_facet_20_21.png'), dpi = 500)
+#ggsave(here('output/plots/cedar_facet_20_21.png'), dpi = 500)
 
 cedar_do_conc <- ggplot(data = cedar) +
   geom_line(aes(x = date_time, y = do_mg_l)) +
@@ -137,7 +139,7 @@ cedar_do_conc <- ggplot(data = cedar) +
   ggtitle('Cedar DO [mg/L]')
 cedar_do_conc
 
-ggsave(here('output/plots/cedar_do_concentration_20_21.png'), dpi = 500)
+#ggsave(here('output/plots/cedar_do_concentration_20_21.png'), dpi = 500)
 
 cedar_do_sat <- ggplot(data = cedar)+
   geom_line(aes(x = date_time, y = do_sat))+
@@ -145,7 +147,7 @@ cedar_do_sat <- ggplot(data = cedar)+
   ggtitle('Cedar DO Saturation [%]')
 cedar_do_sat
 
-ggsave(here('output/plots/cedar_do_saturation_20_21.png'), dpi = 500)
+#ggsave(here('output/plots/cedar_do_saturation_20_21.png'), dpi = 500)
 
 
 
