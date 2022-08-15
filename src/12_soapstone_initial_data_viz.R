@@ -112,7 +112,7 @@ soapstone_avg_plt <- ggplot()+
         axis.text = element_text(size = 10),
         axis.text.x = element_blank())
 soapstone_avg_plt
-#ggplotly(soapstone_avg_plt)
+ggplotly(soapstone_avg_plt)
 
 #ggsave(here('output/lake_final_plts/soapstone_do_plt.jpeg'), dpi = 300)
 

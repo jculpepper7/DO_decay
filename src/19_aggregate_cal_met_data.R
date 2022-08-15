@@ -157,8 +157,8 @@ weatherhawk_avg <- weatherhawk %>%
 #write_csv(weatherhawk_avg, here('data/met_data/weatherhawk_avg_2017_2022.csv'))
 
 ggplot(data = weatherhawk_avg) +
-  geom_line(aes(x = date_time, y = air_temp_avg), size = 1.5, color = 'black')+
-  geom_line(aes(x = date_time, y = rain_yearly), color = 'grey')+
+  geom_line(aes(x = date_time, y = air_temp_avg), size = 1.2, color = 'black')+
+  geom_line(aes(x = date_time, y = rain_yearly), size = 1.2, color = 'grey')+
   theme_classic()+
   xlab('')+
   ylab('Air Temperature (ºC)') #Alt+0 = degree symbol
