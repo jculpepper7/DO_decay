@@ -203,7 +203,9 @@ ggplotly(cliff_plt_21)
 cliff <- cliff_2020_mean %>% 
   bind_rows(cliff_2021_mean) %>% 
   select(1:10, 16, 11:15) %>% 
-  pivot_longer(cols = 3:11, names_to = 'depth', values_to = 'temp_c')
+  pivot_longer(cols = 3:11, names_to = 'depth', values_to = 'temp_c') %>% 
+  select(1,2,3,4,8,9)
+
 
 #Temperature plot
 
@@ -218,28 +220,36 @@ cliff_temp_plt
 
 # 6. Final plot for Cliff---------------------------------------------
 
+coeff = 1
+
 cliff_avg_plt <- ggplot()+ 
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2019-12-09')),
-    xmax = as.numeric(as.Date('2020-05-01')),
+    xmin = ymd('2019-12-09'),
+    xmax = ymd('2020-05-01'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
   geom_rect(aes(
-    xmin = as.numeric(as.Date('2020-12-01')),
-    xmax = as.numeric(as.Date('2021-04-11')),
+    xmin = ymd('2020-12-01'),
+    xmax = ymd('2021-04-11'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'gray')+
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_line(data = cliff, aes(x = date, y = temp_c, color = depth))+
   geom_line(data = cliff, aes(x = date, y = do_mg_l), size = 1.5)+
-  #scale_color_grey(name = 'Depth   ')+
+  scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
-  theme(legend.position = 'bottom',
+  scale_y_continuous(
+    name = '', #Alt+0176 for degree symbol
+    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  )+
+  theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 10))+
+  scale_x_date(date_breaks = '1 year', date_labels = '%Y')
 cliff_avg_plt
 ggplotly(cliff_avg_plt)
 
-#ggsave(here('output/lake_final_plts/cliff_do_plt.jpeg'), dpi = 300)
+ggsave(here('output/lake_final_plts/cliff_do_plt_w_temp.jpeg'), dpi = 300)

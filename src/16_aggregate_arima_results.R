@@ -341,7 +341,7 @@ do_decay <- read_csv(here('output/ARIMA_results/do_decay_aggregated.csv')) %>%
     segment = as.factor(segment),
     changepoint = as.factor(changepoint),
     water_year = as.factor(water_year)
-  )
+  ) 
 
 do_decay_summary <- do_decay %>% 
   group_by(lake, water_year) %>% 
@@ -359,20 +359,36 @@ do_decay_summary_lake <- do_decay %>%
     median = median(drift),
     max = max(drift),
     min = min(drift)
-  )
+  ) 
 
 # 9. Data visualization-----------------------------------------------
 
-ggplot(data = do_decay)+
-  geom_point(aes(x = water_year, y = drift, color = lake, shape = changepoint), stroke = 1, size = 2)+
-  theme_classic()+
-  facet_wrap(~segment, scales = 'free')
+do_reorder <- do_decay
 
-ggplot(data = do_decay)+
+do_reorder$lake <- factor(do_reorder$lake, levels = c('soapstone', 'cedar', 'gumboot','cliff', 'castle'))
+
+# ggplot(data = do_reorder)+
+#   geom_point(aes(x = water_year, y = drift, color = lake, shape = changepoint), stroke = 1, size = 2)+
+#   theme_classic()+
+#   facet_wrap(~segment, scales = 'free')
+
+#upper case labels
+decay_labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
+
+#DO decay plot
+do_decay_plt <- ggplot(data = do_reorder)+
   geom_boxplot(aes(x = lake, y = drift))+
+  #geom_boxplot(aes(x = reorder(lake,drift,mean), y = drift))+
   geom_jitter(aes(x = lake, y = drift, fill = water_year), pch = 21, width = 0.2, size = 3, stroke = 1.2)+
   theme_classic()+
-  facet_wrap(~lake, scales = 'free')
-
+  theme(
+    legend.position = c(0.9, 0.3 ),
+    legend.background = element_rect(fill = "white", color = "black"),
+    legend.title = element_blank()
+  )+
+  xlab('')+
+  ylab(bquote('Decay Rate ('*mg~ L^-1~ d^-1*')'))+
+  scale_x_discrete(labels = decay_labels)
+do_decay_plt
 #ggsave(here('output/ARIMA_results/do_decay_boxplot_update_2022.07.18.jpeg'), dpi = 300)
 

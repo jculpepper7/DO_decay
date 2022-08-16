@@ -27,22 +27,22 @@ gumboot <- read_csv(here('data/processed/gumboot/gumboot_clean_agg_data_2022.csv
 
 # 2. Data viz of unaltered data-------------------------------------------------
 
-gumboot_plt_non_avg <- ggplot(data = gumboot)+
-  geom_line(aes(x = date_time, y = temp_c, color = depth), size = 1)+
-  geom_line(aes(x = date_time, y = do_mg_l), size = 1)+
-  theme_classic()+  
-  ggtitle("gumboot Lake")+
-  xlab("")+
-  ylab("Temperature [C] / DO [mg/L]")+
-  theme_classic()+
-  theme(text = element_text(size = 20),
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
-        axis.text.y = element_text(size = 20),
-        plot.title = element_text(hjust = 0.5))+
-  scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
-#scale_color_viridis(discrete = TRUE, option = "D")+ #for colorblind friendly option
-#scale_x_date(breaks = "month", labels = date_format("%b %Y"))
-gumboot_plt_non_avg
+# gumboot_plt_non_avg <- ggplot(data = gumboot)+
+#   geom_line(aes(x = date_time, y = temp_c, color = depth), size = 1)+
+#   geom_line(aes(x = date_time, y = do_mg_l), size = 1)+
+#   theme_classic()+  
+#   ggtitle("gumboot Lake")+
+#   xlab("")+
+#   ylab("Temperature [C] / DO [mg/L]")+
+#   theme_classic()+
+#   theme(text = element_text(size = 20),
+#         axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
+#         axis.text.y = element_text(size = 20),
+#         plot.title = element_text(hjust = 0.5))+
+#   scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
+# #scale_color_viridis(discrete = TRUE, option = "D")+ #for colorblind friendly option
+# #scale_x_date(breaks = "month", labels = date_format("%b %Y"))
+# gumboot_plt_non_avg
 
 #ggsave(here('output/plots/gumboot_20_21.png'), dpi = 500)
 
@@ -108,8 +108,8 @@ gumboot_avg_plt <- ggplot()+
   #     as.Date("2021-12-12"), 
   #     as.Date("2022-04-02")
   #     )))+
-  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth), size = 1.2)+
-  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
+  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth))+
+  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l))+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
@@ -119,7 +119,7 @@ gumboot_avg_plt <- ggplot()+
   )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
-  theme(legend.position = 'bottom',
+  theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
         axis.text = element_text(size = 10))
@@ -130,31 +130,31 @@ gumboot_avg_plt
 
 # 5. Alt visualizations
 
-gumboot_facet <- ggplot(data = gumboot) +
-  geom_line(aes(x = date_time, y = temp_c))+
-  theme_classic()+  
-  facet_wrap(~depth) +
-  ggtitle('gumboot Temperature')+
-  ylim(c(0, 32))
-gumboot_facet
-
-ggsave(here('output/plots/gumboot_facet_20_21.png'), dpi = 500)
-
-gumboot_do_conc <- ggplot(data = gumboot) +
-  geom_line(aes(x = date_time, y = do_mg_l)) +
-  theme_classic()+
-  ggtitle('gumboot DO [mg/L]')
-gumboot_do_conc
-
-ggsave(here('output/plots/gumboot_do_concentration_20_21.png'), dpi = 500)
-
-gumboot_do_sat <- ggplot(data = gumboot)+
-  geom_line(aes(x = date_time, y = do_sat))+
-  theme_classic()+
-  ggtitle('gumboot DO Saturation [%]')
-gumboot_do_sat
-
-ggsave(here('output/plots/gumboot_do_saturation_20_21.png'), dpi = 500)
+# gumboot_facet <- ggplot(data = gumboot) +
+#   geom_line(aes(x = date_time, y = temp_c))+
+#   theme_classic()+  
+#   facet_wrap(~depth) +
+#   ggtitle('gumboot Temperature')+
+#   ylim(c(0, 32))
+# gumboot_facet
+# 
+# ggsave(here('output/plots/gumboot_facet_20_21.png'), dpi = 500)
+# 
+# gumboot_do_conc <- ggplot(data = gumboot) +
+#   geom_line(aes(x = date_time, y = do_mg_l)) +
+#   theme_classic()+
+#   ggtitle('gumboot DO [mg/L]')
+# gumboot_do_conc
+# 
+# ggsave(here('output/plots/gumboot_do_concentration_20_21.png'), dpi = 500)
+# 
+# gumboot_do_sat <- ggplot(data = gumboot)+
+#   geom_line(aes(x = date_time, y = do_sat))+
+#   theme_classic()+
+#   ggtitle('gumboot DO Saturation [%]')
+# gumboot_do_sat
+# 
+# ggsave(here('output/plots/gumboot_do_saturation_20_21.png'), dpi = 500)
 
 
 
@@ -168,4 +168,5 @@ ggsave(here('output/plots/gumboot_do_saturation_20_21.png'), dpi = 500)
 #Patchwork for fig for paper
 
 soapstone_avg_plt / cedar_avg_plt / gumboot_avg_plt
-  
+
+ggsave(here('output/lake_final_plts/ss_cdr_gb_combined.jpeg'), dpi = 300)  

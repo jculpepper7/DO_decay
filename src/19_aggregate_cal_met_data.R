@@ -52,7 +52,7 @@ weatherhawk_raw_1 <- weatherhawk_raw %>%
     wind_speed_max = as.numeric(wind_speed_max),
     #wind_speed_max_time = mdy_hm(wind_speed_max_time),
     #wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
-    wind_direction = as.numeric(wind_direction)
+    #wind_direction = as.numeric(wind_direction)
   ) 
 
 #Take a look
@@ -81,7 +81,7 @@ weatherhawk_raw_2 <- weatherhawk_raw %>%
     wind_speed_max = as.numeric(wind_speed_max),
     #wind_speed_max_time = ymd_hms(wind_speed_max_time),
     #wind_speed_avg_1 = as.numeric(wind_speed_avg_1),
-    wind_direction = as.numeric(wind_direction)
+    #wind_direction = as.numeric(wind_direction)
   ) #%>% 
   #select(-wind_speed_avg_1)
 
@@ -156,14 +156,33 @@ weatherhawk_avg <- weatherhawk %>%
 
 #write_csv(weatherhawk_avg, here('data/met_data/weatherhawk_avg_2017_2022.csv'))
 
-ggplot(data = weatherhawk_avg) +
-  geom_line(aes(x = date_time, y = air_temp_avg), size = 1.2, color = 'black')+
-  geom_line(aes(x = date_time, y = rain_yearly), size = 1.2, color = 'grey')+
+# Add gridmet precip data----
+
+gridmet_precip <- read_csv(here('data/met_data/gridmet/castle_gridmet_precip_2018_2022.csv'))
+
+gridmet_precip <- gridmet_precip %>% 
+  rename(
+    date_time = 1, 
+    precip_mm = 2
+  )
+
+temp_plt <- ggplot(data = weatherhawk_avg) +
+  geom_line(aes(x = date_time, y = air_temp_avg), size = 1, color = 'black')+
   theme_classic()+
   xlab('')+
   ylab('Air Temperature (ºC)') #Alt+0 = degree symbol
-  
 
+precip_plt <- ggplot(data = weatherhawk_avg) +
+  geom_line(data = gridmet_precip, aes(x = date_time, y = precip_mm), size = 1, color = 'black')+
+  theme_classic()+
+  xlab('')+
+  ylab('Precipitation (mm)') 
+
+
+#combine temp and precip time series----
+temp_plt/precip_plt
+
+ggsave(here('output/lake_final_plts/temp_precip_plt.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
 
 # 4. Evaluate average seasonal temperatures-------------------------------------
 
@@ -188,57 +207,66 @@ wh_seasonal <- weatherhawk_avg %>%
 # 4b. Plot temperatures by season----
 
 #Fall average temperature plot
-wh_seasonal %>% 
+fall_plt <- wh_seasonal %>%
   filter(water_year != 2017,
-         season == 'fall') %>% 
+         water_year != 2022,
+         season == 'fall') %>%
 ggplot()+
-  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
-  #facet_wrap(~)+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg))+
+  #facet_wrap(~season)+
   theme_classic()+ 
-  labs(x = 'Water Year', y = 'Fall Average Air Temperature [C]')+
-  theme(legend.position = 'none')
+  labs(x = '', y = '')+
+  theme(legend.position = 'none')+
+  scale_x_discrete("", breaks=factor(2018:2022), drop=FALSE)
 
 #ggsave(here('output/met_results/fall_avg_temp.jpeg'), dpi = 300)  
   
 #Winter average temperature plot
-wh_seasonal %>% 
+winter_plt <- wh_seasonal %>% 
   filter(water_year != 2017,
          season == 'winter') %>% 
   ggplot()+
-  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg))+
   #facet_wrap(~)+
   theme_classic()+ 
-  labs(x = 'Water Year', y = 'Winter Average Air Temperature [C]')+
+  labs(x = '', y = '')+
   theme(legend.position = 'none')
 
 #ggsave(here('output/met_results/winter_avg_temp.jpeg'), dpi = 300) 
 
 #spring average temperature plot
-wh_seasonal %>% 
+spring_plt <- wh_seasonal %>% 
   filter(water_year != 2017,
          season == 'spring') %>% 
   ggplot()+
-  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg))+
   #facet_wrap(~)+
   theme_classic()+ 
-  labs(x = 'Water Year', y = 'Spring Average Air Temperature [C]')+
+  labs(x = '', y = '')+
   theme(legend.position = 'none')
 
 #ggsave(here('output/met_results/spring_avg_temp.jpeg'), dpi = 300) 
 
-#Fall average temperature plot
-wh_seasonal %>% 
+#Summer average temperature plot
+summer_plt <- wh_seasonal %>% 
   filter(water_year != 2017,
          water_year != 2022,
          season == 'summer') %>% 
   ggplot()+
-  geom_boxplot(aes(x = water_year, y = air_temp_avg, fill = water_year))+
+  geom_boxplot(aes(x = water_year, y = air_temp_avg))+
   #facet_wrap(~)+
   theme_classic()+ 
-  labs(x = 'Water Year', y = 'Summer Average Air Temperature [C]')+
-  theme(legend.position = 'none')
+  theme(legend.position = 'none')+
+  scale_x_discrete("", breaks=factor(2018:2022), drop=FALSE)+
+  ylab('')
 
 #ggsave(here('output/met_results/summer_avg_temp.jpeg'), dpi = 300) 
+
+#Combine temperature boxplots
+(winter_plt+spring_plt)/(summer_plt+fall_plt)+
+  plot_annotation(tag_levels = 'A')
+
+#ggsave(here('output/lake_final_plts/temperature_boxplt.jpeg'), dpi = 300, width = 15, height = 10, units = 'in')
 
 # 4c. Get output of temperature values------------------------------------------
 
@@ -323,6 +351,8 @@ snodas_summ_total <- snodas %>%
 
 #write_csv(snodas_summ_total, here('data/met_data/snodas/snodas_total.csv'))  
 
+#snodas <- read_csv(here('data/met_data/snodas/snodas_total.csv'))
+
 # SNODAS summary for each lakes
 snodas_summ_each <- snodas %>% 
   mutate(
@@ -354,19 +384,19 @@ ggplot()+
 
 #ggsave(here('output/met_results/snodas_by_lake.jpeg'), dpi = 300)  
 
-snodas %>% 
+swe_box <- snodas %>% 
   mutate(
     water_year = as.factor(if_else(month(date)>=10, year(date)+1, year(date)))
   ) %>% 
   filter(swe_mm != 0) %>% 
   ggplot()+
-  geom_boxplot(aes(x = water_year, y = swe_mm, fill = water_year))+
+  geom_boxplot(aes(x = water_year, y = swe_mm))+
   theme_classic()+
-  labs(x = '', y = 'SWE [mm]')+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+  labs(x = '', y = 'SWE (mm)')+
+  theme(#axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         legend.position = 'none')
 
-#ggsave(here('output/met_results/snodas_by_year.jpeg'), dpi = 300)  
+#ggsave(here('output/lake_final_plts/snodas_by_year_2022.08.15.jpeg'), dpi = 300, height = 10, width = 14, units = 'in')  
 
   
   

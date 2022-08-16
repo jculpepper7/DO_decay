@@ -95,8 +95,8 @@ soapstone_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = soapstone_w_avg %>% filter(depth == '1m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth), size = 1.2)+
-  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.5)+
+  geom_line(data = soapstone_w_avg %>% filter(depth == '1m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth))+
+  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l))+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
@@ -112,39 +112,39 @@ soapstone_avg_plt <- ggplot()+
         axis.text = element_text(size = 10),
         axis.text.x = element_blank())
 soapstone_avg_plt
-ggplotly(soapstone_avg_plt)
+#ggplotly(soapstone_avg_plt)
 
 #ggsave(here('output/lake_final_plts/soapstone_do_plt.jpeg'), dpi = 300)
 
 # 5. Alt visualizations
 
-soapstone_facet <- ggplot(data = soapstone) +
-  geom_line(aes(x = date_time, y = temp_c))+
-  theme_classic()+  
-  facet_wrap(~depth, ncol = 1) +
-  ggtitle('Soapstone Temperature')+
-  ylim(c(0, 32))
-soapstone_facet
-
-#ggsave(here('output/plots/soapstone_facet_20_21.png'), dpi = 500)
-
-soapstone_do_conc <- ggplot(data = soapstone) +
-  geom_line(aes(x = date_time, y = do_mg_l)) +
-  theme_classic()+
-  ggtitle('Soapstone DO [mg/L]')
-soapstone_do_conc
-
-ggplotly(soapstone_do_conc)
-
-#ggsave(here('output/plots/soapstone_do_concentration_20_21.png'), dpi = 500)
-
-soapstone_do_sat <- ggplot(data = soapstone)+
-  geom_line(aes(x = date_time, y = do_sat))+
-  theme_classic()+
-  ggtitle('Soapstone DO Saturation [%]')
-soapstone_do_sat
-
-ggplotly(soapstone_do_sat)
+# soapstone_facet <- ggplot(data = soapstone) +
+#   geom_line(aes(x = date_time, y = temp_c))+
+#   theme_classic()+  
+#   facet_wrap(~depth, ncol = 1) +
+#   ggtitle('Soapstone Temperature')+
+#   ylim(c(0, 32))
+# soapstone_facet
+# 
+# #ggsave(here('output/plots/soapstone_facet_20_21.png'), dpi = 500)
+# 
+# soapstone_do_conc <- ggplot(data = soapstone) +
+#   geom_line(aes(x = date_time, y = do_mg_l)) +
+#   theme_classic()+
+#   ggtitle('Soapstone DO [mg/L]')
+# soapstone_do_conc
+# 
+# ggplotly(soapstone_do_conc)
+# 
+# #ggsave(here('output/plots/soapstone_do_concentration_20_21.png'), dpi = 500)
+# 
+# soapstone_do_sat <- ggplot(data = soapstone)+
+#   geom_line(aes(x = date_time, y = do_sat))+
+#   theme_classic()+
+#   ggtitle('Soapstone DO Saturation [%]')
+# soapstone_do_sat
+# 
+# ggplotly(soapstone_do_sat)
 
 #ggsave(here('output/plots/soapstone_do_saturation_20_21.png'), dpi = 500)
 

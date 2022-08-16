@@ -7,6 +7,7 @@ library(tidyverse)
 library(lubridate)
 library(padr)
 library(plotly)
+library(patchwork)
 
 # 2. Import Castle clean, aggregated data-------------------
 
@@ -230,6 +231,10 @@ which(cal_20m_daily$date == as.POSIXct('2020-07-30')) #982
 
 cal_20m_daily <- cal_20m_daily[-c(972:982),] #Unclear why this increase occurs
 
+which(cal_20m_daily$date == as.POSIXct('2020-10-08')) #1030
+
+cal_20m_daily <- cal_20m_daily[-1030,] #Unclear why this increase occurs
+
 # 
 # ggplotly(ggplot(data = cal_03m_daily, aes(x = date, y = temp_c))+
 #            geom_line(size = 1.2))
@@ -237,7 +242,10 @@ cal_20m_daily <- cal_20m_daily[-c(972:982),] #Unclear why this increase occurs
 # 9. Aggregate the miniDOT data from each depth---------------------------------
 
 cal_all_depths <- bind_rows(cal_03m_daily, cal_10m_daily, cal_20m_daily, cal_30m_daily) %>% 
-  pad()
+  pad() %>% 
+  mutate(
+    lake = 'castle'
+  )
 
 
 # 10. Final plot for Castle-------------------------------------
@@ -275,23 +283,27 @@ castle_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = cal_all_depths, aes(x = date, y = temp_c, color = depth), size = 1.2)+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
+  geom_line(data = cal_all_depths, aes(x = date, y = temp_c, color = depth))+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
   geom_line(data = cal_all_depths %>% filter(depth =='30m'), aes(x = date, y = do_mg_l), size = 1.5)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '')+
   scale_y_continuous(
-    name = 'Dissolved Oxygen (mg/L)', #Alt+0176 for degree symbol
-    sec.axis = sec_axis(~.*coeff, name = 'Temperature (°C)') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+    name = '', #Alt+0176 for degree symbol
+    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
   )+
-  theme(legend.position = 'bottom',
+  theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
         axis.text = element_text(size = 10))
 castle_avg_plt
-#ggplotly(castle_avg_plt)
+ggplotly(castle_avg_plt)
 
-#ggsave(here('output/lake_final_plts/castle_do_plt.jpeg'), dpi = 300)
+#ggsave(here('output/lake_final_plts/castle_do_plt_w_temp.jpeg'), dpi = 300)
 
 
+#combine castle and cliff
 
+castle_avg_plt / cliff_avg_plt
+
+ggsave(here('output/lake_final_plts/castle_cliff_combined.jpeg'), dpi = 300)
