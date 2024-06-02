@@ -143,10 +143,10 @@ which(cal_03m_daily$date == as.POSIXct('2019-09-05')) #686
 
 cal_03m_daily <- cal_03m_daily[-c(669:686),] #Unclear why this increase occurs
 
-which(cal_03m_daily$date == as.POSIXct('2020-06-18')) #954
+which(cal_03m_daily$date == as.POSIXct('2020-05-12')) #917
 which(cal_03m_daily$date == as.POSIXct('2020-07-01')) #967
 
-cal_03m_daily <- cal_03m_daily[-c(954:967),] #Unclear why this increase occurs
+cal_03m_daily <- cal_03m_daily[-c(917:967),] #Unclear why this increase and subsequent decrease occurs
 
 which(cal_03m_daily$date == as.POSIXct('2020-07-24')) #972
 which(cal_03m_daily$date == as.POSIXct('2020-07-30')) #982
@@ -254,11 +254,11 @@ coeff <- 1
 
 castle_avg_plt <- ggplot()+ 
   geom_rect(aes(
-    xmin = ymd('2018-01-06'),
+    xmin = ymd('2017-12-11'),
     xmax = ymd('2018-04-11'),
     ymin = -Inf,
     ymax = Inf
-  ), fill = 'light blue', alpha = 0.5)+
+  ), fill = 'grey', alpha = 0.5)+
   geom_rect(aes(
     xmin = ymd('2018-12-24'),
     xmax = ymd('2019-06-01'),
@@ -283,27 +283,31 @@ castle_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = cal_all_depths, aes(x = date, y = temp_c, color = depth))+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
-  geom_line(data = cal_all_depths %>% filter(depth =='30m'), aes(x = date, y = do_mg_l), size = 1.5)+
+  geom_line(data = cal_all_depths %>% filter(date>='2017-10-01'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
+  geom_line(data = cal_all_depths %>% filter(depth =='30m', date>='2017-10-01'), aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
-  labs(x = '')+
-  scale_y_continuous(
-    name = '', #Alt+0176 for degree symbol
-    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  )+
+  xlab('')+ 
+  ylab('')+
+  #ylab('Dissolved Oxygen (mg/L)\nTemperature (°C)')+
+  # scale_y_continuous(
+  #   name = '', #Alt+0176 for degree symbol
+  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  # )+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 22),
+        axis.text.x = element_blank()
+        )
 castle_avg_plt
-ggplotly(castle_avg_plt)
+#ggplotly(castle_avg_plt)
 
 #ggsave(here('output/lake_final_plts/castle_do_plt_w_temp.jpeg'), dpi = 300)
 
 
 #combine castle and cliff
 
-castle_avg_plt / cliff_avg_plt
+cliff_avg_plt / castle_avg_plt
 
-ggsave(here('output/lake_final_plts/castle_cliff_combined.jpeg'), dpi = 300)
+#ggsave(here('output/lake_final_plts/castle_cliff_combined.jpeg'), dpi = 300, width = 16, height = 12, units = 'in')

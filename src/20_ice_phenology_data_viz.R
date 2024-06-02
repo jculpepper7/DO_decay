@@ -28,18 +28,24 @@ ice_phenology <- ice_phenology %>%
 
 #Ice on
 ice_on_plt <- ggplot(data = ice_phenology)+
-  geom_point(aes(x = water_year, y = ice_on_doy, shape = lake), size = 3)+
-  geom_line(aes(x = water_year, y = ice_on_doy, linetype = lake))+
+  geom_point(aes(x = water_year, y = ice_on_doy, shape = lake), size = 4)+
+  geom_line(aes(x = water_year, y = ice_on_doy, linetype = lake), size = 1.1)+
   theme_classic()+
   labs(x = '', y = 'Ice On DOY')+
   scale_shape_discrete(labels = c('Castle', 'Cedar', 'Cliff', 'Gumboot', 'Soapstone'))+
   scale_linetype_discrete(labels = c('Castle', 'Cedar', 'Cliff', 'Gumboot', 'Soapstone'))+
   theme(
-    legend.position = c(0.15, 0.3 ),
-    legend.background = element_rect(fill = "white", color = "black"),
-    legend.title = element_blank()
+    legend.position = c(0.2, 0.3),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.title = element_blank(),
+    text = element_text(size = 25),
+    axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm')),
+    legend.key.height = unit(0.1, 'cm'),
+    legend.key.width = unit(0.1, 'cm')
   )
 ice_on_plt
+
+#ggsave(here('output/lake_final_plts/ice_on_plt.jpeg'), dpi = 300, width = 15, height = 10, units = 'in')
 
 #ice off
 ice_off_plt <- ggplot(data = ice_phenology)+
@@ -48,7 +54,9 @@ ice_off_plt <- ggplot(data = ice_phenology)+
   theme_classic()+
   labs(x = '', y = 'Ice Off DOY')+
   theme(
-    legend.position = ''
+    text = element_text(size = 25),
+    legend.position = '',
+    axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm'))
   )
 ice_off_plt
 
@@ -72,7 +80,9 @@ hypoxia_plt <- ggplot(data = ice_phenology)+
   theme_classic()+
   labs(x = '', y = 'Hypoxia (days)')+
   theme(
-    legend.position = 'none'
+    text = element_text(size = 25),
+    legend.position = 'none',
+    axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm'))
   )
 hypoxia_plt
 
@@ -80,10 +90,10 @@ hypoxia_plt
 
 #using the do decay from script 16
 
-(ice_on_plt+ice_off_plt)/(hypoxia_plt+do_decay_plt) +
+(ice_on_plt+ice_off_plt)/(hypoxia_plt + plot_spacer())+
   plot_annotation(tag_levels = 'A')
 
-#ggsave(here('output/lake_final_plts/fig_1_4_panel_plt.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
+ggsave(here('output/lake_final_plts/fig_1_4_panel_plt_2022.11.29.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
 
 
 #SWE plotting

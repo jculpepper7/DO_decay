@@ -11,6 +11,7 @@ library(janitor)
 library(here)
 library(padr)
 library(plotly)
+library(patchwork)
 
 # 2. Import weather data---------------------------------------------
 
@@ -170,14 +171,37 @@ temp_plt <- ggplot(data = weatherhawk_avg) +
   geom_line(aes(x = date_time, y = air_temp_avg), size = 1, color = 'black')+
   theme_classic()+
   xlab('')+
-  ylab('Air Temperature (ºC)') #Alt+0 = degree symbol
+  ylab('Air Temperature (ºC)')+
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(0.2, 0.80),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.key.height= unit(0.6, 'in'),
+    legend.key.width= unit(0.5, 'in'),
+    text = element_text(size = 38),
+    legend.key.size = unit(5, 'line'),
+    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32),
+    axis.text.x = element_blank()
+  )#Alt+0 = degree symbol
+ggplotly(temp_plt)
 
-precip_plt <- ggplot(data = weatherhawk_avg) +
+precip_plt <- ggplot() +
   geom_line(data = gridmet_precip, aes(x = date_time, y = precip_mm), size = 1, color = 'black')+
   theme_classic()+
   xlab('')+
-  ylab('Precipitation (mm)') 
-
+  ylab('Precipitation (mm)')+
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(0.2, 0.80),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.key.height= unit(0.6, 'in'),
+    legend.key.width= unit(0.5, 'in'),
+    text = element_text(size = 38),
+    legend.key.size = unit(5, 'line'),
+    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32)
+  )
+  
+ggplotly(precip_plt)
 
 #combine temp and precip time series----
 temp_plt/precip_plt
@@ -194,9 +218,9 @@ weatherhawk_avg <- read_csv(here('data/met_data/weatherhawk_avg_2017_2022.csv'))
 
 wh_seasonal <- weatherhawk_avg %>% 
   mutate(
-    season = if_else(month(date_time)>=3 & month(date_time)<=5, 'spring',
-                     if_else(month(date_time)>=6 & month(date_time)<=8, 'summer',
-                             if_else(month(date_time)>=9 & month(date_time)<=11, 'fall', 'winter')))
+    season = if_else(month(date_time)>=4 & month(date_time)<=6, 'spring',
+                     if_else(month(date_time)>=7 & month(date_time)<=9, 'summer',
+                             if_else(month(date_time)>=10 & month(date_time)<=12, 'fall', 'winter')))
   ) %>% 
   #na.omit() %>% 
   mutate(
@@ -209,7 +233,6 @@ wh_seasonal <- weatherhawk_avg %>%
 #Fall average temperature plot
 fall_plt <- wh_seasonal %>%
   filter(water_year != 2017,
-         water_year != 2022,
          season == 'fall') %>%
 ggplot()+
   geom_boxplot(aes(x = water_year, y = air_temp_avg))+
@@ -235,7 +258,7 @@ winter_plt <- wh_seasonal %>%
 #ggsave(here('output/met_results/winter_avg_temp.jpeg'), dpi = 300) 
 
 #spring average temperature plot
-spring_plt <- wh_seasonal %>% 
+spring_plt_2 <- wh_seasonal %>% 
   filter(water_year != 2017,
          season == 'spring') %>% 
   ggplot()+
@@ -263,7 +286,7 @@ summer_plt <- wh_seasonal %>%
 #ggsave(here('output/met_results/summer_avg_temp.jpeg'), dpi = 300) 
 
 #Combine temperature boxplots
-(winter_plt+spring_plt)/(summer_plt+fall_plt)+
+(fall_plt+winter_plt)/(spring_plt+summer_plt)+
   plot_annotation(tag_levels = 'A')
 
 #ggsave(here('output/lake_final_plts/temperature_boxplt.jpeg'), dpi = 300, width = 15, height = 10, units = 'in')
@@ -273,7 +296,7 @@ summer_plt <- wh_seasonal %>%
 seasonal_temp_summary <- wh_seasonal %>%
   select(-water_year) %>% #remove water year and add revised water year
   mutate(
-    water_year = if_else(month(date_time)>=9, year(date_time)+1, year(date_time)) #NOTE: requires water year to start in september, because otherwise, water_year will split fall season between years, since fall includes september (e.g. October, November of 2018 and September 2019 would make up fall for water year 2019)
+    water_year = if_else(month(date_time)>=10, year(date_time)+1, year(date_time)) 
   ) %>% 
   group_by(water_year, season) %>% 
   summarise(
@@ -398,9 +421,41 @@ swe_box <- snodas %>%
 
 #ggsave(here('output/lake_final_plts/snodas_by_year_2022.08.15.jpeg'), dpi = 300, height = 10, width = 14, units = 'in')  
 
+#SWE image with all years on same panel
+
+snodas_oct <- snodas %>% 
+  mutate(
+    water_year = as.factor(if_else(month(date)>=10, year(date)+1, year(date))),
+    doy = yday(date),
+    doy_oct = if_else(doy >= 274, doy-273, doy+92)
+  ) %>% 
+  filter(lake == 'castle')
+
+snodas_oct_plt <-   ggplot(data = snodas_oct)+
+  geom_line(aes(x = doy_oct, y = swe_mm, color = water_year, linetype = water_year), size = 1.2)+
+  theme_classic()+
+  labs(x = 'Day of Year (10/1)', y = 'SWE (mm)')+
+  #facet_wrap(~water_year, scales = 'free')+
+  theme(axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1))+
+  xlim(30,261)+
+  #scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00"))+
+  scale_color_grey()+
+  #scale_linetype_identity(name = c('solid', 'twodash', 'F1', 'dotdash', 'longdash'))+
+  #scale_linetype_discrete(c(1,3,5,7,9))+
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(0.2, 0.80),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.key.height= unit(0.6, 'in'),
+    legend.key.width= unit(0.5, 'in'),
+    text = element_text(size = 38),
+    legend.key.size = unit(5, 'line'),
+    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"))
+  )
+snodas_oct_plt
+#ggplotly(snodas_oct_plt)  
   
-  
-  
+ggsave(here('output/lake_final_plts/swe_timeseries.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
 
 
 

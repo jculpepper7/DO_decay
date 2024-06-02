@@ -108,21 +108,24 @@ gumboot_avg_plt <- ggplot()+
   #     as.Date("2021-12-12"), 
   #     as.Date("2022-04-02")
   #     )))+
-  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth))+
-  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l))+
+  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  geom_line(data = gumboot_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
+  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
-  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
-  scale_y_continuous(
-    name = '', #Alt+0176 for degree symbol
-    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  )+
+  labs(x = '', y = '')+ #Dissolved Oxygen (mg/L)\nTemperature(°C)
+  # scale_y_continuous(
+  #   name = '', #Alt+0176 for degree symbol
+  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  # )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 22),
+        axis.text.x = element_blank())+
+  xlim(ymd('2017-10-01'), ymd('2022-06-16'))
 gumboot_avg_plt
 #ggplotly(gumboot_avg_plt)
 
@@ -167,6 +170,90 @@ gumboot_avg_plt
 
 #Patchwork for fig for paper
 
-soapstone_avg_plt / cedar_avg_plt / gumboot_avg_plt
+castle_avg_plt/ cliff_avg_plt / gumboot_avg_plt/ cedar_avg_plt /soapstone_avg_plt+
+  plot_annotation(tag_levels = 'A') &
+  theme(plot.tag = element_text(size = 22))
 
-ggsave(here('output/lake_final_plts/ss_cdr_gb_combined.jpeg'), dpi = 300)  
+ggsave(here('output/lake_final_plts/all_lakes_combined_2022.10.18.jpeg'), dpi = 300, height = 10, width = 14, units = 'in')  
+
+
+
+
+
+
+
+
+################################################################
+#plot for dissertation defense
+
+gumboot_avg__do_dissertation_plt <- ggplot()+ 
+  geom_rect(aes(
+    xmin = ymd('2019-11-23'),
+    xmax = ymd('2020-05-04'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_rect(aes(
+    xmin = ymd('2020-11-18'),
+    xmax = ymd('2021-05-02'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_rect(aes(
+    xmin = ymd('2021-12-18'),
+    xmax = ymd('2022-04-07'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  # geom_vline(xintercept = as.numeric(
+  #   c(
+  #     as.Date("2019-11-26"), 
+  #     as.Date("2020-04-12"),
+  #     as.Date("2020-11-18"), 
+  #     as.Date("2021-04-17"),
+  #     as.Date("2021-12-12"), 
+  #     as.Date("2022-04-02")
+  #     )))+
+  #geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  #geom_line(data = gumboot_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
+  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
+  #scale_color_grey(name = 'Depth   ')+
+  theme_classic()+
+  xlab('')+ #Dissolved Oxygen (mg/L)\nTemperature(°C)
+  ylab(bquote('Dissolved Oxygen ('*mg~ L^-1*')'))+
+  theme(
+    text = element_text(size = 38),
+    axis.text.y = element_text(margin(unit(c(0,8,0,0), 'mm')))
+  )
+  #xlim(ymd('2017-10-01'), ymd('2022-06-16'))
+
+gumboot_avg__do_dissertation_plt
+
+#ggsave(here('output/lake_final_plts/gumboot_DO_plt.jpeg'), dpi = 300, width = 15, height = 10, unit = 'in')
+
+
+#Light intensity visualizaiton
+
+gb_light <- ggplot(data = gumboot_w_avg)+
+  geom_rect(aes(
+    xmin = ymd('2019-11-23'),
+    xmax = ymd('2020-05-04'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_rect(aes(
+    xmin = ymd('2020-11-18'),
+    xmax = ymd('2021-05-02'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_rect(aes(
+    xmin = ymd('2021-12-18'),
+    xmax = ymd('2022-04-07'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_line(aes(x = date, y = light_intensity_lux, color = depth))+
+  theme_classic()+
+  ggtitle('Light Intensity')
+gb_light

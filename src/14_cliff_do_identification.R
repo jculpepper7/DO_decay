@@ -171,7 +171,7 @@ cliff_plt_20 <- ggplot(data = cliff_2020_mean, aes(x = date, y = do_mg_l))+
   ylab('dissolved oxygen')
 cliff_plt_20
 
-ggplotly(cliff_plt_20)
+#ggplotly(cliff_plt_20)
 
 #Cliff 2021 plot
 cliff_plt_21 <- ggplot(data = cliff_2021_mean, aes(x = date, y = do_mg_l))+
@@ -181,7 +181,7 @@ cliff_plt_21 <- ggplot(data = cliff_2021_mean, aes(x = date, y = do_mg_l))+
   ylab('dissolved oxygen')
 cliff_plt_21
 
-ggplotly(cliff_plt_21)
+#ggplotly(cliff_plt_21)
 
 # 4. Ice on and ice off dates-----------------------------------------------
 #NOTE: Derived from DO time series and game camera images
@@ -235,21 +235,26 @@ cliff_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = cliff, aes(x = date, y = temp_c, color = depth))+
-  geom_line(data = cliff, aes(x = date, y = do_mg_l), size = 1.5)+
+  geom_line(data = cliff, aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff, aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
-  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
-  scale_y_continuous(
-    name = '', #Alt+0176 for degree symbol
-    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  )+
+  xlab('')+ 
+  ylab('')+
+  #ylab('Dissolved Oxygen (mg/L)\nTemperature (°C)')+
+  # scale_y_continuous(
+  #   name = '', #Alt+0176 for degree symbol
+  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  # )+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10))+
-  scale_x_date(date_breaks = '1 year', date_labels = '%Y')
+        axis.text = element_text(size = 22),
+        axis.text.x = element_blank()
+        )+
+  scale_x_date(date_breaks = '1 year', date_labels = '%Y')+
+  xlim(ymd('2017-10-01'), ymd('2022-06-16'))
 cliff_avg_plt
-ggplotly(cliff_avg_plt)
+#ggplotly(cliff_avg_plt)
 
-ggsave(here('output/lake_final_plts/cliff_do_plt_w_temp.jpeg'), dpi = 300)
+#ggsave(here('output/lake_final_plts/cliff_do_plt_w_temp.jpeg'), dpi = 300)

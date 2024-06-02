@@ -95,22 +95,25 @@ soapstone_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = soapstone_w_avg %>% filter(depth == '1m' | depth == 'sediment'), aes(x = date, y = temp_c, color = depth))+
-  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l))+
+  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  geom_line(data = soapstone_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
+  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
-  labs(x = '', y = 'Dissolved Oxygen [mg/L]')+
-  scale_y_continuous(
-    name = '', #Alt+0176 for degree symbol
-    sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  )+
+  labs(x = '', y = '')+
+  # scale_y_continuous(
+  #   name = '', #Alt+0176 for degree symbol
+  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
+  # )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 10),
-        axis.text.x = element_blank())
+        axis.text = element_text(size = 22)#,
+        #axis.text.x = element_blank()
+        )+
+  xlim(ymd('2017-10-01'), ymd('2022-06-16'))
 soapstone_avg_plt
 #ggplotly(soapstone_avg_plt)
 

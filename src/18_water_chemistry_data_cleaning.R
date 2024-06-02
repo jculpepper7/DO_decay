@@ -11,6 +11,7 @@ library(stringi)
 library(janitor)
 library(lubridate)
 library(viridis)
+library(patchwork)
 
 # 1. Import data----------------------------------------------------------------
 
@@ -263,24 +264,39 @@ water_d18O_vsmow <- bind_rows(water_d18O_vsmow_1, water_d18O_vsmow_2, water_d18O
 
 # 2a. ash free dry mass viz-----------------------------------------------------
 
-dry_mass_plt <- ggplot(data = ash_free_dry_mass)+
+labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
+
+ash_free_dry_mass_reorder <- ash_free_dry_mass
+
+ash_free_dry_mass_reorder$lakename <- factor(ash_free_dry_mass_reorder$lakename, levels = c('soapstone', 'cedar', 'gumboot','cliff', 'castle'))
+
+dry_mass_plt <- ggplot(data = ash_free_dry_mass_reorder)+
   # geom_point(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 5)+
   # geom_line(aes(x = date, y = ash_free_dry_mass, color = lakename), size = 1.5)+
-  geom_boxplot(aes(x = lakename, y = percent_org, fill = lakename))+
+  geom_boxplot(aes(x = lakename, y = percent_org))+
   theme_classic()+
   theme(legend.position = 'none')+
   xlab('')+
-  ylab('Percent Organic Matter')+
+  ylab('Sediment Organic Matter (%)')+
   ggtitle('')+
-  scale_color_viridis_d(begin = 0.1, end = 0.9)
+  scale_x_discrete(labels = labels)+
+  theme(
+    text = element_text(size = 35),
+    axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm'))
+  )
+  #scale_color_viridis_d(begin = 0.1, end = 0.9)
   
 dry_mass_plt
 
-ggsave(here('output/sediment_plots/afdm_plot.jpeg'), dpi = 300)
+ggsave(here('output/sediment_plots/afdm_plot.jpeg'), dpi = 300, width = 14, height = 10)
 
 # 2b. sediment C:N ratio viz----------------------------------------------------
 
-sed_C_and_N_plt <- ggplot(data = sediment_CN)+
+sediment_CN_reorder <- sediment_CN
+
+sediment_CN_reorder$lakename <- factor(sediment_CN_reorder$lakename, levels = c('soapstone', 'cedar', 'gumboot','cliff', 'castle'))
+
+sed_C_and_N_plt <- ggplot(data = sediment_CN_reorder)+
   geom_point(aes(x = date, y = C_mcgC_g, color = lakename), size = 5)+
   geom_line(aes(x = date, y = C_mcgC_g, color = lakename), size = 1.5) +
   geom_point(aes(x = date, y = N_mcgN_g, color = lakename), size = 5)+
@@ -293,20 +309,28 @@ sed_C_and_N_plt <- ggplot(data = sediment_CN)+
   
 sed_C_and_N_plt
 
-sed_CN_plt <- ggplot(data = sediment_CN)+
+sed_CN_plt <- ggplot(data = sediment_CN_reorder)+
   # geom_point(aes(x = date, y = CN_ratio, color = lakename), size = 5)+
   # geom_line(aes(x = date, y = CN_ratio, color = lakename), size = 1.5)+
-  geom_boxplot(aes(x = lakename, y = CN_ratio, fill = lakename))+
+  geom_boxplot(aes(x = lakename, y = CN_ratio))+
   theme_classic()+
   xlab('')+
   ylab('C:N Ratio')+
-  ggtitle('Sediment C:N Ratio')+
+  ggtitle('')+
   scale_color_viridis_d(begin = 0.1, end = 0.9)+
-  theme(legend.position = 'none')
+  theme(legend.position = 'none')+
+  scale_x_discrete(labels = labels)
 
 sed_CN_plt
 
 #ggsave(here('output/sediment_plots/sediment_CN_ratio.jpeg'), dpi = 300)
+
+#Combine sed_CN_plt and sed_org_matter
+
+dry_mass_plt / sed_CN_plt+
+  plot_annotation(tag_levels = 'A')
+
+ggsave(here('output/lake_final_plts/sediment_plts.jpeg'), dpi = 300, width = 10, height = 11, units = 'in')
 
 # 2c. water chemistry viz-------------------------------------------------------
 
@@ -498,9 +522,9 @@ mean_val_by_lake <- afdm_mean %>%
 
 mean_val_by_depth <- water_chem_mean %>% 
   rename(depth = depth_m) %>% 
-  full_join(water_CN_mean) %>% 
-  full_join(isotope_avg) %>% 
-  full_join(VSMOW_avg)
+  full_join(water_CN_mean) #%>% 
+  #full_join(isotope_avg) %>% 
+  #full_join(VSMOW_avg)
 
 # 5. Visualize water chemistry--------------------------------------------------
 
@@ -664,7 +688,7 @@ cal_clf_doc_tn <- bind_rows(cal_doc, clf_doc, cal_tn, clf_tn)
 # 6c. DOC data viz----
 ggplot(data = cal_clf_doc_tn %>% filter(doc_ppm<13))+ #eliminate two strong outliers
   geom_boxplot(aes(x = lake, y = doc_ppm, fill = lake))+
-  geom_jitter(aes(x = lake, y = doc_ppm, fill = lake, color = year(date)), size = 1)+
+  #geom_jitter(aes(x = lake, y = doc_ppm, fill = lake, color = year(date)), size = 1)+
   theme_classic()+
   scale_color_viridis()+
   facet_wrap(~year(date))
@@ -697,7 +721,7 @@ ggplot(data = shallow_lake_doc_tn)+
   theme_classic()+
   scale_color_viridis()
 
-ggsave(here('output/water_chem_boxplots/shallow_DOC.jpeg'), dpi = 300)
+#ggsave(here('output/water_chem_boxplots/shallow_DOC.jpeg'), dpi = 300)
 
 # 6g. TN data viz----
 ggplot(data = shallow_lake_doc_tn)+
@@ -706,7 +730,7 @@ ggplot(data = shallow_lake_doc_tn)+
   theme_classic()+
   scale_color_viridis()
 
-ggsave(here('output/water_chem_boxplots/shallow_TN.jpeg'), dpi = 300)
+#ggsave(here('output/water_chem_boxplots/shallow_TN.jpeg'), dpi = 300)
 
 # 7. Water chemistry------------------------------------------------------------
 
@@ -847,47 +871,98 @@ all_lakes_water_chem <- water_chem %>%
   ) %>% 
   bind_rows(cal_clf_chem)
   
-  
+all_lakes_water_chem_reorder <- all_lakes_water_chem
+
+all_lakes_water_chem_reorder$lake <- factor(all_lakes_water_chem_reorder$lake, levels = c('soapstone', 'cedar', 'gumboot','cliff', 'castle'))  
+
+labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
 
 # 7e. Plot all lakes NH4----
-ggplot(data = all_lakes_water_chem %>% filter(species == 'nh4_ppb'))+
-  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+nh4_all <- ggplot(data = all_lakes_water_chem_reorder %>% filter(species == 'nh4_ppb'))+
+  geom_boxplot(aes(x = lake, y = ppb))+
   #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
   theme_classic()+
-  ylab('NH4 [ppb]')
+  ylab('NH4 (ppb)')+
+  ylim(0,50)+
+  xlab('')+
+  scale_x_discrete(labels = labels)
   # facet_wrap(~year(date))
 
 ggsave(here('output/water_chem_boxplots/all_lakes_nh4.jpeg'), dpi = 300)
 
 # 7f. Plot all lakes NO3 NO2----
-ggplot(data = all_lakes_water_chem %>% filter(species == 'no3_no2_ppb'))+
-  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+nox_all <- ggplot(data = all_lakes_water_chem_reorder %>% filter(species == 'no3_no2_ppb'))+#, ppb <50
+  geom_boxplot(aes(x = lake, y = ppb))+
   #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
   #facet_wrap(~year(date))+
   theme_classic()+
-  ylab('NO3 - NO2 [ppb]')
+  ylab('NO3 - NO2 (ppb)')+
+  ylim(0,50)+
+  xlab('')+
+  scale_x_discrete(labels = labels)
 
 ggsave(here('output/water_chem_boxplots/all_lakes_no3.jpeg'), dpi = 300)
 
 # 7g. Plot all lakes TP----
-ggplot(data = all_lakes_water_chem %>% filter(species == 'tp_ppb'))+
-  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+tp_all <- ggplot(data = all_lakes_water_chem_reorder %>% filter(species == 'tp_ppb', ppb<50))+
+  geom_boxplot(aes(x = lake, y = ppb))+
   #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
   #facet_wrap(~year(date))+
   theme_classic()+
-  ylab('TP [ppb]')
+  ylab('TP (ppb)')+
+  xlab('')+
+  scale_x_discrete(labels = labels)
+  
 
 ggsave(here('output/water_chem_boxplots/all_lakes_tp.jpeg'), dpi = 300)
 
 # 7h. Plot all lakes SRP----
-ggplot(data = all_lakes_water_chem %>% filter(species == 'srp_ppb'))+
-  geom_boxplot(aes(x = lake, y = ppb, fill = lake))+
+srp_all <- ggplot(data = all_lakes_water_chem_reorder %>% filter(species == 'srp_ppb', ppb<40))+
+  geom_boxplot(aes(x = lake, y = ppb))+
   #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
   #facet_wrap(~year(date))+
   theme_classic()+
-  ylab('SRP [ppb]')
+  ylab('SRP (ppb)')+
+  xlab('')+
+  scale_x_discrete(labels = labels)
 
 ggsave(here('output/water_chem_boxplots/all_lakes_srp.jpeg'), dpi = 300)
+
+#Combine cal_clf and shallow for doc
+cal_clf_doc_tn
+shallow_lake_doc_tn
+
+doc_all_lakes <- bind_rows(cal_clf_doc_tn, shallow_lake_doc_tn)
+
+doc_all_lakes_reorder <- doc_all_lakes
+
+all_lakes_water_chem_reorder$lake <- factor(doc_all_lakes_reorder$lake, levels = c('soapstone', 'cedar', 'gumboot','cliff', 'castle'))
+  
+doc_all <- ggplot(data = doc_all_lakes_reorder)+
+  geom_boxplot(aes(x = lake, y = doc_ppm))+
+  #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
+  #facet_wrap(~year(date))+
+  theme_classic()+
+  ylab('DOC (ppm)')+
+  xlab('')+
+  ylim(0,20)+
+  scale_x_discrete(labels = labels)
+
+tn_all <- ggplot(data = doc_all_lakes_reorder)+
+  geom_boxplot(aes(x = lake, y = tn_ppb))+
+  #geom_jitter(aes(x = lake, y = net_ppr, color = depth))+
+  #facet_wrap(~year(date))+
+  theme_classic()+
+  ylab('TN (ppb)')+
+  xlab('')+
+  scale_x_discrete(labels = labels)
+
+#Combine nutrient plots
+
+(tp_all+nox_all)/(srp_all+nh4_all)/(doc_all+tn_all)+
+  plot_annotation(tag_levels = 'A')
+
+ggsave(here('output/lake_final_plts/nutrient_plts.jpeg'), dpi = 300, height = 14, width = 12, units = 'in')
 
 # 8. AFDM & CN Sediment values----------------------------------------
 

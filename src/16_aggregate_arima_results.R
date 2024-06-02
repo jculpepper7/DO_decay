@@ -365,7 +365,7 @@ do_decay_summary_lake <- do_decay %>%
 
 do_reorder <- do_decay
 
-do_reorder$lake <- factor(do_reorder$lake, levels = c('soapstone', 'cedar', 'gumboot','cliff', 'castle'))
+do_reorder$lake <- factor(do_reorder$lake, levels = c('soapstone', 'cedar', 'gumboot', 'cliff', 'castle'))
 
 # ggplot(data = do_reorder)+
 #   geom_point(aes(x = water_year, y = drift, color = lake, shape = changepoint), stroke = 1, size = 2)+
@@ -377,18 +377,52 @@ decay_labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
 
 #DO decay plot
 do_decay_plt <- ggplot(data = do_reorder)+
-  geom_boxplot(aes(x = lake, y = drift))+
-  #geom_boxplot(aes(x = reorder(lake,drift,mean), y = drift))+
-  geom_jitter(aes(x = lake, y = drift, fill = water_year), pch = 21, width = 0.2, size = 3, stroke = 1.2)+
+  #geom_boxplot(aes( y = drift))+
+  geom_boxplot(aes(x = lake, y = drift))+ #reorder(lake,drift,mean)
+  geom_jitter(aes(x = lake, y = drift, shape = water_year), size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
   theme_classic()+
   theme(
-    legend.position = c(0.9, 0.3 ),
-    legend.background = element_rect(fill = "white", color = "black"),
+    legend.position = c(0.9, 0.3),
+    legend.background = element_rect(fill = "white", color = "white"),
     legend.title = element_blank()
   )+
   xlab('')+
-  ylab(bquote('Decay Rate ('*mg~ L^-1~ d^-1*')'))+
-  scale_x_discrete(labels = decay_labels)
+  ylab(bquote('Rate ('*mg~ L^-1~ d^-1*')'))+
+  ylim(c(-1,0))+
+  scale_x_discrete(labels = decay_labels)+
+  theme(
+    text = element_text(size = 25),
+    axis.title.y = element_text(margin = unit(c(0,2,0,0), 'mm'), size = 25),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+  #facet_wrap(~lake, scales = 'free')
 do_decay_plt
-#ggsave(here('output/ARIMA_results/do_decay_boxplot_update_2022.07.18.jpeg'), dpi = 300)
+ggsave(here('output/lake_final_plts/do_decay_boxplot_update_2022.11.29.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
+
+
+do_decay_time_plt <- ggplot(data = do_reorder %>% filter(segment == 1, changepoint == 1) %>% mutate(water_year_2 = as.numeric(water_year)))+ #, lake != 'soapstone'
+  #geom_boxplot(aes( y = drift))+
+  #geom_boxplot(aes(x = reorder(lake,drift,mean), y = drift))+
+  geom_point(aes(x = water_year, y = drift, shape = lake), size = 4)+ #, pch = 21,, stroke = 1.2
+  geom_line(aes(x = water_year_2, y = drift, linetype = lake), size = 1.1)+
+  theme_classic()+
+  theme(
+    legend.position = c(0.2, 0.25 ),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.title = element_blank()
+  )+
+  xlab('')+
+  ylab(bquote('Oxygen Loss Rate ('*mg~ L^-1~ d^-1*')'))+
+  theme(
+    text = element_text(size = 38),
+    axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm')),
+    legend.text = element_text(size = 38),
+    legend.key.size = unit(10, 'point')
+  )+
+  scale_shape_discrete(labels = c('Cedar', 'Gumboot', 'Cliff', 'Castle'))+
+  scale_linetype_discrete(labels = c('Cedar', 'Gumboot', 'Cliff', 'Castle'))
+  #facet_wrap(~lake, scales = 'free')
+do_decay_time_plt
+
+#ggsave(here('output/lake_final_plts/do_by_year.jpeg'), dpi = 300, width = 14, height = 10)
 

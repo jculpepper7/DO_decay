@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+#Ignore PNG files created
+*.png
+*.pdf
+*.jpeg
+*.csv
