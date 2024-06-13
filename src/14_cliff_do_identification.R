@@ -9,7 +9,7 @@ library(tidyverse)
 library(here)
 library(lubridate)
 
-# 2. Import Cliff data (collected by Dr. Adrianne Smits)
+# 2. Import Cliff data (collected by Dr. Adrianne Smits, UC Davis, ORCID:)
 
 #Cliff 2020
 cliff_2020_rdata <- load(here('data/raw/cliff/Cliff_2020_winter_data.Rdata'))
