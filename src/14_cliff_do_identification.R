@@ -11,6 +11,77 @@ library(lubridate)
 
 # 2. Import Cliff data (collected by Dr. Adrianne Smits, UC Davis, ORCID:)
 
+#2a. Cliff 2019----
+cliff_2019_rdata <- load(here('data/raw/cliff/Cliff_2019_winter_data.Rdata'))
+
+cliff_2020 <- tibble(output.list[[1]][['datetime']],
+                     output.list[[1]][['temp_3.75']],
+                     output.list[[1]][['temp_4.61']],
+                     output.list[[1]][['temp_8.41']],
+                     output.list[[1]][['temp_13.41']],
+                     output.list[[1]][['temp_18.37']],
+                     output.list[[1]][['temp_23.33']],
+                     output.list[[1]][['temp_24.3']],
+                     output.list[[1]][['sediment']],
+                     output.list[[1]][['DO_23.33']],
+                     output.list[[1]][['Sat_23.33']],
+                     output.list[[1]][['light_3.75']],
+                     output.list[[1]][['cond_24.3']],
+                     output.list[[1]][['level_4.61']]
+)
+
+cliff_2020_raw <- cliff_2020 %>% 
+  select(
+    date = 1,
+    temp_03.8 = 2,
+    temp_04.6 = 3,
+    temp_08.4 = 4,
+    temp_13.4 = 5,
+    temp_18.4 = 6,
+    temp_23.3 = 7,
+    temp_24.3 = 8,
+    temp_sediment = 9,
+    do_mg_l = 10,
+    do_sat = 11,
+    light_3.8 = 12,
+    cond_24.3 = 13,
+    level_4.6 = 14
+  ) %>% 
+  mutate(
+    water_year = if_else(month(date)>=10, year(date)+1, year(date))
+  ) %>% 
+  group_by(year(date), month(date), day(date)) %>% 
+  summarise(
+    temp_03.8 = mean(temp_03.8),
+    temp_04.6 = mean(temp_04.6),
+    temp_08.4 = mean(temp_08.4),
+    temp_13.4 = mean(temp_13.4),
+    temp_18.4 = mean(temp_18.4),
+    temp_23.3 = mean(temp_23.3),
+    temp_24.3 = mean(temp_24.3),
+    temp_sediment = mean(temp_sediment),
+    do_mg_l = mean(do_mg_l),
+    do_sat = mean(do_sat),
+    light_3.8 = mean(light_3.8),
+    cond_24.3 = mean(cond_24.3),
+    level_4.6 = mean(level_4.6)
+  ) %>% 
+  ungroup() %>% 
+  rename(
+    year = 1,
+    month = 2,
+    day = 3
+  ) %>% 
+  mutate(
+    date = make_date(year = year, month = month, day = day),
+    lake = as_factor(c('cliff'))
+  ) %>% 
+  select(-year, -month, -day) %>% 
+  select(15, 14, 1:13)
+
+#write_csv(cliff_2020_raw, here('data/raw/cliff/cliff_2020_winter_raw.csv'))
+
+
 #Cliff 2020
 cliff_2020_rdata <- load(here('data/raw/cliff/Cliff_2020_winter_data.Rdata'))
 
