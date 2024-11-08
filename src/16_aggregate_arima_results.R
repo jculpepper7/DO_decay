@@ -199,15 +199,6 @@ clf_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cliff_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 4b. Cliff 2021 1----
-load(here('output/ARIMA_results/cliff_2021_arima_output.Rdata'))
-
-clf_results_2021 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
-  rename(drift = 1) %>% 
-  mutate(
-    segment = c('cliff_2021_1.1')
-  ) 
-
 # 4b. Cliff 2021 2----
 #NOTE: Mislabels in ARIMA code as 2021, but these ARIMA results 
 #      are for the summer period DO decay during the summer of 2020
@@ -220,6 +211,14 @@ clf_results_2020_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cliff_2020_2.2', drift = output.list[[8]][["coef"]][["drift"]])
 
+# 4b. Cliff 2021 1----
+load(here('output/ARIMA_results/cliff_2021_arima_output.Rdata'))
+
+clf_results_2021 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2021_1.1')
+  ) 
 
 # 5. Import Gumboot data---------------------------------------------
 

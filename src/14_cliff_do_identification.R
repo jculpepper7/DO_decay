@@ -390,7 +390,7 @@ cliff <- cliff_2019_mean %>%
 #Temperature plot
 
 cliff_temp_plt <- ggplot(data = cliff)+
-  geom_line(aes(x = date, y = temp_c, color = depth))+
+  #geom_line(aes(x = date, y = temp_c, color = depth))+
   geom_line(aes(x = date, y = do_mg_l))+
   theme_classic()+
   xlab("Date")+

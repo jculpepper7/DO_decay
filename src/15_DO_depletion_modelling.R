@@ -433,21 +433,32 @@ clf_ice_2021 <- clf_all %>%
 
 clf_ice_2021_2 <- clf_all %>% 
   filter(water_year == 2021,
-         date_time >= as.POSIXct("2020-05-26"), #This is the open water period.
-         date_time <= as.POSIXct("2020-08-18")) #There is a slight increase in DO at June 16, but it is less than 1 mg/L, so I did not break up the time series.
+         date_time >= as.POSIXct("2021-05-07"), #This is the open water period.
+         date_time <= as.POSIXct("2021-09-01")) #There is a slight increase in DO at June 16, but it is less than 1 mg/L, so I did not break up the time series.
+
+#Water year 2021
+clf_ice_2022 <- clf_all %>% 
+  filter(water_year == 2021,
+         date_time >= as.POSIXct("2021-12-14"),
+         date_time <= as.POSIXct("2022-03-31"))
+
+clf_ice_2022_2 <- clf_all %>% 
+  filter(water_year == 2021,
+         date_time >= as.POSIXct("2022-04-21"), #This is the peak oxygen concentration of the open water period.
+         date_time <= as.POSIXct("2022-06-17")) #The time series only goes to 6/17, so it is incomplete and the rate cannot be calculated.
 
 #5. Apply changepoint analysis to DO  time series-------------------------------
 #NOTE: Chanegpoints indicate where DO variance changes
 
 #change data to time series format
-DO.ts <- ts(clf_ice_2021_2$do_mg_l, frequency = 365, start = as.POSIXct('2020-05-26'))
+DO.ts <- ts(clf_ice_2019_2$do_mg_l, frequency = 365, start = as.POSIXct('2019-02-27'))
 # DO.ts <- ts(MeanDaily.clipped[,grep('DO',names(MeanDaily.clipped))],frequency=365, start=c(year(MeanDaily$day[1]),
 #                                                                                                month(MeanDaily$day[1]),
 #                                                                                                day(MeanDaily$day[1])))
 plot.ts(DO.ts)
 
 ##De-trend DO data first before applying changepoint analysis 
-DO.diff1 <- diff(x=DO.ts, differences=1, lag=1)
+DO.diff1 <- diff(x=DO.ts, differences=2, lag=1)
 
 #plot to see if first differencing got rid of linear trends
 plot.ts(DO.diff1)
@@ -464,7 +475,7 @@ chgpts <- out@cpts
 #6. Split time series at discovered changepoints--------------------------------
 #NOTE: Number of changepoints  will vary by dataset
 
-DO.data <- clf_ice_2021_2 %>% 
+DO.data <- clf_ice_2019_2 %>% 
   mutate(
     day = day(date_time)
   )
@@ -474,7 +485,7 @@ DO.ts1 <- DO.data #use this if there are no significant changepoints
 
 DO.ts1 <- DO.data[1:chgpts[1],]
 DO.ts2 <- DO.data[(chgpts[1]+1):chgpts[2],]
-# DO.ts3 <- DO.data[(chgpts[2]+1):chgpts[3],]
+DO.ts3 <- DO.data[(chgpts[2]+1):chgpts[3],]
 # DO.ts4 <- DO.data[(chgpts[3]+1):chgpts[4],]
 # DO.ts5 <- DO.data[(chgpts[4]+1):chgpts[5],]
 # DO.ts6 <- DO.data[(chgpts[5]+1):chgpts[6],]
@@ -496,7 +507,7 @@ DO.ts2 <- DO.data[(chgpts[1]+1):chgpts[2],]
 # pacf(DO.ts1[,grep('DO',names(DO.ts1))])#check pacf to see how much AR makes sense...
 kpss1 <-kpss.test(DO.ts1$do_mg_l, null="Level") #Test checks for stationary data. p value > 0.01 indicates stationary data
 pacf(DO.ts1$do_mg_l) #check pacf to see how much AR makes sense...
-fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,1,0), include.constant=TRUE)
+fit1 <- Arima(DO.ts1$do_mg_l, order=c(0,1,0), include.constant=TRUE)
 summary(fit1) #drift gives the slope of the time series
 checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that the residuals are independently distributed
 #plot(fit1$fitted)
@@ -506,7 +517,7 @@ checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that
 #check if data is stationary around a level (if not, should have small p-value)
 kpss2 <- kpss.test(DO.ts2$do_mg_l, null="Level")
 pacf(DO.ts2$do_mg_l)
-fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,1), include.constant=TRUE)
+fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,0), include.constant=TRUE)
 summary(fit2)
 checkresiduals(fit2)
 
@@ -564,12 +575,12 @@ checkresiduals(fit7)
 
 output.list <- list(DO.data, 
                     chgpts.dates, 
-                    DO.ts1, DO.ts2, #DO.ts3, #DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
-                    kpss1, kpss2, #kpss3, #kpss4, kpss5, kpss6, kpss7,
-                    fit1, fit2#, fit3#, fit4, fit5, fit6, fit7
+                    DO.ts1, DO.ts2, DO.ts3, #DO.ts4, DO.ts5, DO.ts6, DO.ts7, 
+                    kpss1, kpss2, kpss3, #kpss4, kpss5, kpss6, kpss7,
+                    fit1, fit2, fit3#, fit4, fit5, fit6, fit7
                     )
 
-save(output.list, file = paste('cliff','2021_2','arima_output.Rdata', sep="_"))
+save(output.list, file = paste('cliff','2019','arima_output.Rdata', sep="_"))
 
 
 #ARIMA values
@@ -591,11 +602,16 @@ save(output.list, file = paste('cliff','2021_2','arima_output.Rdata', sep="_"))
 #Cedar 2020 - section 1 (1,1,1), section 2 (1,1,0) 
 #Cedar 2021 - section 1 (1,1,2), section 2 (1,1,0)
 #Cedar 2022 - section 1 (1,1,2)
-#Cliff 2019 - section 1 (,,)
+#Cliff 2018 - Section 1 (1,1,0)
+#Cliff 2019_1 - section 1 (1,1,0), section 2 (1,1,0), section 3 (1,1,0)
+#Cliff 2019_2 - section 1 ()
+#Cliff 2019_3 - section 1 ()
 #Cliff 2020 - section 1 (1,1,7), section 2 (1,1,0)
+#Cliff 2020_2 - section 1 ()
 #Cliff 2021 - section 1 (1,1,1)
-#Cliff 2021 2 - section 1 (1,1,0), section 2 (1,1,1)
-#Cliff 2022 - section 1 (,,)
+#Cliff 2021_2 - section 1 (1,1,0), section 2 (1,1,1)
+#Cliff 2022 - section 1 ()
+#Cliff 2022_2 - section 1 ()
 #Gumboot 2020 1 - section 1 (1,1,0), section 2 (1,1,0)
 #Gumboot 2020 2 - section 1 (1,1,0), section 2 (1,1,3)
 #Gumboot 2021 1 - section 1 (1,1,0)
