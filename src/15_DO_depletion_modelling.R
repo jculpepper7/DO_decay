@@ -38,6 +38,12 @@ cal <- read_csv(here('data/processed/castle/castle_clean_agg_data_daily.csv')) %
   )
 
 #Cliff lake aggregated data
+clf_19 <- read_csv(here('data/raw/cliff/cliff_2019_winter_raw.csv')) %>% 
+  rename(date_time = date) %>% 
+  mutate(
+    water_year = if_else(month(date_time)>=10, year(date_time)+1, year(date_time))
+  )
+
 clf_20 <- read_csv(here('data/raw/cliff/cliff_2020_winter_raw.csv')) %>% 
   rename(date_time = date) %>% 
   mutate(
@@ -50,6 +56,11 @@ clf_21 <- read_csv(here('data/raw/cliff/cliff_2021_winter_raw.csv')) %>%
     water_year = if_else(month(date_time)>=10, year(date_time)+1, year(date_time))
   )
 
+clf_22 <- read_csv(here('data/raw/cliff/cliff_2022_winter_raw.csv')) %>% 
+  rename(date_time = date) %>% 
+  mutate(
+    water_year = if_else(month(date_time)>=10, year(date_time)+1, year(date_time))
+  )
 #3. Aggregate to daily DO data--------------------------------------------------
 
 #Deal with temperature from hobo loggers, light intensity from pendant, and
@@ -375,25 +386,55 @@ cal_ice_2022_2 <- cal %>%
 
 #4e. Cliff-----
 
+#Group Cliff data
+
+clf_all <- clf_19 %>% 
+  bind_rows(clf_20, clf_21, clf_22)
+
+#Water year 2018
+#This is the summer period, but it is incomplete
+clf_ice_2018 <- clf_all %>% 
+  filter(date_time >= as.POSIXct("2018-06-30"),
+        date_time <= as.POSIXct("2018-10-06")) #From beginning of record to complete anoxia
+
+#Water year 2019
+clf_ice_2019_1 <- clf_all %>% 
+  filter(water_year == 2019,
+         date_time >= as.POSIXct("2018-12-06"), #first instance of ice on from Sentinel image
+         date_time <= as.POSIXct("2019-02-13")) #low point prior to increase. Unclear why increase happens. Several sunny days in a row using Sentinel.
+
+clf_ice_2019_2 <- clf_all %>% 
+  filter(water_year == 2019,
+         date_time >= as.POSIXct("2019-02-27"), #first instance of ice on from Sentinel image
+         date_time <= as.POSIXct("2019-04-19")) #Lowest point prior to anoxia. Low oxygen recovery in the spring
+
+#Below is the summer decline
+clf_ice_2019_3 <- clf_all %>% 
+  filter(water_year == 2019,
+         date_time >= as.POSIXct("2019-06-27"), #Peak spring mix, though it never increases above 2 mg/L
+         date_time <= as.POSIXct("2019-08-11")) #Minimum value of decline prior to leveling off at minimal values
+
 #Water year 2020
-clf_ice_2020 <- clf_20 %>% 
+clf_ice_2020 <- clf_all %>% 
   filter(water_year == 2020,
-         lake == 'cliff',
          date_time >= as.POSIXct("2019-12-09"),
          date_time <= as.POSIXct("2020-03-25"))
 
+clf_ice_2020_2 <- clf_all %>% 
+  filter(water_year == 2020,
+         date_time >= as.POSIXct("2020-05-25"), #Peak DO concentration after spring mix
+         date_time <= as.POSIXct("2020-08-18")) #minimum DO prior to complete anoxia
+
 #Water year 2021
-clf_ice_2021 <- clf_21 %>% 
+clf_ice_2021 <- clf_all %>% 
   filter(water_year == 2021,
-         lake == 'cliff',
          date_time >= as.POSIXct("2020-12-01"),
          date_time <= as.POSIXct("2021-03-19"))
 
-clf_ice_2021_2 <- clf_21 %>% 
-  filter(
-         lake == 'cliff',
-         date_time >= as.POSIXct("2020-05-26"),
-         date_time <= as.POSIXct("2020-08-18"))
+clf_ice_2021_2 <- clf_all %>% 
+  filter(water_year == 2021,
+         date_time >= as.POSIXct("2020-05-26"), #This is the open water period.
+         date_time <= as.POSIXct("2020-08-18")) #There is a slight increase in DO at June 16, but it is less than 1 mg/L, so I did not break up the time series.
 
 #5. Apply changepoint analysis to DO  time series-------------------------------
 #NOTE: Chanegpoints indicate where DO variance changes
@@ -543,16 +584,18 @@ save(output.list, file = paste('cliff','2021_2','arima_output.Rdata', sep="_"))
 #Castle 2020 3 - section 1 (1,1,1), section 2 (0,1,0), section 3 (1,1,0)
 #Castle 2020 4 - section 1 (1,1,0), section 2 (1,1,0)
 #Castle 2021 - section 1 (1,1,0), section 2 (2,1,0)
-#Castlle 2021 2 - section (1,1,0)
+#Castle 2021 2 - section (1,1,0)
 #Castle 2021 3 - section 1 (1,1,0)
 #Castle 2022 - section 1 (1,1,0)
 #Castle 2022 -  section (1,1,0)
 #Cedar 2020 - section 1 (1,1,1), section 2 (1,1,0) 
 #Cedar 2021 - section 1 (1,1,2), section 2 (1,1,0)
 #Cedar 2022 - section 1 (1,1,2)
+#Cliff 2019 - section 1 (,,)
 #Cliff 2020 - section 1 (1,1,7), section 2 (1,1,0)
 #Cliff 2021 - section 1 (1,1,1)
 #Cliff 2021 2 - section 1 (1,1,0), section 2 (1,1,1)
+#Cliff 2022 - section 1 (,,)
 #Gumboot 2020 1 - section 1 (1,1,0), section 2 (1,1,0)
 #Gumboot 2020 2 - section 1 (1,1,0), section 2 (1,1,3)
 #Gumboot 2021 1 - section 1 (1,1,0)
