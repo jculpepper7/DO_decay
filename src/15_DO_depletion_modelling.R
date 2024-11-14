@@ -480,7 +480,7 @@ chgpts <- out@cpts
 #6. Split time series at discovered changepoints--------------------------------
 #NOTE: Number of changepoints  will vary by dataset
 
-DO.data <- clf_ice_2022 %>% 
+DO.data <- clf_ice_2022_2 %>% 
   mutate(
     day = day(date_time)
   )
@@ -512,7 +512,7 @@ DO.ts3 <- DO.data[(chgpts[2]+1):chgpts[3],]
 # pacf(DO.ts1[,grep('DO',names(DO.ts1))])#check pacf to see how much AR makes sense...
 kpss1 <-kpss.test(DO.ts1$do_mg_l, null="Level") #Test checks for stationary data. p value > 0.01 indicates stationary data
 pacf(DO.ts1$do_mg_l) #check pacf to see how much AR makes sense...
-fit1 <- Arima(DO.ts1$do_mg_l, order=c(1,2,1), include.constant=TRUE)
+fit1 <- Arima(DO.ts1$do_mg_l, order=c(0,1,0), include.constant=TRUE)
 summary(fit1) #drift gives the slope of the time series
 checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that the residuals are independently distributed
 #plot(fit1$fitted)
@@ -522,7 +522,7 @@ checkresiduals(fit1) #checks for autocorrelation. A p value >0.05 indicates that
 #check if data is stationary around a level (if not, should have small p-value)
 kpss2 <- kpss.test(DO.ts2$do_mg_l, null="Level")
 pacf(DO.ts2$do_mg_l)
-fit2 <- Arima(DO.ts2$do_mg_l,order=c(1,1,0), include.constant=TRUE)
+fit2 <- Arima(DO.ts2$do_mg_l,order=c(0,1,0), include.constant=TRUE)
 summary(fit2)
 checkresiduals(fit2)
 
@@ -607,16 +607,16 @@ save(output.list, file = paste('cliff','2022_2','arima_output.Rdata', sep="_"))
 #Cedar 2020 - section 1 (1,1,1), section 2 (1,1,0) 
 #Cedar 2021 - section 1 (1,1,2), section 2 (1,1,0)
 #Cedar 2022 - section 1 (1,1,2)
-#Cliff 2018 - Section 1 (1,1,0)
+#Cliff 2018 - Section 1 (1,1,6)
 #Cliff 2019_1 - section 1 (1,1,0), section 2 (1,1,0), section 3 (1,1,0)
-#Cliff 2019_2 - section 1 (0,1,0), section 2 (1,3,0), section 3 (1,1,1)
-#Cliff 2019_3 - section 1 ()
-#Cliff 2020 - section 1 (1,2,5), section 2 (1,1,0) #For section 1, I previously had 1,1,7, but 1,2,5 makes more sense because of the necessary higher differencing owing to the KPSS test.
-#Cliff 2020_2 - section 1 (1,2,1)
+#Cliff 2019_2 - section 1 (0,1,0), section 2 (1,1,2), section 3 (1,1,1)
+#Cliff 2019_3 - section 1 (1,1,0)
+#Cliff 2020 - section 1 (1,1,6), section 2 (1,1,0)
+#Cliff 2020_2 - section 1 (0,1,1)
 #Cliff 2021 - section 1 (1,1,1)
 #Cliff 2021_2 - section 1 (1,1,0), section 2 (1,1,1)
-#Cliff 2022 - section 1 (1,3,4), section 2 (1,1,0)
-#Cliff 2022_2 - section 1 (1,2,1)
+#Cliff 2022 - section 1 (0,1,0), section 2 (0,1,0)
+#Cliff 2022_2 - section 1 (0,1,0)
 #Gumboot 2020 1 - section 1 (1,1,0), section 2 (1,1,0)
 #Gumboot 2020 2 - section 1 (1,1,0), section 2 (1,1,3)
 #Gumboot 2021 1 - section 1 (1,1,0)
@@ -624,6 +624,6 @@ save(output.list, file = paste('cliff','2022_2','arima_output.Rdata', sep="_"))
 #Soapstone 2020 1 - section 1 (1,1,0)
 #Soapstone 2020 2 - section 1 (1,1,0), section 2 (1,1,2)
 #Soapstone 2021 1 - section 1 (0,1,0)
-#Soapstone 2021 2 - section 1 ()
+#Soapstone 2021 2 - section 1 (,1,)
 #Soapstone 2022 - section 1 (1,1,0) , section 2 (1,1,0)
 

@@ -11,7 +11,7 @@ library(lubridate)
 
 # 2. Import Castle data----------------------------------------------------------------
 
-# 2a. Castle 2018 1----
+# **2a. Castle 2018 1----
 load(here('output/ARIMA_results/castle_2018_arima_output.Rdata'))
 
 cal_results_2018_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -21,7 +21,7 @@ cal_results_2018_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2018_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 2b. Castle 2018 2----
+# **2b. Castle 2018 2----
 load(here('output/ARIMA_results/castle_2018_2_arima_output.Rdata'))
 
 cal_results_2018_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -31,7 +31,7 @@ cal_results_2018_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2018_2.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 2c. Castle 2018 3----
+# **2c. Castle 2018 3----
 load(here('output/ARIMA_results/castle_2018_3_arima_output.Rdata'))
 
 cal_results_2018_3 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -41,7 +41,7 @@ cal_results_2018_3 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2018_3.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 2d. Castle 2018 4----
+# **2d. Castle 2018 4----
 load(here('output/ARIMA_results/castle_2018_4_arima_output.Rdata'))
 
 cal_results_2018_4 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -51,7 +51,7 @@ cal_results_2018_4 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2018_4.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 2e. Castle 2019 1----
+# **2e. Castle 2019 1----
 load(here('output/ARIMA_results/castle_2019_arima_output.Rdata'))
 
 cal_results_2019_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -61,7 +61,7 @@ cal_results_2019_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2019_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 2f. Castle 2019 2----
+# **2f. Castle 2019 2----
 load(here('output/ARIMA_results/castle_2019_2_arima_output.Rdata'))
 
 cal_results_2019_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -70,7 +70,7 @@ cal_results_2019_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('castle_2019_2.1')
   ) 
 
-# 2g. Castle 2020 1----
+# **2g. Castle 2020 1----
 load(here('output/ARIMA_results/castle_2020_arima_output.Rdata'))
 
 cal_results_2020_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -80,7 +80,7 @@ cal_results_2020_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 2h. Castle 2020 2----
+# **2h. Castle 2020 2----
 load(here('output/ARIMA_results/castle_2020_2_arima_output.Rdata'))
 
 cal_results_2020_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -89,7 +89,7 @@ cal_results_2020_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('castle_2020_2.1')
   ) 
 
-# 2i. Castle 2020 3----
+# **2i. Castle 2020 3----
 load(here('output/ARIMA_results/castle_2020_3_arima_output.Rdata'))
 
 cal_results_2020_3 <- tibble(output.list[[9]][["coef"]][["drift"]]) %>% 
@@ -100,7 +100,7 @@ cal_results_2020_3 <- tibble(output.list[[9]][["coef"]][["drift"]]) %>%
   add_row(segment = 'castle_2020_3.2', drift = output.list[[10]][["coef"]][["drift"]]) %>% 
   add_row(segment = 'castle_2020_3.3', drift = output.list[[11]][["coef"]][["drift"]])
 
-# 2j. Castle 2020 4----
+# **2j. Castle 2020 4----
 load(here('output/ARIMA_results/castle_2020_4_arima_output.Rdata'))
 
 cal_results_2020_4 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -110,7 +110,7 @@ cal_results_2020_4 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2020_4.2', drift = output.list[[8]][["coef"]][["drift"]]) 
 
-# 2k. Castle 2021 1----
+# **2k. Castle 2021 1----
 load(here('output/ARIMA_results/castle_2021_arima_output.Rdata'))
 
 cal_results_2021_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -120,7 +120,7 @@ cal_results_2021_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'castle_2021_1.2', drift = output.list[[8]][["coef"]][["drift"]]) 
 
-# 2l. Castle 2021 2----
+# **2l. Castle 2021 2----
 load(here('output/ARIMA_results/castle_2021_2_arima_output.Rdata'))
 
 cal_results_2021_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -129,7 +129,7 @@ cal_results_2021_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('castle_2021_2.1')
   ) 
 
-# 2m. Castle 2021 3----
+# **2m. Castle 2021 3----
 load(here('output/ARIMA_results/castle_2021_3_arima_output.Rdata'))
 
 cal_results_2021_3 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -138,7 +138,7 @@ cal_results_2021_3 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('castle_2021_3.1')
   )
 
-# 2n. Castle 2022 1----
+# **2n. Castle 2022 1----
 load(here('output/ARIMA_results/castle_2022_arima_output.Rdata'))
 
 cal_results_2022_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -147,7 +147,7 @@ cal_results_2022_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('castle_2022_1.1')
   ) 
 
-# 2o. Castle 2022 2----
+# **2o. Castle 2022 2----
 load(here('output/ARIMA_results/castle_2022_2_arima_output.Rdata'))
 
 cal_results_2022_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -158,7 +158,9 @@ cal_results_2022_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
 
 # 3. Import Cedar data-----------------------------------------------
 
-# 3a. Cedar 2020 1----
+# **3a. Cedar 2018----
+
+# **3a. Cedar 2020 1----
 load(here('output/ARIMA_results/cedar_2020_arima_output.Rdata'))
 
 cdr_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -168,7 +170,7 @@ cdr_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cedar_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 3b. Cedar 2021 1----
+# **3b. Cedar 2021 1----
 load(here('output/ARIMA_results/cedar_2021_arima_output.Rdata'))
 
 cdr_results_2021 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -178,7 +180,7 @@ cdr_results_2021 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cedar_2021_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 3c. Cedar 2022 1----
+# **3c. Cedar 2022 1----
 load(here('output/ARIMA_results/cedar_2022_arima_output.Rdata'))
 
 cdr_results_2022 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -189,7 +191,58 @@ cdr_results_2022 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
 
 # 4. Import Cliff data-----------------------------------------------
 
-# 4a. Cliff 2020 1----
+
+# **4a. Cliff 2018 ----
+load(here('output/ARIMA_results/cliff_2018_arima_output.Rdata'))
+
+clf_results_2018 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2018_1.1')
+  ) 
+
+# **4b. Cliff 2019----
+load(here('output/ARIMA_results/cliff_2019_arima_output.Rdata'))
+
+clf_results_2019 <- tibble(output.list[[9]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2019_1.1')
+  ) %>% 
+  add_row(segment = 'cliff_2019_1.2', drift = output.list[[10]][["coef"]][["drift"]]) %>% 
+  add_row(segment = 'cliff_2019_1.3', drift = output.list[[11]][['coef']][['drift']])
+
+# **4c. Cliff 2019_2----
+load(here('output/ARIMA_results/cliff_2019_2_arima_output.Rdata'))
+
+clf_results_2019_2 <- tibble(output.list[[9]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2019_2.1'),
+    start = first(output.list[[3]][['date_time']]),
+    end = last(output.list[[3]][['date_time']])
+  ) %>% 
+  add_row(segment = 'cliff_2019_2.2', 
+          drift = output.list[[10]][["coef"]][["drift"]],
+          start = first(output.list[[4]][['date_time']]),
+          end = last(output.list[[4]][['date_time']])) %>% 
+  add_row(segment = 'cliff_2019_2.3', 
+          drift = output.list[[11]][['coef']][['drift']],
+          start = first(output.list[[5]][['date_time']]),
+          end = last(output.list[[5]][['date_time']]))
+
+# **4d. Cliff 2019_3----
+load(here('output/ARIMA_results/cliff_2019_3_arima_output.Rdata'))
+
+clf_results_2019_3 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
+  rename(drift = 1) %>% 
+  mutate(
+    segment = c('cliff_2019_3.1'),
+    start = first(output.list[[1]][['date_time']]),
+    end = last(output.list[[1]][['date_time']])
+  ) 
+
+# **4a. Cliff 2020 1----
 load(here('output/ARIMA_results/cliff_2020_arima_output.Rdata'))
 
 clf_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -199,7 +252,7 @@ clf_results_2020 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cliff_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 4b. Cliff 2021 2----
+# **4b. Cliff 2021 2----
 #NOTE: Mislabels in ARIMA code as 2021, but these ARIMA results 
 #      are for the summer period DO decay during the summer of 2020
 load(here('output/ARIMA_results/cliff_2021_2_arima_output.Rdata'))
@@ -211,7 +264,7 @@ clf_results_2020_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'cliff_2020_2.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 4b. Cliff 2021 1----
+# **4b. Cliff 2021 1----
 load(here('output/ARIMA_results/cliff_2021_arima_output.Rdata'))
 
 clf_results_2021 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -222,7 +275,7 @@ clf_results_2021 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
 
 # 5. Import Gumboot data---------------------------------------------
 
-# 5a. Gumboot 2020 1----
+# **5a. Gumboot 2020 1----
 load(here('output/ARIMA_results/gumboot_2020_arima_output.Rdata'))
 
 gb_results_2020_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -232,7 +285,7 @@ gb_results_2020_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'gumboot_2020_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 5b. Gumboot 2020 2----
+# **5b. Gumboot 2020 2----
 load(here('output/ARIMA_results/gumboot_2020_2_arima_output.Rdata'))
 
 gb_results_2020_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -241,7 +294,7 @@ gb_results_2020_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('gumboot_2020_2.1')
   )
 
-# 5c. Gumboot 2021 1----
+# **5c. Gumboot 2021 1----
 load(here('output/ARIMA_results/gumboot_2021_arima_output.Rdata'))
 
 gb_results_2021_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -251,7 +304,7 @@ gb_results_2021_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'gumboot_2021_1.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 5d. Gumboot 2022 1----
+# **5d. Gumboot 2022 1----
 load(here('output/ARIMA_results/gumboot_2022_arima_output.Rdata'))
 
 gb_results_2022_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -262,7 +315,7 @@ gb_results_2022_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
 
 # 6. Import Soapstone data-------------------------------------------
 
-# 6a. Soapstone 2020 1----
+# **6a. Soapstone 2020 1----
 load(here('output/ARIMA_results/soapstone_2020_arima_output.Rdata'))
 
 ss_results_2020_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -271,7 +324,7 @@ ss_results_2020_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('soapstone_2020_1.1')
   )
 
-# 6b. Soapstone 2020 2----
+# **6b. Soapstone 2020 2----
 load(here('output/ARIMA_results/soapstone_2020_2_arima_output.Rdata'))
 
 ss_results_2020_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
@@ -281,7 +334,7 @@ ss_results_2020_2 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>%
   ) %>% 
   add_row(segment = 'soapstone_2020_2.2', drift = output.list[[8]][["coef"]][["drift"]])
 
-# 6c. Soapstone 2021 1----
+# **6c. Soapstone 2021 1----
 load(here('output/ARIMA_results/soapstone_2021_arima_output.Rdata'))
 
 ss_results_2021_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -290,7 +343,7 @@ ss_results_2021_1 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('soapstone_2021_1.1')
   ) 
 
-# 6d. Soapstone 2021 2----
+# **6d. Soapstone 2021 2----
 load(here('output/ARIMA_results/soapstone_2021_2_arima_output.Rdata'))
 
 ss_results_2021_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>% 
@@ -299,7 +352,7 @@ ss_results_2021_2 <- tibble(output.list[[5]][["coef"]][["drift"]]) %>%
     segment = c('soapstone_2021_2.1')
   )
 
-# 6e. Soapstone 2022 1----
+# **6e. Soapstone 2022 1----
 load(here('output/ARIMA_results/soapstone_2022_arima_output.Rdata'))
 
 ss_results_2022_1 <- tibble(output.list[[7]][["coef"]][["drift"]]) %>% 
