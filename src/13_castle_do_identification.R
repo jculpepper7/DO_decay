@@ -247,6 +247,7 @@ cal_all_depths <- bind_rows(cal_03m_daily, cal_10m_daily, cal_20m_daily, cal_30m
     lake = 'castle'
   )
 
+#write_csv(cal_all_depths, here('data/processed/cal_hypox_plt.csv'))
 
 # 10. Final plot for Castle-------------------------------------
 
@@ -299,9 +300,10 @@ castle_avg_plt <- ggplot()+
         axis.title.y = element_text(size = 13),
         axis.text = element_text(size = 22),
         axis.text.x = element_blank()
-        )
+        )+
+  scale_y_continuous(breaks = c(0,10,20))
 castle_avg_plt
-#ggplotly(castle_avg_plt)
+ggplotly(castle_avg_plt)
 
 #ggsave(here('output/lake_final_plts/castle_do_plt_w_temp.jpeg'), dpi = 300)
 

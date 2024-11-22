@@ -603,6 +603,19 @@ do_reorder <- do_decay %>%
     )
   )
 
+# **9b. Large v small summary values----
+
+do_decay_summary_size <- do_reorder %>% 
+  group_by(size) %>% 
+  summarise(
+    mean = mean(drift),
+    median = median(drift),
+    low = max(drift),
+    high = min(drift)
+  ) 
+
+#Establish the order of the lakes from small to large
+
 do_reorder$lake <- factor(do_reorder$lake, 
                           levels = c('soapstone', 'cedar', 'gumboot', 'cliff', 'castle'))
 
@@ -619,7 +632,7 @@ decay_labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
 #DO decay plot
 do_decay_plt <- ggplot(data = do_reorder)+
   #geom_boxplot(aes( y = drift))+
-  geom_boxplot(aes(x = lake, y = drift))+ #reorder(lake,drift,mean)
+  geom_boxplot(aes(x = lake, y = drift), outlier.shape = NA)+ #reorder(lake,drift,mean)
   geom_jitter(aes(x = lake, y = drift, shape = water_year), size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
   theme_classic()+
   theme(
@@ -638,6 +651,7 @@ do_decay_plt <- ggplot(data = do_reorder)+
   )
   #facet_wrap(~lake, scales = 'free')
 do_decay_plt
+
 #ggsave(here('output/lake_final_plts/do_decay_boxplot_update_2024.11.15.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
 
 # **9c. Large v. small boxplot----
@@ -649,8 +663,8 @@ size_labels <- c('Small', 'Large')
 
 do_decay_size_plt <- ggplot(data = do_reorder)+
   #geom_boxplot(aes( y = drift))+
-  geom_boxplot(aes(x = size, y = drift))+ #reorder(lake,drift,mean)
-  geom_jitter(aes(x = size, y = drift, shape = water_year), size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
+  geom_boxplot(aes(x = size, y = drift), outlier.shape = NA)+ #reorder(lake,drift,mean)
+  geom_jitter(aes(x = size, y = drift), alpha = 0.7, size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
   theme_classic()+
   theme(
     legend.position = c(0.9, 0.3),
@@ -659,7 +673,7 @@ do_decay_size_plt <- ggplot(data = do_reorder)+
   )+
   xlab('')+
   ylab(bquote('Rate ('*mg~ L^-1~ d^-1*')'))+
-  ylim(c(-1,0))+
+  #ylim(c(-1,0))+
   scale_x_discrete(labels = size_labels)+
   theme(
     text = element_text(size = 25),
@@ -669,7 +683,7 @@ do_decay_size_plt <- ggplot(data = do_reorder)+
 
 do_decay_size_plt
 
-ggsave(here('output/lake_final_plts/do_decay__size_boxplot_2024.11.15.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
+#ggsave(here('output/lake_final_plts/do_decay__size_boxplot_2024.11.20.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
 
 # **9d. Mann-Whitney test between large v small----
 
@@ -678,7 +692,7 @@ size_dif <- wilcox.test(drift ~ size, data = do_reorder, exact = F)
 size_df #Yes, the groups are statistically different, p < 0.05 
         #(exact: p-value = 1.79e-06, n = 53)
 
-length(do_reorder$lake)
+#length(do_reorder$lake)
 
 
 

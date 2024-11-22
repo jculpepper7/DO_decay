@@ -75,6 +75,8 @@ cedar_w_avg <- cedar %>%
   ungroup() %>% 
   select(lake, date, depth, light_intensity_lux, temp_c, do_mg_l, do_sat)
 
+#write_csv(cedar_w_avg, here('data/processed/cedar_hypox_plt.csv'))
+
 # 4. data viz of averaged data (daily average)
 
 cedar_avg_plt <- ggplot()+ 
@@ -117,6 +119,7 @@ cedar_avg_plt <- ggplot()+
   #)+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
+  scale_y_continuous(breaks = c(0,10,20))+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
@@ -124,7 +127,7 @@ cedar_avg_plt <- ggplot()+
         axis.text.x = element_blank())+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))
 cedar_avg_plt
-#ggplotly(cedar_avg_plt)
+ggplotly(cedar_avg_plt)
 
 #ggsave(here('output/lake_final_plts/cedar_do_plt.jpeg'), dpi = 300)
 
@@ -155,31 +158,31 @@ cedar_avg_plt
 # cedar_do_sat
 
 #ggsave(here('output/plots/cedar_do_saturation_20_21.png'), dpi = 500)
-
-cedar_light <- ggplot(data = cedar_w_avg)+
-  geom_rect(aes(
-    xmin = ymd('2019-11-26'),
-    xmax = ymd('2020-04-12'),
-    ymin = -Inf,
-    ymax = Inf
-  ), fill = 'light blue', alpha = 0.5)+
-  geom_rect(aes(
-    xmin = ymd('2020-11-18'),
-    xmax = ymd('2021-04-17'),
-    ymin = -Inf,
-    ymax = Inf
-  ), fill = 'light blue', alpha = 0.5)+
-  geom_rect(aes(
-    xmin = ymd('2021-12-12'),
-    xmax = ymd('2022-04-02'),
-    ymin = -Inf,
-    ymax = Inf
-  ), fill = 'light blue', alpha = 0.5)+
-  geom_line(aes(x = date, y = light_intensity_lux, color = depth))+
-  theme_classic()+
-  ggtitle('Light Intensity')
-cedar_light
-
+# 
+# cedar_light <- ggplot(data = cedar_w_avg)+
+#   geom_rect(aes(
+#     xmin = ymd('2019-11-26'),
+#     xmax = ymd('2020-04-12'),
+#     ymin = -Inf,
+#     ymax = Inf
+#   ), fill = 'light blue', alpha = 0.5)+
+#   geom_rect(aes(
+#     xmin = ymd('2020-11-18'),
+#     xmax = ymd('2021-04-17'),
+#     ymin = -Inf,
+#     ymax = Inf
+#   ), fill = 'light blue', alpha = 0.5)+
+#   geom_rect(aes(
+#     xmin = ymd('2021-12-12'),
+#     xmax = ymd('2022-04-02'),
+#     ymin = -Inf,
+#     ymax = Inf
+#   ), fill = 'light blue', alpha = 0.5)+
+#   geom_line(aes(x = date, y = light_intensity_lux, color = depth))+
+#   theme_classic()+
+#   ggtitle('Light Intensity')
+# cedar_light
+# 
 
 
 

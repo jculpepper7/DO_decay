@@ -38,8 +38,8 @@ soapstone_plt_non_avg <- ggplot(data = soapstone)+
   theme(text = element_text(size = 20),
         axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
         axis.text.y = element_text(size = 20),
-        plot.title = element_text(hjust = 0.5))+
-  scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
+        plot.title = element_text(hjust = 0.5))#+
+  #scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
 #scale_color_viridis(discrete = TRUE, option = "D")+ #for colorblind friendly option
 #scale_x_date(breaks = "date_time", labels = date_format("%b %Y"))
 soapstone_plt_non_avg
@@ -73,6 +73,8 @@ soapstone_w_avg <- soapstone %>%
   complete(date = seq.Date(min(date), max(date), by = 'day')) %>% #10/2020 through 10/2021 missing (due to faulty sensor)
   ungroup() %>% 
   select(lake, date, depth, light_intensity_lux, temp_c, do_mg_l, do_sat)
+
+write_csv(soapstone_w_avg, here('data/processed/ss_hypox_plt.csv'))
 
 # 4. data viz of averaged data (daily average)
 
@@ -113,9 +115,10 @@ soapstone_avg_plt <- ggplot()+
         axis.text = element_text(size = 22)#,
         #axis.text.x = element_blank()
         )+
-  xlim(ymd('2017-10-01'), ymd('2022-06-16'))
+  xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
+  scale_y_continuous(breaks = c(0,10,20))
 soapstone_avg_plt
-#ggplotly(soapstone_avg_plt)
+ggplotly(soapstone_avg_plt)
 
 #ggsave(here('output/lake_final_plts/soapstone_do_plt.jpeg'), dpi = 300)
 

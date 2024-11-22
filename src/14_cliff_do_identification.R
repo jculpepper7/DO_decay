@@ -386,6 +386,8 @@ cliff <- cliff_2019_mean %>%
   pivot_longer(cols = 3:9, names_to = 'depth', values_to = 'temp_c') #%>% 
   #select(1,2,3,4,8,9)
 
+#write_csv(cliff, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+#write_csv(cliff, here('data/processed/cliff/clf_hypox_plt.csv'))
 
 #Temperature plot
 
@@ -447,8 +449,19 @@ cliff_avg_plt <- ggplot()+
         axis.text.x = element_blank()
         )+
   scale_x_date(date_breaks = '1 year', date_labels = '%Y')+
-  xlim(ymd('2017-10-01'), ymd('2022-06-16'))
+  xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
+  scale_y_continuous(breaks = c(0,10,20))
 cliff_avg_plt
 #ggplotly(cliff_avg_plt)
 
 #ggsave(here('output/lake_final_plts/cliff_do_plt_w_temp.jpeg'), dpi = 300)
+
+
+# 7. Write Cliff data to CSV ----------------------------------------------
+
+cliff_write <- cliff_2019_mean %>% 
+  bind_rows(cliff_2020_mean, cliff_2021_mean, cliff_2022_mean) %>% 
+  select(lake, date, do_mg_l)
+
+write_csv(cliff_write, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+
