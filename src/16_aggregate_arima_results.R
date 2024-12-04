@@ -728,3 +728,85 @@ size_df #Yes, the groups are statistically different, p < 0.05
 # 
 # #ggsave(here('output/lake_final_plts/do_by_year.jpeg'), dpi = 300, width = 14, height = 10)
 # 
+
+
+# 10. Supp. plt - winter v summer decay rates -----------------------------
+
+#Eliminate small lakes
+
+do_decay_cal <- do_reorder %>% 
+  filter(
+    lake == 'castle'
+  ) %>% 
+  mutate(
+    period = if_else(
+      #WY 2018
+      start >= ymd('2017-12-04') & end <= ymd('2018-04-11') |
+      start >= ymd('2018-12-24') & end <= ymd('2019-06-01') |
+      start >= ymd('2019-12-20') & end <= ymd('2020-04-25') |
+      start >= ymd('2020-12-20') & end <= ymd('2021-05-02') |
+      start >= ymd('2021-12-15') & end <= ymd('2022-04-02'),
+      as.factor('ice'),
+      as.factor('open')
+    )
+  )
+
+do_decay_clf <- do_reorder %>% 
+  filter(
+    lake == 'cliff'
+  ) %>% 
+  mutate(
+    period = if_else(
+      start >= ymd('2018-12-04') & end <= ymd('2019-05-31') |
+      start >= ymd('2019-12-09') & end <= ymd('2020-04-27') |
+      start >= ymd('2020-12-01') & end <= ymd('2021-04-30') |
+      start >= ymd('2021-12-14') & end <= ymd('2022-04-13'),
+      as.factor('ice'),
+      as.factor('open')
+    )
+  )
+
+#Combine Cal and Clf data
+
+do_decay_deep <- do_decay_cal %>% 
+  bind_rows(do_decay_clf)
+
+#Establish the order of the lakes from small to large
+
+do_decay_deep$lake <- factor(do_decay_deep$lake, 
+                          levels = c('cliff', 'castle'))
+
+#upper case labels
+decay_labels_deep <- c('Under Ice', 'Open Water')
+
+
+#DO decay plot
+do_decay_deep_plt <- ggplot(data = do_decay_deep)+
+  geom_boxplot(aes(x = period, y = drift), outlier.shape = NA)+ #reorder(lake,drift,mean)
+  geom_jitter(aes(x = period, y = drift, shape = lake), size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
+  theme_classic()+
+  theme(
+    legend.position = c(0.9, 0.3),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.title = element_blank()
+  )+
+  xlab('')+
+  ylab(bquote('Rate ('*mg~ L^-1~ d^-1*')'))+
+  #ylim(c(-1,0))+
+  scale_x_discrete(labels = decay_labels_deep)+
+  theme(
+    text = element_text(size = 25)
+  )
+#facet_wrap(~lake, scales = 'free')
+do_decay_deep_plt
+
+# ggsave(here(
+#   'output/lake_final_plts/supp_figs/sum_v_win_decay_rates.png'
+#   ),
+#   dpi = 300,
+#   height = 5,
+#   width = 7,
+#   units = 'in'
+# )
+
+wilcox.test(data = do_decay_deep, drift ~ period)

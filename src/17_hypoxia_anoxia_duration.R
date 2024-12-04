@@ -9,6 +9,7 @@ library(tidyverse)
 library(here)
 library(lubridate)
 library(janitor)
+library(cropgrowdays)
 
 # 2. Import data---------------------------------------------------------
 
@@ -22,13 +23,13 @@ cal_do <- read_csv(here('data/processed/castle/castle_clean_agg_data_daily.csv')
     #determine when the lake was ice covered and open
     if_else( 
       #WY 2018
-        date>=ymd('2017-12-11') & date<=ymd('2018-04-11') |
+        date>=ymd('2017-12-04') & date<=ymd('2018-04-11') |
       #WY 2019
         date>=ymd('2018-12-24') & date<=ymd('2019-06-01') |
       #WY 2020
         date>=ymd('2019-12-20') & date<=ymd('2020-04-25') |
       #WY 2021
-        date>=ymd('2020-12-20') & date<=ymd('2021-05-21') |
+        date>=ymd('2020-12-20') & date<=ymd('2021-05-02') |
       #WY 2022
         date>=ymd('2021-12-15') & date<=ymd('2022-04-02'),
       as.factor('ice'),
@@ -83,9 +84,9 @@ clf_do <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily.csv')) 
         #WY 2019
         date>=ymd('2018-12-04') & date<=ymd('2019-05-31') |
         #WY 2020
-        date>=ymd('2019-12-09') & date<=ymd('2020-05-01') |
+        date>=ymd('2019-12-09') & date<=ymd('2020-04-27') |
         #WY 2021
-        date>=ymd('2020-12-01') & date<=ymd('2021-04-11') |
+        date>=ymd('2020-12-01') & date<=ymd('2021-04-30') |
         #WY 2022
         date>=ymd('2021-12-14') & date<=ymd('2022-04-13'),
       as.factor('ice'),
@@ -183,31 +184,57 @@ all_do <- bind_rows(cal_do, cdr_do, clf_do, gb_do, ss_do) %>%
       period == 'open',
       do_mg_l,
       NA
+    ),
+    size = if_else(
+      lake == 'cedar' | lake == 'gumboot' | lake == 'soapstone',
+      as.factor('small'),
+      as.factor('large')
     )
   )
 
 #3. Isolate hypoxia periods
 
 #Count the total number of days when oxygen was <=2 mg/L
-hypox_total <- all_do %>%
+hypox_large <- all_do %>%
+  filter(size == 'large') %>% 
   group_by(lake, year, period) %>% 
   filter(do_mg_l <= 2) %>% # & do_mg_l > 1
   summarise(
     hypox_total = n()
   )
 
+hypox_small <- all_do %>%
+  filter(size == 'small') %>% 
+  group_by(lake, water_year, period) %>% 
+  filter(do_mg_l <= 2) %>% # & do_mg_l > 1
+  summarise(
+    hypox_total = n()
+  )
 
+hypox_total <- hypox_large %>% 
+  bind_rows(hypox_small)
 # 4. Hypoxia plot ---------------------------------------------------------
 
-ggplot(all_do)+
+DO_ts_hypox_plt <- ggplot(all_do)+
   geom_line(aes(x = date, y = hypoxic, color = as.factor(year(date))), 
             alpha = 0.4, linewidth = 2)+
-  geom_line(aes(x = date, y = open), color = 'black', alpha = 1)+
-  geom_line(aes(x = date, y = ice), color = 'grey50', alpha = 1)+
+  geom_line(aes(x = date, y = open), linetype = 'dashed')+
+  geom_line(aes(x = date, y = ice) )+
   geom_vline(xintercept = c(ymd('2018-01-01'), ymd('2019-01-01'), ymd('2020-01-01'), ymd('2021-01-01'), ymd('2022-01-01')))+
+  geom_vline(xintercept = c(ymd('2017-10-01'), ymd('2018-10-01'), ymd('2019-10-01'), ymd('2020-10-01'), ymd('2021-10-01'), ymd('2022-10-01')), linetype = 'dashed')+
+  geom_vline(xintercept = ymd('2017-12-11'), color = 'red')+
   facet_wrap(~lake, ncol = 1)+
-  theme_classic()
-  
+  theme_classic()+
+  theme(
+    legend.title = element_blank(),
+    text = element_text(size = 25)
+  )
+
+DO_ts_hypox_plt
+ggplotly(DO_ts_hypox_plt)
+#library(plotly)
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_DO_hypox.png'),
+#        dpi = 300, height = 14, width = 15, units = 'in')
 
 # TK. Anoxia and combined data --------------------------------------------
 
@@ -250,3 +277,160 @@ ggplot(all_do)+
 #   full_join(hypox_duration)
 
 #write_csv(low_do, here('output/hypoxia_results/hypoxia_anoxia_total.csv'))
+
+
+
+#CAL yday starting from October 1
+
+doy_func <- function(start, end){
+  x <- cropgrowdays::day_of_year(start, type = 'other', base = list(d = 1, m = 10))
+  y <- cropgrowdays::day_of_year(end, type = 'other', base = list(d = 1, m = 10))
+  z <- end-start
+  a <- lubridate::yday(start)
+  b <- lubridate::yday(end)
+  print(c(a,b,z))
+  }
+
+doy_func(start=ymd('2020-12-01'), end = ymd('2021-04-30'))
+
+
+
+# 5. Summer v winter hypoxia - Deep lakes ---------------------------------
+
+sum_v_win_hypox_plt <- ggplot(data = hypox_large)+
+  geom_boxplot(aes(x = period, y = hypox_total))+
+  geom_jitter(aes(x = period, y = hypox_total))+
+  theme_classic()+
+  xlab('Hypoxia Duration (days)')+
+  ylab('Season')
+
+sum_v_win_hypox_plt
+
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_DO_hypox_deep.png'),
+#        dpi = 300, height = 14, width = 15, units = 'in')
+
+
+
+# 6. winter hypox v ice duration ------------------------------------------
+
+supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+
+hypox_ice_dur_plt <- ggplot(data = supp_tbl)+
+  geom_point(aes(x = ice_dur_days, y = winter_hypoxia_days))+
+  geom_smooth(aes(x = ice_dur_days, y = winter_hypoxia_days), method = 'lm')+
+  theme_classic()+
+  xlab('Ice Duation (days)')+
+  ylab('Winter Hypoxia Duration (days)')+
+  theme(
+    text = element_text(size = 20)
+  )
+
+hypox_ice_dur_plt
+
+ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_dur.png'),
+       dpi = 300, height = 5, width = 6, units = 'in')
+
+
+# 7. winter hypox v ice on ------------------------------------------
+
+supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+
+hypox_ice_on_plt <- ggplot(data = supp_tbl)+
+  geom_point(aes(x = ice_on_doy, y = winter_hypoxia_days))+
+  geom_smooth(aes(x = ice_on_doy, y = winter_hypoxia_days), method = 'lm')+
+  theme_classic()+
+  xlab('Ice On (DOY)')+
+  ylab('Winter Hypoxia Duration (days)')+
+  theme(
+    text = element_text(size = 20)
+  )
+
+hypox_ice_on_plt
+
+ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_on.png'),
+       dpi = 300, height = 5, width = 6, units = 'in')
+
+
+# 8. summer hypox v ice off ------------------------------------------
+
+supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+
+hypox_ice_off_plt <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake == 'cliff'))+
+  geom_point(aes(x = ice_off_doy, y = summer_hypoxia_days))+
+  geom_smooth(aes(x = ice_off_doy, y = summer_hypoxia_days), method = 'lm')+
+  theme_classic()+
+  xlab('Ice Off (DOY)')+
+  ylab('Summer Hypoxia Duration (days)')+
+  theme(
+    text = element_text(size = 20)
+  )
+
+hypox_ice_off_plt
+
+ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_ice_off.png'),
+       dpi = 300, height = 5, width = 6, units = 'in')
+
+
+
+# Peak DO calc ------------------------------------------------------------
+
+
+peak_do_ice <- all_do %>% 
+  filter(period == 'ice') %>% 
+  group_by(
+    lake, 
+    water_year
+  ) %>% 
+  summarise(
+    peak_do = max(do_mg_l, na.rm = T)
+  )
+
+peak_do_open <- all_do %>% 
+  filter(period == 'open') %>% 
+  group_by(
+    lake, 
+    year
+  ) %>% 
+  summarise(
+    peak_do = max(do_mg_l, na.rm = T)
+  )
+
+
+# Peak DO plts -------------------------------------------------------------
+
+#Summer plot
+supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+
+summer_do_v_hyopx <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake == 'cliff'))+
+  geom_point(aes(x = spring_peak_do, y = summer_hypoxia_days))+
+  geom_smooth(aes(x = spring_peak_do, y = summer_hypoxia_days), method = 'lm')+
+  theme_classic()+
+  xlab('Peak Spring DO (mg/L)')+
+  ylab('Summer Hypoxia Duration (days)')+
+  theme(
+    text = element_text(size = 20)
+  )
+
+summer_do_v_hyopx
+
+ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_spring_do.png'),
+       dpi = 300, height = 5, width = 6, units = 'in')
+
+#Winter plot
+
+supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+
+wint_do_v_hyopx <- ggplot(data = supp_tbl)+
+  geom_point(aes(x = winter_peak_do, y = winter_hypoxia_days))+
+  geom_smooth(aes(x = winter_peak_do, y = winter_hypoxia_days), method = 'lm')+
+  theme_classic()+
+  xlab('Peak Winter DO (mg/L)')+
+  ylab('Winter Hypoxia Duration (days)')+
+  theme(
+    text = element_text(size = 20)
+  )
+
+wint_do_v_hyopx
+
+ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_wint_do.png'),
+       dpi = 300, height = 5, width = 6, units = 'in')
