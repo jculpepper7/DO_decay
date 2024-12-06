@@ -238,26 +238,33 @@ castle_avg_plt/ cliff_avg_plt / gumboot_avg_plt/ cedar_avg_plt /soapstone_avg_pl
 # 
 # #Light intensity visualizaiton
 # 
-# gb_light <- ggplot(data = gumboot_w_avg)+
-#   geom_rect(aes(
-#     xmin = ymd('2019-11-23'),
-#     xmax = ymd('2020-05-04'),
-#     ymin = -Inf,
-#     ymax = Inf
-#   ), fill = 'light blue', alpha = 0.5)+
-#   geom_rect(aes(
-#     xmin = ymd('2020-11-18'),
-#     xmax = ymd('2021-05-02'),
-#     ymin = -Inf,
-#     ymax = Inf
-#   ), fill = 'light blue', alpha = 0.5)+
-#   geom_rect(aes(
-#     xmin = ymd('2021-12-18'),
-#     xmax = ymd('2022-04-07'),
-#     ymin = -Inf,
-#     ymax = Inf
-#   ), fill = 'light blue', alpha = 0.5)+
-#   geom_line(aes(x = date, y = light_intensity_lux, color = depth))+
-#   theme_classic()+
-#   ggtitle('Light Intensity')
-# gb_light
+
+light_data <- gumboot_w_avg %>% 
+  mutate(year = as.factor(year(date))) %>% 
+  filter(
+    date >= ymd('2021-10-01') & date <= ymd('2022-04-30'),
+    depth == '0.9m' | depth == '1m'
+  )
+
+gb_light <- ggplot()+
+  geom_rect(aes(
+    xmin = ymd('2021-12-18'),
+    xmax = ymd('2022-04-07'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_line(data = light_data %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
+  geom_line(data = light_data%>% filter(depth == '0.9m'), aes(x = date, y = light_intensity_lux/200), color = 'grey', size = 1.2)+
+  theme_classic()+
+  xlab('Winter 2021-2022')+
+  scale_y_continuous(
+    name = 'Dissolved Oxygen (mg/L)',
+    sec.axis = sec_axis(~.*200, name = 'Light Intensity (lux)')
+  )+
+  theme(
+    legend.position = 'none'
+  )
+gb_light
+#ggplotly(gb_light)
+# ggsave(here('output/lake_final_plts/supp_figs/gb_light_plt.png'),
+#        dpi = 300, width = 7, height = 5, units = 'in')

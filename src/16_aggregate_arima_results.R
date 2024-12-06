@@ -689,7 +689,7 @@ do_decay_size_plt
 
 size_dif <- wilcox.test(drift ~ size, data = do_reorder, exact = F)
 
-size_df #Yes, the groups are statistically different, p < 0.05 
+size_dif #Yes, the groups are statistically different, p < 0.05 
         #(exact: p-value = 1.79e-06, n = 53)
 
 #length(do_reorder$lake)

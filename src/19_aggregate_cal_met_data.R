@@ -432,7 +432,7 @@ snodas_oct <- snodas %>%
   filter(lake == 'castle')
 
 snodas_oct_plt <-   ggplot(data = snodas_oct)+
-  geom_line(aes(x = doy_oct, y = swe_mm, color = water_year, linetype = water_year), size = 1.2)+
+  geom_line(aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2)+
   theme_classic()+
   labs(x = 'Day of Year (10/1)', y = 'SWE (mm)')+
   #facet_wrap(~water_year, scales = 'free')+
@@ -460,5 +460,80 @@ ggsave(here('output/lake_final_plts/swe_timeseries.jpeg'), dpi = 300, height = 1
 
 
 
+# **5d. SNODAS water year 2022 plt ----------------------------------------
+
+snodas_2022 <- snodas_oct %>% 
+  filter(
+    date >= ymd('2021-10-01') & date <= ymd('2022-04-30')
+  )
+
+snodas_oct_plt <- ggplot(data = snodas_2022)+
+  geom_line(aes(x = date, y = swe_mm), size = 1.2)+
+  theme_classic()+
+  labs(x = 'Day of Year (10/1)', y = 'SWE (mm)')+
+  #facet_wrap(~water_year, scales = 'free')+
+  theme(axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1))+
+  #xlim(30,261)+
+  #scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00"))+
+  scale_color_grey()+
+  #scale_linetype_identity(name = c('solid', 'twodash', 'F1', 'dotdash', 'longdash'))+
+  #scale_linetype_discrete(c(1,3,5,7,9))+
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(0.2, 0.80),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.key.height= unit(0.6, 'in'),
+    legend.key.width= unit(0.5, 'in'),
+    text = element_text(size = 38),
+    legend.key.size = unit(5, 'line'),
+    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"))
+  )
+snodas_oct_plt
+
+
+# 6. Cumulative Precip for 2021-2022 --------------------------------------
+
+gridmet_precip2 <- gridmet_precip %>% 
+  mutate(
+    year = year(date_time),
+    water_year = if_else(
+      month(date_time) >= 10, year(date_time)+1, year(date_time))
+    ) %>% 
+  group_by(water_year) %>% 
+  mutate(
+    precip_sum_mm = cumsum(precip_mm)
+  ) %>% 
+  filter(
+    date_time >= ymd('2021-10-01') & date_time <= ymd('2022-04-30')
+  )
+
+precip_plt <- ggplot() +
+  geom_rect(aes(
+    xmin = ymd('2021-12-18'),
+    xmax = ymd('2022-04-07'),
+    ymin = -Inf,
+    ymax = Inf
+  ), fill = 'light blue', alpha = 0.5)+
+  geom_line(data = gridmet_precip2, aes(x = date_time, y = precip_sum_mm/3.5), size = 1, color = 'grey')+
+  geom_line(data = snodas_2022, aes(x = date, y = swe_mm), size = 1.2)+
+  theme_classic()+
+  xlab('')+
+  ylab('Sum Precipitation (mm)')+
+  scale_y_continuous(
+    name = 'SWE (mm)',
+    sec.axis = sec_axis(~.*3.5, name = 'Cumulative Precipitation (mm)')
+  )+
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(0.2, 0.80),
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.key.height= unit(0.6, 'in'),
+    legend.key.width= unit(0.5, 'in'),
+    text = element_text(size = 38),
+    legend.key.size = unit(5, 'line'),
+    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32)
+  )
+precip_plt
+ggplotly(precip_plt)
 
 

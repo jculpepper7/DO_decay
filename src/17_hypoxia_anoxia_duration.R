@@ -10,6 +10,10 @@ library(here)
 library(lubridate)
 library(janitor)
 library(cropgrowdays)
+library(ggpmisc)
+library(ggpubr)
+library(plotly)
+library(cowplot)
 
 # 2. Import data---------------------------------------------------------
 
@@ -323,7 +327,13 @@ hypox_ice_dur_plt <- ggplot(data = supp_tbl)+
   ylab('Winter Hypoxia Duration (days)')+
   theme(
     text = element_text(size = 20)
-  )
+  )+
+  stat_poly_eq(aes(x = ice_dur_days, y = winter_hypoxia_days), label.y = 0.98, label.x = 1)+
+  #stat_cor(label.y = 0.5, p.digits = 1)+
+  stat_fit_glance(aes(x = ice_dur_days, y = winter_hypoxia_days),
+    #formula = formula,
+    aes(label = paste("P = ", signif(..p.value.., digits = 2), sep = "")),
+    label.y = 0.9, label.x = 1)
 
 hypox_ice_dur_plt
 
@@ -371,6 +381,51 @@ ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_ice_off.png')
        dpi = 300, height = 5, width = 6, units = 'in')
 
 
+# 9. Hypoxia duration plt ------------------------------------------------
+
+supp_tbl$lake <- factor(supp_tbl$lake, 
+                          levels = c('castle', 'cliff', 'gumboot', 'cedar', 'soapstone'))
+
+#**9a. Winter hypoxia plt----
+
+w_hypoxia_plt <- ggplot(data = supp_tbl)+
+  geom_line(aes(x = water_year, y = winter_hypoxia_days, linetype = lake))+
+  geom_point(aes(x = water_year, y = winter_hypoxia_days, shape = lake), size = 3)+
+  theme_classic()+
+  scale_shape_discrete(labels = c('Castle', 'Cliff', 'Gumboot', 'Cedar', 'Soapstone'))+
+  scale_linetype_discrete(labels = c('Castle', 'Cliff', 'Gumboot', 'Cedar', 'Soapstone'))+
+  labs(x = '', y = 'Winter Hypoxia (days)')+
+  theme(
+    text = element_text(size = 25),
+    legend.position = c(0.15, 0.85),
+    legend.title = element_blank(),
+    #axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm'))
+  )
+w_hypoxia_plt
+
+# ggsave(here('output/lake_final_plts/w_hypox_plt_2024.12.06.pdf'),
+#        dpi = 300, height = 5, width = 8, units = 'in')
+
+#**9b. Summer hypoxia plt----
+
+s_hypoxia_plt <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake == 'cliff'))+
+  geom_line(aes(x = water_year, y = summer_hypoxia_days, linetype = lake))+
+  geom_point(aes(x = water_year, y = summer_hypoxia_days, shape = lake), size = 3)+
+  theme_classic()+
+  scale_shape_discrete(labels = c('Castle', 'Cliff'))+
+  scale_linetype_discrete(labels = c('Castle', 'Cliff'))+
+  labs(x = '', y = 'Summer Hypoxia (days)')+
+  theme(
+    text = element_text(size = 25),
+    legend.position = 'none',
+    legend.title = element_blank(),
+    #axis.title.y = element_text(margin = unit(c(0,5,0,0), 'mm'))
+  )
+s_hypoxia_plt
+
+# ggsave(here('output/lake_final_plts/s_hypox_plt_2024.12.06.pdf'),
+#        dpi = 300, height = 5, width = 8, units = 'in')
+# 
 
 # Peak DO calc ------------------------------------------------------------
 
