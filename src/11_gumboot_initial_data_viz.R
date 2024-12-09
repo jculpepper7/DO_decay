@@ -266,5 +266,5 @@ gb_light <- ggplot()+
   )
 gb_light
 #ggplotly(gb_light)
-# ggsave(here('output/lake_final_plts/supp_figs/gb_light_plt.png'),
-#        dpi = 300, width = 7, height = 5, units = 'in')
+ggsave(here('output/lake_final_plts/supp_figs/gb_light_plt.pdf'),
+       dpi = 300, width = 7, height = 5, units = 'in')

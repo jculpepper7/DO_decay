@@ -518,22 +518,22 @@ precip_plt <- ggplot() +
   geom_line(data = snodas_2022, aes(x = date, y = swe_mm), size = 1.2)+
   theme_classic()+
   xlab('')+
-  ylab('Sum Precipitation (mm)')+
   scale_y_continuous(
     name = 'SWE (mm)',
-    sec.axis = sec_axis(~.*3.5, name = 'Cumulative Precipitation (mm)')
+    sec.axis = sec_axis(~.*3.5, name = 'Precipitation (mm)')
   )+
   theme(
-    legend.title = element_blank(),
-    legend.position = c(0.2, 0.80),
-    legend.background = element_rect(fill = "white", color = "white"),
-    legend.key.height= unit(0.6, 'in'),
-    legend.key.width= unit(0.5, 'in'),
-    text = element_text(size = 38),
-    legend.key.size = unit(5, 'line'),
-    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32)
+    #legend.title = element_blank(),
+    legend.position = 'none', #c(0.2, 0.80)
+    # legend.background = element_rect(fill = "white", color = "white"),
+    # legend.key.height= unit(0.6, 'in'),
+    # legend.key.width= unit(0.5, 'in'),
+    # text = element_text(size = 38),
+    # legend.key.size = unit(5, 'line'),
+    # axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32)
   )
 precip_plt
-ggplotly(precip_plt)
+#ggplotly(precip_plt)
 
-
+ggsave(here('output/lake_final_plts/supp_figs/snow_precip_plt.pdf'),
+       dpi = 300, width = 7, height = 5, units = 'in')
