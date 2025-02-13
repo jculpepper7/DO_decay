@@ -13,6 +13,10 @@ library(padr)
 library(plotly)
 library(patchwork)
 
+install.packages("devtools")
+devtools::install_github("thomasp85/scico")
+
+
 # 2. Import weather data---------------------------------------------
 
 # 2a. Import raw weatherhawk data----
@@ -439,21 +443,22 @@ snodas_oct_plt <-   ggplot(data = snodas_oct)+
   theme(axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1))+
   xlim(30,261)+
   #scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00"))+
-  scale_color_grey()+
+  #scale_color_grey()+
+  scale_color_viridis_d(begin = 0.1, end = 0.9)+
   #scale_linetype_identity(name = c('solid', 'twodash', 'F1', 'dotdash', 'longdash'))+
   #scale_linetype_discrete(c(1,3,5,7,9))+
   theme(
     legend.title = element_blank(),
-    legend.position = c(0.2, 0.80),
+    legend.position = c(0.1, 0.70),
     legend.background = element_rect(fill = "white", color = "white"),
-    legend.key.height= unit(0.6, 'in'),
-    legend.key.width= unit(0.5, 'in'),
-    text = element_text(size = 38),
-    legend.key.size = unit(5, 'line'),
+    legend.key.height= unit(0.4, 'in'),
+    legend.key.width= unit(0.4, 'in'),
+    text = element_text(size = 30),
+    legend.key.size = unit(4, 'line'),
     axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"))
   )
 snodas_oct_plt
-#ggplotly(snodas_oct_plt)  
+ggplotly(snodas_oct_plt)  
   
 ggsave(here('output/lake_final_plts/swe_timeseries.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
 
@@ -537,3 +542,13 @@ precip_plt
 
 ggsave(here('output/lake_final_plts/supp_figs/snow_precip_plt.pdf'),
        dpi = 300, width = 7, height = 5, units = 'in')
+
+
+
+
+
+
+
+test <- ggplot(data = snodas_oct %>% filter(water_year == 2019))+
+  geom_line(aes(x = date, y = swe_mm))
+ggplotly(test)

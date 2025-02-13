@@ -597,9 +597,9 @@ do_reorder <- do_decay %>%
     size = if_else(
       lake == 'castle' | lake == 'cliff',
       #Large is >5m depth
-      as.factor('large'),
+      as.factor('Deep'),
       #Small is <=5m depth
-      as.factor('small')
+      as.factor('Shallow')
     )
   )
 
@@ -656,9 +656,9 @@ do_decay_plt
 
 # **9c. Large v. small boxplot----
 do_reorder$size <- factor(do_reorder$size, 
-                          levels = c('small', 'large'))
+                          levels = c('Shallow', 'Deep'))
 #upper case labels
-size_labels <- c('Small', 'Large')
+size_labels <- c('Shallow', 'Deep')
 
 
 do_decay_size_plt <- ggplot(data = do_reorder)+
@@ -771,6 +771,17 @@ do_decay_clf <- do_reorder %>%
 do_decay_deep <- do_decay_cal %>% 
   bind_rows(do_decay_clf)
 
+#Deep summary rates
+
+do_decay_deep_season <- do_decay_deep %>% 
+  group_by(lake, period) %>% 
+  summarise(
+    mean = mean(drift),
+    median = median(drift),
+    low = max(drift),
+    high = min(drift)
+  ) 
+
 #Establish the order of the lakes from small to large
 
 do_decay_deep$lake <- factor(do_decay_deep$lake, 
@@ -786,7 +797,7 @@ do_decay_deep_plt <- ggplot(data = do_decay_deep)+
   geom_jitter(aes(x = period, y = drift, shape = lake), size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
   theme_classic()+
   theme(
-    legend.position = c(0.9, 0.3),
+    legend.position = c(0.9, 0.2),
     legend.background = element_rect(fill = "white", color = "white"),
     legend.title = element_blank()
   )+
@@ -794,19 +805,134 @@ do_decay_deep_plt <- ggplot(data = do_decay_deep)+
   ylab(bquote('Rate ('*mg~ L^-1~ d^-1*')'))+
   #ylim(c(-1,0))+
   scale_x_discrete(labels = decay_labels_deep)+
+  scale_shape_discrete(breaks=c("castle", "cliff"),
+                       labels=c("Castle", "Cliff"))+
   theme(
     text = element_text(size = 25)
   )
 #facet_wrap(~lake, scales = 'free')
 do_decay_deep_plt
 
-# ggsave(here(
-#   'output/lake_final_plts/supp_figs/sum_v_win_decay_rates.png'
-#   ),
-#   dpi = 300,
-#   height = 5,
-#   width = 7,
-#   units = 'in'
-# )
+ggsave(here(
+  'output/lake_final_plts/supp_figs/sum_v_win_decay_rates.png'
+  ),
+  dpi = 300,
+  height = 5,
+  width = 7,
+  units = 'in'
+)
 
 wilcox.test(data = do_decay_deep, drift ~ period)
+
+
+# 11. Shallow v deep plt revised 2025.01.06 -------------------------------
+
+do_reorder_shallow <- do_reorder %>% 
+  filter(
+    size == 'Shallow'
+  ) %>% 
+  mutate(
+    period = as.factor('ice')
+  )
+
+do_all <- do_reorder_shallow %>% 
+  bind_rows(do_decay_deep)
+
+do_decay_size_plt2 <- ggplot(data = do_all)+
+  #geom_boxplot(aes( y = drift))+
+  geom_boxplot(aes(x = size, y = drift), outlier.shape = NA)+ #reorder(lake,drift,mean)
+  geom_jitter(aes(x = size, y = drift, shape = period), alpha = 0.7, size = 5, width = 0.2, stroke = 1.2)+ #, pch = 21, width = 0.2,
+  theme_classic()+
+  theme(
+    #legend.position = c(0.9, 0.2),
+    legend.position = 'none',
+    #legend.background = element_rect(fill = "white", color = "white"),
+    #legend.title = element_blank()
+  )+
+  xlab('')+
+  ylab(bquote('Rate ('*mg~ L^-1~ d^-1*')'))+
+  ylim(c(-0.32,0))+
+  scale_x_discrete(labels = size_labels)+
+  #scale_shape_manual(labels = c('Ice', "Open"), values = c('circle', 'triangle'))+
+  theme(
+    text = element_text(size = 25),
+    axis.title.y = element_text(margin = unit(c(0,2,0,0), 'mm'), size = 25),
+    #axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+do_decay_size_plt2
+
+# ggsave(here('output/lake_final_plts/do_decay_size_boxplot_2025.12.06.jpeg'), 
+#        dpi = 300, 
+#        width = 7, height = 6, 
+#        units = 'in')
+
+do_all_summary_lake <- do_all %>% 
+  group_by(lake, period) %>% 
+  summarise(
+    mean = mean(drift),
+    median = median(drift),
+    max = max(drift),
+    min = min(drift)
+  )
+
+do_all_summary_size <- do_all %>% 
+  group_by(size, period) %>% 
+  summarise(
+    mean = mean(drift),
+    median = median(drift),
+    max = max(drift),
+    min = min(drift)
+  )
+
+do_all_ice <- do_all %>% 
+  filter(
+    period == 'ice'
+  )
+
+wilcox.test(data = do_all_ice, drift ~ size)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cal_test <- do_reorder %>% 
+  filter(
+    lake == 'castle' | lake == 'cliff'
+  ) %>% 
+  group_by(lake, water_year) %>% 
+  summarise(
+    min = min(drift, na.rm = T),
+    max = max(drift, na.rm = T),
+    range = range(drift)
+  )
+
+clf_test <- do_reorder %>% 
+  filter(
+    lake == 'castle' | lake == 'cliff'
+  ) %>% 
+  group_by(lake) %>% 
+  summarise(
+    min = min(drift, na.rm = T),
+    max = max(drift, na.rm = T),
+    range = range(drift)
+  )
+
+test <- do_reorder %>% 
+  filter(
+    lake == 'castle' | lake == 'cliff',
+    drift > -0.1
+  ) %>% 
+  group_by(lake) %>% 
+  summarise(
+    range = range(drift)
+  )
