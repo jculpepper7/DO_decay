@@ -12,9 +12,10 @@ library(here)
 library(padr)
 library(plotly)
 library(patchwork)
+library(cmocean)
 
-install.packages("devtools")
-devtools::install_github("thomasp85/scico")
+#install.packages("devtools")
+#devtools::install_github("thomasp85/scico")
 
 
 # 2. Import weather data---------------------------------------------
@@ -435,16 +436,24 @@ snodas_oct <- snodas %>%
   ) %>% 
   filter(lake == 'castle')
 
-snodas_oct_plt <-   ggplot(data = snodas_oct)+
-  geom_line(aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2)+
+snodas_oct_plt <-   ggplot()+
+  geom_line(data = snodas_oct, aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2, 
+            alpha = 0.2
+            )+
   theme_classic()+
-  labs(x = 'Day of Year (10/1)', y = 'SWE (mm)')+
+  labs(x = 'Day of Year (Oct. 1)', y = 'SWE (mm)')+
   #facet_wrap(~water_year, scales = 'free')+
   theme(axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1))+
   xlim(30,261)+
   #scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00"))+
   #scale_color_grey()+
-  scale_color_viridis_d(begin = 0.1, end = 0.9)+
+  #scale_color_viridis_d(begin = 0.1, end = 0.9)+
+  scale_color_cmocean(name = 'ice', 
+                      start = 0.1,
+                      end = 0.8,
+                      discrete = T)+
+  geom_line(data = snodas_oct %>% filter(water_year == 2021),
+            aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2)+
   #scale_linetype_identity(name = c('solid', 'twodash', 'F1', 'dotdash', 'longdash'))+
   #scale_linetype_discrete(c(1,3,5,7,9))+
   theme(
@@ -458,9 +467,9 @@ snodas_oct_plt <-   ggplot(data = snodas_oct)+
     axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"))
   )
 snodas_oct_plt
-ggplotly(snodas_oct_plt)  
+#ggplotly(snodas_oct_plt)  
   
-ggsave(here('output/lake_final_plts/swe_timeseries.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
+ggsave(here('output/lake_final_plts/swe_timeseries_sharma_lecture5.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
 
 
 
