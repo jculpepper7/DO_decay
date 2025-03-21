@@ -235,7 +235,7 @@ DO_ts_hypox_plt <- ggplot(all_do)+
   )
 
 DO_ts_hypox_plt
-ggplotly(DO_ts_hypox_plt)
+#ggplotly(DO_ts_hypox_plt)
 #library(plotly)
 # ggsave(here('output/lake_final_plts/supp_figs/supp_fig_DO_hypox.png'),
 #        dpi = 300, height = 14, width = 15, units = 'in')
@@ -319,7 +319,7 @@ sum_v_win_hypox_plt
 
 supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
 
-hypox_ice_dur_plt <- ggplot(data = supp_tbl)+
+hypox_ice_dur_plt <- ggplot(data = supp_tbl %>% filter(lake != 'cedar'))+
   geom_point(aes(x = ice_dur_days, y = winter_hypoxia_days))+
   geom_smooth(aes(x = ice_dur_days, y = winter_hypoxia_days), method = 'lm')+
   theme_classic()+
@@ -328,17 +328,21 @@ hypox_ice_dur_plt <- ggplot(data = supp_tbl)+
   theme(
     text = element_text(size = 20)
   )+
-  stat_poly_eq(aes(x = ice_dur_days, y = winter_hypoxia_days), label.y = 0.98, label.x = 1)+
+  stat_poly_eq(aes(x = ice_dur_days, y = winter_hypoxia_days), label.y = 0.98, label.x = 0.1)#+
   #stat_cor(label.y = 0.5, p.digits = 1)+
-  stat_fit_glance(aes(x = ice_dur_days, y = winter_hypoxia_days),
-    #formula = formula,
-    aes(label = paste("P = ", signif(..p.value.., digits = 2), sep = "")),
-    label.y = 0.9, label.x = 1)
+  # stat_fit_glance(aes(x = ice_dur_days, y = winter_hypoxia_days),
+  #   #formula = formula,
+  #   aes(label = paste("P = ", signif(..p.value.., digits = 2), sep = "")),
+  #   label.y = 0.9, label.x = 1)
 
 hypox_ice_dur_plt
 
-ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_dur.png'),
-       dpi = 300, height = 5, width = 6, units = 'in')
+#lm <- lm(data = supp_tbl %>% filter(lake != 'cedar'), winter_hypoxia_days~ice_dur_days)
+
+#summary(lm) #p = 0.01145, adj.R2 = 0.2962 
+
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_dur.png'),
+#        dpi = 300, height = 5, width = 6, units = 'in')
 
 
 # 7. winter hypox v ice on ------------------------------------------
@@ -357,8 +361,8 @@ hypox_ice_on_plt <- ggplot(data = supp_tbl)+
 
 hypox_ice_on_plt
 
-ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_on.png'),
-       dpi = 300, height = 5, width = 6, units = 'in')
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_on.png'),
+#        dpi = 300, height = 5, width = 6, units = 'in')
 
 
 # 8. summer hypox v ice off ------------------------------------------
@@ -377,8 +381,8 @@ hypox_ice_off_plt <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake =
 
 hypox_ice_off_plt
 
-ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_ice_off.png'),
-       dpi = 300, height = 5, width = 6, units = 'in')
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_ice_off.png'),
+#        dpi = 300, height = 5, width = 6, units = 'in')
 
 
 # 9. Hypoxia duration plt ------------------------------------------------
@@ -441,7 +445,9 @@ peak_do_ice <- all_do %>%
   )
 
 peak_do_open <- all_do %>% 
-  filter(period == 'open') %>% 
+  filter(period == 'open',
+         month(date) == 4 | month(date) == 5 | month(date) == 6
+        ) %>% 
   group_by(
     lake, 
     year
@@ -457,8 +463,8 @@ peak_do_open <- all_do %>%
 supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
 
 summer_do_v_hyopx <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake == 'cliff'))+
-  geom_point(aes(x = spring_peak_do, y = summer_hypoxia_days))+
   geom_smooth(aes(x = spring_peak_do, y = summer_hypoxia_days), method = 'lm')+
+  geom_point(aes(x = spring_peak_do, y = summer_hypoxia_days))+
   theme_classic()+
   xlab('Peak Spring DO (mg/L)')+
   ylab('Summer Hypoxia Duration (days)')+
@@ -468,8 +474,12 @@ summer_do_v_hyopx <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake =
 
 summer_do_v_hyopx
 
-ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_spring_do.png'),
-       dpi = 300, height = 5, width = 6, units = 'in')
+lm_summer <- lm(supp_tbl$summer_hypoxia_days~supp_tbl$spring_peak_do) 
+
+summary(lm_summer)
+
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_spring_do.png'),
+#        dpi = 300, height = 5, width = 6, units = 'in')
 
 #Winter plot
 
@@ -487,5 +497,5 @@ wint_do_v_hyopx <- ggplot(data = supp_tbl)+
 
 wint_do_v_hyopx
 
-ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_wint_do.png'),
-       dpi = 300, height = 5, width = 6, units = 'in')
+# ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_wint_do.png'),
+#        dpi = 300, height = 5, width = 6, units = 'in')
