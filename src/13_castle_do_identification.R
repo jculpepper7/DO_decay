@@ -291,11 +291,7 @@ castle_avg_plt <- ggplot()+
   theme_classic()+
   xlab('')+ 
   ylab('')+
-  #ylab('Dissolved Oxygen (mg/L)\nTemperature (°C)')+
-  # scale_y_continuous(
-  #   name = '', #Alt+0176 for degree symbol
-  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  # )+
+  scale_y_continuous(breaks = seq(0,12,2))+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),

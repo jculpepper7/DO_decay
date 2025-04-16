@@ -391,6 +391,8 @@ cliff <- cliff_2019_mean %>%
 
 #Temperature plot
 
+cliff <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+
 cliff_temp_plt <- ggplot(data = cliff)+
   #geom_line(aes(x = date, y = temp_c, color = depth))+
   geom_line(aes(x = date, y = do_mg_l))+
@@ -431,7 +433,7 @@ cliff_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = cliff, aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  #geom_line(data = cliff, aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
   geom_line(data = cliff, aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
@@ -459,9 +461,9 @@ cliff_avg_plt
 
 # 7. Write Cliff data to CSV ----------------------------------------------
 
-cliff_write <- cliff_2019_mean %>% 
-  bind_rows(cliff_2020_mean, cliff_2021_mean, cliff_2022_mean) %>% 
-  select(lake, date, do_mg_l)
+# cliff_write <- cliff_2019_mean %>% 
+#   bind_rows(cliff_2020_mean, cliff_2021_mean, cliff_2022_mean) %>% 
+#   select(lake, date, do_mg_l)
 
-write_csv(cliff_write, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+#write_csv(cliff_write, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
 

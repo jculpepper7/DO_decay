@@ -107,8 +107,8 @@ cedar_avg_plt <- ggplot()+
   #     as.Date("2021-12-12"), 
   #     as.Date("2022-04-02")
   #     )))+
-  geom_line(data = cedar_w_avg %>% filter(depth == '1m' | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+ #| depth == 'sediment'
-  geom_line(data = cedar_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.5, alpha = 0.8, color = 'light gray', linetype = 'dashed')+
+  #geom_line(data = cedar_w_avg %>% filter(depth == '1m' | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+ #| depth == 'sediment'
+  #geom_line(data = cedar_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.5, alpha = 0.8, color = 'light gray', linetype = 'dashed')+
   geom_line(data = cedar_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+

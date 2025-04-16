@@ -813,14 +813,14 @@ do_decay_deep_plt <- ggplot(data = do_decay_deep)+
 #facet_wrap(~lake, scales = 'free')
 do_decay_deep_plt
 
-ggsave(here(
-  'output/lake_final_plts/supp_figs/sum_v_win_decay_rates.png'
-  ),
-  dpi = 300,
-  height = 5,
-  width = 7,
-  units = 'in'
-)
+# ggsave(here(
+#   'output/lake_final_plts/supp_figs/sum_v_win_decay_rates.png'
+#   ),
+#   dpi = 300,
+#   height = 5,
+#   width = 7,
+#   units = 'in'
+# )
 
 wilcox.test(data = do_decay_deep, drift ~ period)
 

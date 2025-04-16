@@ -39,7 +39,7 @@ labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
 #Ice on
 ice_on_plt <- ggplot(data = ice_phenology)+
   geom_point(aes(x = water_year, y = ice_on_doy, shape = lake), size = 4)+
-  geom_line(aes(x = water_year, y = ice_on_doy, linetype = lake), size = 1.1)+
+  #geom_line(aes(x = water_year, y = ice_on_doy, linetype = lake), size = 1.1)+
   theme_classic()+
   labs(x = '', y = 'Ice On DOY')+
   scale_shape_discrete(labels = labels)+
@@ -56,12 +56,12 @@ ice_on_plt <- ggplot(data = ice_phenology)+
 ice_on_plt
 ggplotly(ice_on_plt)
 
-#ggsave(here('output/lake_final_plts/ice_on_plt.jpeg'), dpi = 300, width = 7, height = 6, units = 'in')
+ggsave(here('output/lake_final_plts/ice_on_plt_nolines.jpeg'), dpi = 300, width = 7, height = 6, units = 'in')
 
 #ice off
 ice_off_plt <- ggplot(data = ice_phenology)+
   geom_point(aes(x = water_year, y = ice_off_doy, shape = lake), size = 3)+
-  geom_line(aes(x = water_year, y = ice_off_doy, linetype = lake))+
+  #geom_line(aes(x = water_year, y = ice_off_doy, linetype = lake))+
   theme_classic()+
   labs(x = '', y = 'Ice Off DOY')+
   ylim(c(90,155))+
@@ -75,7 +75,7 @@ ice_off_plt <- ggplot(data = ice_phenology)+
   )
 ice_off_plt
 
-ggsave(here('output/lake_final_plts/ice_off_plt.jpeg'), dpi = 300, width = 7, height = 6, units = 'in')
+ggsave(here('output/lake_final_plts/ice_off_plt_nolines.jpeg'), dpi = 300, width = 7, height = 6, units = 'in')
 
 
 #Multipanel figure for paper

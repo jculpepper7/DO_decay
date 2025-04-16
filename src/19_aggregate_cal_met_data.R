@@ -434,17 +434,26 @@ snodas_oct <- snodas %>%
     doy = yday(date),
     doy_oct = if_else(doy >= 274, doy-273, doy+92)
   ) %>% 
-  filter(lake == 'castle')
+  filter(lake == 'castle') %>% 
+  mutate(
+    month = month(date),
+    day = day(date),
+    date_short = if_else(month(date)>=10, make_date(2020, month, day), make_date(2021, month, day))
+  ) %>% 
+  filter(month != 7 & month != 8 & month != 9 & month != 10)
 
 snodas_oct_plt <-   ggplot()+
-  geom_line(data = snodas_oct, aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2, 
-            alpha = 0.2
+  geom_line(data = snodas_oct, aes(x = date_short, y = swe_mm, color = water_year), 
+            size = 1.2
             )+
+  #scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  scale_x_date(date_breaks = '1 months', date_labels = "%b ")+
   theme_classic()+
-  labs(x = 'Day of Year (Oct. 1)', y = 'SWE (mm)')+
+  #labs(x = 'Day of Year (Oct. 1)', y = 'SWE (mm)')+
+  labs(x = '', y = 'SWE (mm)')+
   #facet_wrap(~water_year, scales = 'free')+
-  theme(axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1))+
-  xlim(30,261)+
+  #theme(axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1))+
+  #xlim(30,261)+
   #scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00"))+
   #scale_color_grey()+
   #scale_color_viridis_d(begin = 0.1, end = 0.9)+
@@ -452,8 +461,8 @@ snodas_oct_plt <-   ggplot()+
                       start = 0.1,
                       end = 0.8,
                       discrete = T)+
-  geom_line(data = snodas_oct %>% filter(water_year == 2021),
-            aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2)+
+  # geom_line(data = snodas_oct %>% filter(water_year == 2021),
+  #           aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2)+
   #scale_linetype_identity(name = c('solid', 'twodash', 'F1', 'dotdash', 'longdash'))+
   #scale_linetype_discrete(c(1,3,5,7,9))+
   theme(
@@ -469,7 +478,7 @@ snodas_oct_plt <-   ggplot()+
 snodas_oct_plt
 #ggplotly(snodas_oct_plt)  
   
-ggsave(here('output/lake_final_plts/swe_timeseries_sharma_lecture5.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
+#ggsave(here('output/lake_final_plts/swe_updated_2025.04.13.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
 
 
 
