@@ -6,13 +6,15 @@
 
 library(tidyverse)
 library(here)
+library(plotly)
 
 
 # 2. Read data ------------------------------------------------------------
 
 castle <- read_csv(here('data/processed/cal_hypox_plt.csv'))
 cedar <- read_csv(here('data/processed/cedar_hypox_plt.csv'))
-cliff <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+#cliff <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily_w_temp.csv'))
+cliff <- read_csv(here('data/processed/cliff/clf_hypox_plt.csv'))
 gumboot <- read_csv(here('data/processed/gb_hypox_plt.csv'))
 soapstone <- read_csv(here('data/processed/ss_hypox_plt.csv'))
 
@@ -52,7 +54,18 @@ castle_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  #geom_line(data = castle %>% filter(date>='2017-10-01'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
+  geom_line(data = castle %>% filter(depth == '30m', date>='2017-10-01'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey35', size = 0.5, alpha = 0.5)+ 
+  geom_line(data = castle %>% filter(depth == '20m', date>='2017-10-01'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey55', size = 0.5, alpha = 0.5)+ 
+  geom_line(data = castle %>% filter(depth == '10m', date>='2017-10-01'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey65', size = 0.5, alpha = 0.5)+ 
+  geom_line(data = castle %>% filter(depth == '03m', date>='2017-10-01'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey75', size = 0.5, alpha = 0.5)+ 
   geom_line(
     data = castle %>% filter(depth =='30m', date>='2017-10-01'), 
     aes(x = date, y = do_mg_l), 
@@ -62,19 +75,21 @@ castle_avg_plt <- ggplot()+
   theme_classic()+
   xlab('')+ 
   ylab('')+
-  scale_y_continuous(breaks = seq(0,12,4), limits = c(0,12))+
+  scale_y_continuous(breaks = seq(0,24,6), limits = c(0,24))+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
+        axis.text = element_text(size = 15),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
   )
 
 castle_avg_plt
 
+#ggplotly(castle_avg_plt)
+
 ggsave(
-  here('output/lake_final_plts/do_ts_fig/castle_do_plt_notemp_test.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/castle_do_plt_w_temp.pdf'), 
   dpi = 300,
   width = 6.5,
   height = 2,
@@ -104,7 +119,9 @@ cedar_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  #geom_line(data = cedar_w_avg %>% filter(depth == '1m' | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+ #| depth == 'sediment'
+  geom_line(data = cedar %>% filter(depth == '1m'), 
+            aes(x = date, y = temp_c), 
+            size = 0.5, color = 'grey50', alpha = 0.5)+
   #geom_line(data = cedar_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.5, alpha = 0.8, color = 'light gray', linetype = 'dashed')+
   geom_line(
     data = cedar %>% filter(depth == '1m'), 
@@ -114,11 +131,11 @@ cedar_avg_plt <- ggplot()+
   scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = '')+
-  scale_y_continuous(breaks = seq(0,12,4), limits = c(0,12))+
+  scale_y_continuous(breaks = seq(0,24,6), limits = c(0,26))+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
+        axis.text = element_text(size = 15),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
   )+
@@ -126,7 +143,7 @@ cedar_avg_plt <- ggplot()+
 cedar_avg_plt
 
 ggsave(
-  here('output/lake_final_plts/do_ts_fig/cdr_do_plt_notemp.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/cdr_do_plt_w_temp.pdf'), 
   dpi = 300,
   width = 6.5,
   height = 2,
@@ -160,7 +177,27 @@ cliff_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  #geom_line(data = cliff, aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_24'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey25', size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_23'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey35', size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_18'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey45', size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_13'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey55', size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_08'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey65', size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_05'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey75', size = 0.5, alpha = 0.5)+
+  geom_line(data = cliff %>% filter(depth == 'temp_04'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey85', size = 0.5, alpha = 0.5)+
   geom_line(
     data = cliff, 
     aes(x = date, y = do_mg_l), 
@@ -173,16 +210,16 @@ cliff_avg_plt <- ggplot()+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
+        axis.text = element_text(size = 15),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
   )+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
-  scale_y_continuous(breaks = seq(0,12,4), limits = c(0,12))
+  scale_y_continuous(breaks = seq(0,24,6), limits = c(0,24.5))
 cliff_avg_plt  
 
 ggsave(
-  here('output/lake_final_plts/do_ts_fig/cliff_do_plt_notemp.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/cliff_do_plt_w_temp.pdf'), 
   dpi = 300,
   width = 6.5,
   height = 2,
@@ -211,29 +248,30 @@ gumboot_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  #geom_line(data = gumboot %>% filter(depth == '1m'  | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  geom_line(data = gumboot %>% filter(depth == '1m'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey50', size = 0.5, alpha = 0.5)+
   #geom_line(data = gumboot %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
   geom_line(
     data = gumboot %>% filter(depth == '1m'), 
     aes(x = date, y = do_mg_l), 
     size = 1.2
   )+
-  #scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   labs(x = '', y = '')+ 
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
+        axis.text = element_text(size = 15),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()
   )+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
-  scale_y_continuous(breaks = seq(0,12,4), limits = c(0,12))
+  scale_y_continuous(breaks = seq(0,24,6), limits = c(0,25))
 gumboot_avg_plt
 
 ggsave(
-  here('output/lake_final_plts/do_ts_fig/gb_do_plt_notemp.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/gb_do_plt_w_temp.pdf'), 
   dpi = 300,
   width = 6.5,
   height = 2,
@@ -262,7 +300,9 @@ soapstone_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  #geom_line(data = soapstone %>% filter(depth == '1m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
+  geom_line(data = soapstone %>% filter(depth == '1m'), 
+            aes(x = date, y = temp_c), 
+            color = 'grey50', size = 0.5, alpha = 0.5)+
   #geom_line(data = soapstone %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
   geom_line(data = soapstone %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
   scale_color_grey(name = 'Depth   ')+
@@ -271,14 +311,15 @@ soapstone_avg_plt <- ggplot()+
   theme(legend.position = 'none',
         legend.title = element_text(size = 13),
         axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22)
+        axis.text = element_text(size = 15)
   )+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
-  scale_y_continuous(breaks = seq(0,12,4), limits = c(0,12))
+  scale_y_continuous(breaks = seq(0,24,6), limits = c(0,26))
 soapstone_avg_plt
 
+
 ggsave(
-  here('output/lake_final_plts/do_ts_fig/soapstone_do_plt_notemp.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/soapstone_do_plt_w_temp.pdf'), 
   dpi = 300,
   width = 6.5,
   height = 2,
@@ -293,8 +334,8 @@ ggsave(
 #      However, I put the individual plots into Inkscape (inkscape.org)
 #      for the final figure that appears in the paper.
 
-castle_avg_plt/ cliff_avg_plt / gumboot_avg_plt/ cedar_avg_plt /soapstone_avg_plt+
-  plot_annotation(tag_levels = 'A') #&
+# castle_avg_plt/ cliff_avg_plt / gumboot_avg_plt/ cedar_avg_plt /soapstone_avg_plt+
+#   plot_annotation(tag_levels = 'A') #&
   #theme(plot.tag = element_text(size = 22))
 
 #ggsave(here('output/lake_final_plts/all_lakes_combined_2024.11.19_alt_dim.jpeg'), dpi = 300, height = 5, width = 6, units = 'in')  

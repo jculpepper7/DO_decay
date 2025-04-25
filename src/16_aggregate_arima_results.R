@@ -581,9 +581,13 @@ do_decay_summary_lake <- do_decay %>%
   summarise(
     mean = mean(drift),
     median = median(drift),
+    range = range(drift),
     max = max(drift),
     min = min(drift)
-  ) 
+  ) %>% 
+  mutate(
+    range2 = abs(min) - abs(max)
+  )
 
 # 9. Data visualization-----------------------------------------------
 
@@ -630,13 +634,13 @@ decay_labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
 # **9b. All lakes boxplot----
 
 #DO decay plot
-do_decay_plt <- ggplot(data = do_reorder)+
+do_decay_plt <- ggplot(data = do_reorder %>% mutate(drift = drift*-1))+
   #geom_boxplot(aes( y = drift))+
   geom_boxplot(aes(x = lake, y = drift), outlier.shape = NA)+ #reorder(lake,drift,mean)
   geom_jitter(aes(x = lake, y = drift, shape = water_year), size = 3, width = 0.1, stroke = 1.2)+ #, pch = 21, width = 0.2,
   theme_classic()+
   theme(
-    legend.position = c(0.9, 0.3),
+    legend.position = c(0.9, 0.8),
     legend.background = element_rect(fill = "white", color = "white"),
     legend.title = element_blank()
   )+
@@ -647,12 +651,12 @@ do_decay_plt <- ggplot(data = do_reorder)+
   theme(
     text = element_text(size = 25),
     axis.title.y = element_text(margin = unit(c(0,2,0,0), 'mm'), size = 25),
-    axis.text.x = element_text(angle = 25, hjust = 1)
+    #axis.text.x = element_text(angle = 25, hjust = 1)
   )
   #facet_wrap(~lake, scales = 'free')
 do_decay_plt
 
-#ggsave(here('output/lake_final_plts/do_decay_boxplot_update_2024.11.15.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
+ggsave(here('output/lake_final_plts/do_decay_boxplot_update_2025.04.19.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
 
 # **9c. Large v. small boxplot----
 do_reorder$size <- factor(do_reorder$size, 
@@ -936,3 +940,255 @@ test <- do_reorder %>%
   summarise(
     range = range(drift)
   )
+
+
+# 12. Systematic stats analysis -------------------------------------------
+
+
+# **12a. Deep lake intercomparison ------------------------------------------
+
+#1.	Castle (all data) vs. Cliff (all data)
+
+wilcox.test(
+  data = do_all %>% filter(lake == 'castle' | lake == 'cliff'), 
+  drift ~ lake
+)
+# W = 201, p-value = 0.3232
+# Castle and Cliff median DO depletion rates 
+# are not significantly different.
+
+#2.	Castle (under ice) vs. Castle (open water)
+
+wilcox.test(
+  data = do_all %>% filter(lake == 'castle'),
+  drift ~ period
+)
+
+# W = 86, p-value = 0.01265
+# Castle is significantly different between periods 
+# (i.e., ice vs open water)
+
+#3.	Cliff (under ice) vs. Cliff (Open water)
+
+wilcox.test(
+  data = do_all %>% filter(lake == 'cliff'), 
+  drift ~ period
+)
+
+# W = 0, p-value = 0.0002498
+# Cliff is significantly different between periods 
+# (i.e., ice vs open water)
+
+#4.	Castle (under ice) vs. Cliff (under ice)
+
+wilcox.test(
+  data = do_all %>% 
+    filter(period == 'ice') %>% 
+    filter(lake == 'castle' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 115, p-value = 0.001145
+# Castle and Cliff are significantly different 
+# during the ice cover period
+
+#5.	Castle (open water) vs. Cliff (open water)
+
+wilcox.test(
+  data = do_all %>% 
+    filter(period == 'open') %>% 
+    filter(lake == 'castle' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 0, p-value = 0.000666
+# Castle and Cliff are significantly different 
+# during the open water period
+
+
+# **12b. Shallow lake intercomparison  ------------------------------------
+
+#NOTE: For the shallow lake intercomparison, I use the do_decay dataframe 
+#      rather than the do_all (as in the deep lake intercomparison)
+#      because do_all removes a data point for Soapstone because the number
+#      of days for the rate is <5 days. However, the rate is legitimate,
+#      so I've included that point for intercomparison
+
+#6.	Gumboot (under ice) v. Cedar (under ice)
+
+wilcox.test(
+  data = do_decay %>% 
+    filter(lake == 'gumboot' | lake == 'cedar'), 
+  drift ~ lake
+)
+
+# W = 8, p-value = 0.2468
+# Gumboot and Cedar are not significantly different 
+
+#7.	Gumboot (under ice) v. Soapstone (under ice)
+
+wilcox.test(
+  data = do_decay %>% 
+    filter(lake == 'gumboot' | lake == 'soapstone'), 
+  drift ~ lake
+)
+
+# W = 38, p-value = 0.01399
+# Gumboot and Soaprstone are not significantly different 
+
+#6.	Cedar (under ice) v. Soapstone (under ice)
+
+wilcox.test(
+  data = do_decay %>% 
+    filter(lake == 'soapstone' | lake == 'cedar'), 
+  drift ~ lake
+)
+
+# W = 31, p-value = 0.0303
+# Cedar and Soapstone are not significantly different 
+
+
+# **12c. Shallow vs. deep intercomparison ---------------------------------
+
+#Data to make comparisons
+ice_comparison <- do_all %>% 
+  filter(
+    period == 'ice'
+  )
+
+ice_v_open <- do_all %>% 
+  mutate(
+    period = if_else(
+      lake == 'castle' & period == 'ice' | lake == 'cliff' & period == 'ice',
+      NA,
+      period
+    )
+  ) %>% 
+  na.omit()
+
+#7. Gumboot v Castle open
+wilcox.test(
+  data = ice_v_open %>% 
+    filter(lake == 'gumboot' | lake == 'castle'), 
+  drift ~ lake
+)
+
+# W = 42, p-value = 0.01998
+# Gumboot and Castle open are significantly different
+
+#8. Gumboot v Castle ice
+wilcox.test(
+  data = ice_comparison %>% 
+    filter(lake == 'gumboot' | lake == 'castle'), 
+  drift ~ lake
+)
+
+# W = 72, p-value = 0.002211
+# Gumboot and Castle ice are significantly different
+
+#9. Gumboot v Cliff open
+wilcox.test(
+  data = ice_v_open %>% 
+    filter(lake == 'gumboot' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 36, p-value = 0.002165
+# Gumboot and Cliff open are significantly different
+
+#10. Gumboot v Cliff ice
+wilcox.test(
+  data = ice_comparison %>% 
+    filter(lake == 'gumboot' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 44, p-value = 0.1471
+# Gumboot and Cliff ice are not significantly different
+
+#11. Cedar v Castle open
+wilcox.test(
+  data = ice_v_open %>% 
+    filter(lake == 'cedar' | lake == 'castle'), 
+  drift ~ lake
+)
+
+# W = 38, p-value = 0.006216
+# Cedar and Castle open are significantly different
+
+#12. Cedar v Castle ice
+wilcox.test(
+  data = ice_comparison %>% 
+    filter(lake == 'cedar' | lake == 'castle'), 
+  drift ~ lake
+)
+
+# W = 60, p-value = 0.004435
+# Cedar and Castle ice are significantly different
+
+#13. Cedar v Cliff open
+wilcox.test(
+  data = ice_v_open %>% 
+    filter(lake == 'cedar' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 0, p-value = 0.004329
+# Cedar and Cliff open are significantly different
+
+#14. Cedar v Cliff ice
+wilcox.test(
+  data = ice_comparison %>% 
+    filter(lake == 'cedar' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 7, p-value = 0.02797
+# Cedar and Cliff ice are significantly different
+
+#NOTE: In the shallow lake intercomparison, I used the do_decay dataframe
+#      however, for the shallow deep comparisons with Soapstone I am using 
+#      the do_all data (root data of ice_v_open and ice_comparison) because
+#      Soapstone was sig. dif. from both lakes even without the extremely low
+#      point available in do_decay. So the do_decay data is not required for 
+#      the Mann-Whitney U test with Soapstone.
+
+#15. Soapstone v Castle open
+wilcox.test(
+  data = ice_v_open %>% 
+    filter(lake == 'soapstone' | lake == 'castle'), 
+  drift ~ lake
+)
+
+# W = 39, p-value = 0.003108
+# Soapstone and Castle open are significantly different
+
+#16. Soapstone v Castle ice
+wilcox.test(
+  data = ice_comparison %>% 
+    filter(lake == 'soapstone' | lake == 'castle'), 
+  drift ~ lake
+)
+
+# W = 62, p-value = 0.001634
+# Soapstone and Castle ice are significantly different
+
+#17. Soapstone v Cliff open
+wilcox.test(
+  data = ice_v_open %>% 
+    filter(lake == 'soapstone' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 30, p-value = 0.004329
+# Soapstone and Cliff open are significantly different
+
+#18. Soapstone v Cliff ice
+wilcox.test(
+  data = ice_comparison %>% 
+    filter(lake == 'soapstone' | lake == 'cliff'), 
+  drift ~ lake
+)
+
+# W = 47, p-value = 0.004662
+# Soapstone and Cliff ice are significantly different

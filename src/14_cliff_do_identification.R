@@ -381,13 +381,18 @@ ggplotly(cliff_plt_22)
 
 cliff <- cliff_2019_mean %>% 
   bind_rows(cliff_2020_mean, cliff_2021_mean, cliff_2022_mean) %>% 
-  select(1:9, 11) %>% 
-  #select(1:10, 16, 11:15) %>% 
-  pivot_longer(cols = 3:9, names_to = 'depth', values_to = 'temp_c') #%>% 
-  #select(1,2,3,4,8,9)
+  select(1:9, 11) %>%
+  #pivot_longer(cols = 3:9, names_to = 'depth', values_to = 'temp_c') %>% 
+  #Below for DO timeseries figure
+  select(
+    lake, date, do_mg_l, 
+    temp_c = temp_24
+  )
 
 #write_csv(cliff, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
 #write_csv(cliff, here('data/processed/cliff/clf_hypox_plt.csv'))
+#Save for script 21 - DO time series fig
+#write_csv(cliff, here('data/processed/cliff/cliff_clean_agg_data_daily_w_temp.csv'))
 
 #Temperature plot
 
