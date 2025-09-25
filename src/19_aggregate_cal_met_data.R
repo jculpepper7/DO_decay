@@ -443,9 +443,11 @@ snodas_oct <- snodas %>%
   filter(month != 7 & month != 8 & month != 9 & month != 10)
 
 snodas_oct_plt <-   ggplot()+
-  geom_line(data = snodas_oct, aes(x = date_short, y = swe_mm, color = water_year), 
-            size = 1.2
-            )+
+  geom_line(
+    data = snodas_oct, 
+    aes(x = date_short, y = swe_mm, color = water_year), 
+    size = 1.2
+  )+
   #scale_x_continuous(breaks = 1:12, labels = month.abb) +
   scale_x_date(date_breaks = '1 months', date_labels = "%b ")+
   theme_classic()+
@@ -456,11 +458,11 @@ snodas_oct_plt <-   ggplot()+
   #xlim(30,261)+
   #scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00"))+
   #scale_color_grey()+
-  #scale_color_viridis_d(begin = 0.1, end = 0.9)+
-  scale_color_cmocean(name = 'ice', 
-                      start = 0.1,
-                      end = 0.8,
-                      discrete = T)+
+  scale_color_viridis_d()+
+  # scale_color_cmocean(name = 'ice', 
+  #                     start = 0.1,
+  #                     end = 0.8,
+  #                     discrete = T)+
   # geom_line(data = snodas_oct %>% filter(water_year == 2021),
   #           aes(x = doy_oct, y = swe_mm, color = water_year), size = 1.2)+
   #scale_linetype_identity(name = c('solid', 'twodash', 'F1', 'dotdash', 'longdash'))+
@@ -478,7 +480,13 @@ snodas_oct_plt <-   ggplot()+
 snodas_oct_plt
 #ggplotly(snodas_oct_plt)  
   
-#ggsave(here('output/lake_final_plts/swe_updated_2025.04.13.jpeg'), dpi = 300, height = 10, width = 15, units = 'in')
+# ggsave(
+#   here('output/lake_final_plts/swe_viridis.png'), 
+#   dpi = 300, 
+#   height = 10, 
+#   width = 15, 
+#   units = 'in'
+# )
 
 
 
