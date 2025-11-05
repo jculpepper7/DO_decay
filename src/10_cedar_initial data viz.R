@@ -16,38 +16,44 @@ library(zoo) #for time series manipulation (e.g. rolling mean)
 # 1. Read cleaned, aggregated data----------------------------------------------
 
 cedar <- read_csv(here('data/processed/cedar/cedar_clean_agg_data_2022.csv'),
-                 guess_max = 80000) #use guess max to increase the number of 
-                                    #rows that 'readr' reads prior to guess the     
-                                    #column type. 
-                                    #Did this because the NA values were 
-                                    #producing a parsing error. To see what I 
-                                    #mean, comment out the guess_max() function
-                                    #Another solution is to specify column types
-                                    #See vignette("readr") 
-
+                 guess_max = 80000) %>% 
+  mutate(
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
+  
+  #use guess max to increase the number of 
+  #rows that 'readr' reads prior to guess the     
+  #column type. 
+  #Did this because the NA values were 
+  #producing a parsing error. To see what I 
+  #mean, comment out the guess_max() function
+  #Another solution is to specify column types
+                                    
+  
 
 # 2. Data viz of unaltered data-------------------------------------------------
 
-# cedar_plt_non_avg <- ggplot(data = cedar)+
-#   geom_line(aes(x = date_time, y = temp_c, color = depth), size = 1)+
-#   geom_line(aes(x = date_time, y = do_mg_l), size = 1)+
-#   theme_classic()+  
-#   ggtitle("Cedar Lake")+
-#   xlab("")+
-#   ylab("Temperature [C] / DO [mg/L]")+
-#   theme_classic()+
-#   theme(text = element_text(size = 20),
-#         axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
-#         axis.text.y = element_text(size = 20),
-#         plot.title = element_text(hjust = 0.5))
-#   #scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
-#   #scale_color_viridis(discrete = TRUE, option = "D")+ #for colorblind friendly option
-#   #scale_x_date(breaks = "month", labels = date_format("%b %Y"))
-# cedar_plt_non_avg
+cedar_plt_non_avg <- ggplot(data = cedar)+
+  # geom_line(aes(x = date_time, y = temp_c, color = depth), linewidth = 0.5)+
+  geom_line(aes(x = date_time, y = do_mg_l), linewidth = 1)+
+  theme_classic()+
+  ggtitle("Cedar Lake")+
+  xlab("")+
+  ylab("Temperature [C] / DO [mg/L]")+
+  theme_classic()+
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text( hjust = 1, size = 20),
+        axis.text.y = element_text(size = 20),
+        plot.title = element_text(hjust = 0.5))+
+  #scale_color_manual(values = wes_palette(name = "Darjeeling1"), name = "Depth")
+  scale_color_viridis_d() #for colorblind friendly option
+  #scale_x_date(breaks = "month", labels = date_format("%b %Y"))
+cedar_plt_non_avg
 
 #ggsave(here('output/plots/cedar_20_21_22.png'), dpi = 300)
 
-#ggplotly(cedar_plt_non_avg)
+ggplotly(cedar_plt_non_avg)
 
 # 3. Include moving averages----------------------------------------------------
 

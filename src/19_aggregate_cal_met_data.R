@@ -154,10 +154,21 @@ weatherhawk_avg <- weatherhawk %>%
     wind_speed_avg = mean(wind_speed_avg)
   ) %>% 
   mutate(
-    date_time = make_date(year = year, month = month, day = day)
+    date_time = make_date(
+      year = year, 
+      month = month, 
+      day = day
+    ),
+    yday = yday(date_time),
+    wday = if_else(
+      month(date_time)>=10 & month(date_time)<=12, 
+      yday - 273, 
+      yday+92
+    ),
+    year = as.factor(year)
   ) %>% 
   ungroup() %>% 
-  select(12, 4:11) %>% 
+  #select(12, 4:11) %>% 
   pad()
 
 #write_csv(weatherhawk_avg, here('data/met_data/weatherhawk_avg_2017_2022.csv'))
@@ -168,27 +179,76 @@ gridmet_precip <- read_csv(here('data/met_data/gridmet/castle_gridmet_precip_201
 
 gridmet_precip <- gridmet_precip %>% 
   rename(
-    date_time = 1, 
+    date = 1, 
     precip_mm = 2
+  ) 
+
+
+# Add gridmet temp data ---------------------------------------------------
+
+gridmet_temp <- read_csv(here('data/met_data/gridmet/gridmet_temp.csv')) %>%
+  mutate(
+    date = mdy(date)
+  ) %>% 
+  filter(
+    date <= ymd('2022-06-11')
   )
 
-temp_plt <- ggplot(data = weatherhawk_avg) +
-  geom_line(aes(x = date_time, y = air_temp_avg), size = 1, color = 'black')+
-  theme_classic()+
-  xlab('')+
-  ylab('Air Temperature (ºC)')+
-  theme(
-    legend.title = element_blank(),
-    legend.position = c(0.2, 0.80),
-    legend.background = element_rect(fill = "white", color = "white"),
-    legend.key.height= unit(0.6, 'in'),
-    legend.key.width= unit(0.5, 'in'),
-    text = element_text(size = 38),
-    legend.key.size = unit(5, 'line'),
-    axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32),
-    axis.text.x = element_blank()
-  )#Alt+0 = degree symbol
-ggplotly(temp_plt)
+#Combine gridmet data
+
+gridmet <- gridmet_temp %>% 
+  bind_cols(gridmet_precip) %>% 
+  select(
+    date = 1, 2:4, 6
+  ) %>% 
+  mutate(
+    precip_phase = if_else(
+      temp_mean <= 0, as.factor('snow'), as.factor('rain')
+    ),
+    year = as.factor(year(date)),
+    yday = yday(date),
+    wday = if_else(
+      yday >= 274, yday-273, yday+92
+    )
+  )
+
+# test_plt <- ggplot(data = gridmet)+
+#   geom_point(
+#     mapping = aes(x = wday, y = precip_mm, color = precip_phase)
+#   )+
+#   geom_line(
+#     mapping = aes(x = wday, y = temp_mean)
+#   )+
+#   theme_classic()
+#   facet_wrap(~year)
+
+# Weatherhawk Temp Plot ---------------------------------------------------
+
+#These temps look wrong. 
+# temp_plt <- ggplot(data = weatherhawk_avg %>% filter(year == 2020)) +
+#   geom_line(
+#     aes(x = wday, y = air_temp_avg, color = year), 
+#     size = 1.2,
+#     alpha = 0.7
+#   )+
+#   geom_hline(yintercept = 0)+
+#   theme_classic()+
+#   scale_color_viridis_d()+
+#   xlab('')+
+#   ylab('Air Temperature (ºC)')+
+#   theme(
+#     legend.title = element_blank(),
+#     legend.position = 'right', #c(0.2, 0.80),
+#     legend.background = element_rect(fill = "white", color = "white"),
+#     legend.key.height= unit(0.6, 'in'),
+#     legend.key.width= unit(0.5, 'in'),
+#     text = element_text(size = 38),
+#     legend.key.size = unit(5, 'line'),
+#     axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32),
+#     axis.text.x = element_blank()
+#   )#Alt+0 = degree symbol
+# temp_plt
+# ggplotly(temp_plt)
 
 precip_plt <- ggplot() +
   geom_line(data = gridmet_precip, aes(x = date_time, y = precip_mm), size = 1, color = 'black')+
@@ -205,13 +265,13 @@ precip_plt <- ggplot() +
     legend.key.size = unit(5, 'line'),
     axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"), size = 32)
   )
-  
+precip_plt  
 ggplotly(precip_plt)
 
 #combine temp and precip time series----
-temp_plt/precip_plt
-
-ggsave(here('output/lake_final_plts/temp_precip_plt.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
+# temp_plt/precip_plt
+# 
+# ggsave(here('output/lake_final_plts/temp_precip_plt.jpeg'), dpi = 300, width = 14, height = 10, units = 'in')
 
 # 4. Evaluate average seasonal temperatures-------------------------------------
 
@@ -478,7 +538,7 @@ snodas_oct_plt <-   ggplot()+
     axis.title.y = element_text(margin = unit(c(0, 8, 0, 0), "mm"))
   )
 snodas_oct_plt
-#ggplotly(snodas_oct_plt)  
+ggplotly(snodas_oct_plt)  
   
 # ggsave(
 #   here('output/lake_final_plts/swe_viridis.png'), 

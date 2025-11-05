@@ -86,7 +86,7 @@ castle_avg_plt <- ggplot()+
 
 castle_avg_plt
 
-#ggplotly(castle_avg_plt)
+ggplotly(castle_avg_plt)
 
 ggsave(
   here('output/lake_final_plts/do_ts_fig/castle_do_plt_w_temp.pdf'), 

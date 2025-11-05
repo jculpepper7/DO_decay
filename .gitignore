@@ -42,6 +42,7 @@ vignettes/*.pdf
 *.png
 *.pdf
 *.jpeg
+
 *.csv
 *.Rdata
 *.svg

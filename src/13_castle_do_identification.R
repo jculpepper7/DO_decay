@@ -307,6 +307,19 @@ ggplotly(castle_avg_plt)
 
 #combine castle and cliff
 
-cliff_avg_plt / castle_avg_plt
+#cliff_avg_plt / castle_avg_plt
 
 #ggsave(here('output/lake_final_plts/castle_cliff_combined.jpeg'), dpi = 300, width = 16, height = 12, units = 'in')
+
+test_do <- cal_all_depths %>% 
+  filter(
+    date >= ymd('2020-12-20') & date <= ymd('2021-05-21'),
+    depth == '30m'
+  ) %>% 
+  select(
+    time = date, 
+    DO = do_mg_l
+  )
+  
+# write_csv(test_do, here('data/test_do.csv'))
+

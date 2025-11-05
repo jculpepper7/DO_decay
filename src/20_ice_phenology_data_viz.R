@@ -38,7 +38,12 @@ labels <- c('Soapstone', 'Cedar', 'Gumboot', 'Cliff', 'Castle')
 
 #Ice on
 ice_on_plt <- ggplot(data = ice_phenology)+
-  geom_point(aes(x = water_year, y = ice_on_doy, shape = lake), size = 4)+
+  geom_jitter(
+    aes(x = water_year, y = ice_on_doy, shape = lake), 
+    size = 4,
+    alpha = 0.7,
+    width = 0.15
+  )+
   #geom_line(aes(x = water_year, y = ice_on_doy, linetype = lake), size = 1.1)+
   theme_classic()+
   labs(x = '', y = 'Ice On DOY')+
@@ -60,7 +65,12 @@ ggsave(here('output/lake_final_plts/ice_on_plt_nolines.jpeg'), dpi = 300, width 
 
 #ice off
 ice_off_plt <- ggplot(data = ice_phenology)+
-  geom_point(aes(x = water_year, y = ice_off_doy, shape = lake), size = 3)+
+  geom_jitter(
+    aes(x = water_year, y = ice_off_doy, shape = lake), 
+    size = 4,
+    alpha = 0.7,
+    width = 0.15
+  )+
   #geom_line(aes(x = water_year, y = ice_off_doy, linetype = lake))+
   theme_classic()+
   labs(x = '', y = 'Ice Off DOY')+

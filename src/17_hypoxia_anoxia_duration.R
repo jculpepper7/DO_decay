@@ -196,6 +196,11 @@ all_do <- bind_rows(cal_do, cdr_do, clf_do, gb_do, ss_do) %>%
     )
   )
 
+write_csv(
+  all_do, 
+  here('data/processed/do_ts_all_lakes.csv')
+)
+
 #3. Isolate hypoxia periods
 
 #Count the total number of days when oxygen was <=2 mg/L
@@ -317,18 +322,46 @@ sum_v_win_hypox_plt
 
 # 6. winter hypox v ice duration ------------------------------------------
 
-supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+supp_tbl <- read_csv(
+  here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')
+) %>% 
+  mutate(
+    lake = as.factor(lake)
+  )
 
-hypox_ice_dur_plt <- ggplot(data = supp_tbl %>% filter(lake != 'cedar'))+
-  geom_point(aes(x = ice_dur_days, y = winter_hypoxia_days))+
-  geom_smooth(aes(x = ice_dur_days, y = winter_hypoxia_days), method = 'lm')+
+#Reorder lakes by max depth
+supp_tbl$lake <- fct_relevel(supp_tbl$lake, "castle", "cliff", "gumboot", 'cedar', 'soapstone')
+
+hypox_ice_dur_plt <- ggplot(data = supp_tbl )+
+  geom_point(
+    aes(
+      x = ice_dur_days, 
+      y = winter_hypoxia_days,
+      color = lake
+    ),
+    size = 5
+  )+
+  geom_smooth(
+    aes(
+      x = ice_dur_days, 
+      y = winter_hypoxia_days
+    ), 
+    method = 'lm'
+  )+
   theme_classic()+
   xlab('Ice Duation (days)')+
   ylab('Winter Hypoxia Duration (days)')+
   theme(
-    text = element_text(size = 20)
+    text = element_text(size = 20),
+    legend.title = element_blank(),
+    legend.position = 'bottom'
   )+
-  stat_poly_eq(aes(x = ice_dur_days, y = winter_hypoxia_days), label.y = 0.98, label.x = 0.1)#+
+  scale_color_viridis_d(
+    labels = c('Castle', 'Cliff', 'Gumboot', 'Cedar', 'Soapstone')
+  )
+
+#+
+  # stat_poly_eq(aes(x = ice_dur_days, y = winter_hypoxia_days), label.y = 0.98, label.x = 0.1)#+
   #stat_cor(label.y = 0.5, p.digits = 1)+
   # stat_fit_glance(aes(x = ice_dur_days, y = winter_hypoxia_days),
   #   #formula = formula,
@@ -337,12 +370,12 @@ hypox_ice_dur_plt <- ggplot(data = supp_tbl %>% filter(lake != 'cedar'))+
 
 hypox_ice_dur_plt
 
-#lm <- lm(data = supp_tbl %>% filter(lake != 'cedar'), winter_hypoxia_days~ice_dur_days)
+lm <- lm(data = supp_tbl, winter_hypoxia_days~ice_dur_days)
 
-#summary(lm) #p = 0.01145, adj.R2 = 0.2962 
+summary(lm) #p = 0.01145, adj.R2 = 0.2962
 
 # ggsave(here('output/lake_final_plts/supp_figs/supp_fig_wint_hypox_v_ice_dur.png'),
-#        dpi = 300, height = 5, width = 6, units = 'in')
+#        dpi = 300, height = 6.5, width = 6.5, units = 'in')
 
 
 # 7. winter hypox v ice on ------------------------------------------
@@ -460,16 +493,39 @@ peak_do_open <- all_do %>%
 # Peak DO plts -------------------------------------------------------------
 
 #Summer plot
-supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) 
+supp_tbl <- read_csv(here('data/met_data/lake_ice_phenology/ice_phenology_data3.csv')) %>% 
+  mutate(
+    lake = as.factor(lake)
+  )
 
 summer_do_v_hyopx <- ggplot(data = supp_tbl %>% filter(lake == 'castle' | lake == 'cliff'))+
-  geom_smooth(aes(x = spring_peak_do, y = summer_hypoxia_days), method = 'lm')+
-  geom_point(aes(x = spring_peak_do, y = summer_hypoxia_days))+
+  geom_smooth(
+    aes(
+      x = spring_peak_do, 
+      y = summer_hypoxia_days
+    ), 
+    method = 'lm'
+  )+
+  geom_point(
+    aes(
+      x = spring_peak_do, 
+      y = summer_hypoxia_days, 
+      color = lake
+    ),
+    size = 5
+  )+
   theme_classic()+
   xlab('Peak Spring DO (mg/L)')+
   ylab('Summer Hypoxia Duration (days)')+
   theme(
-    text = element_text(size = 20)
+    text = element_text(size = 20),
+    legend.title = element_blank(),
+    legend.position = 'bottom'
+  )+
+  scale_color_viridis_d(
+    begin = 0.2, 
+    end = 0.7,
+    labels = c('Castle', 'Cliff')
   )
 
 summer_do_v_hyopx
@@ -479,7 +535,7 @@ lm_summer <- lm(supp_tbl$summer_hypoxia_days~supp_tbl$spring_peak_do)
 summary(lm_summer)
 
 # ggsave(here('output/lake_final_plts/supp_figs/supp_fig_sum_hypox_v_spring_do.png'),
-#        dpi = 300, height = 5, width = 6, units = 'in')
+#        dpi = 300, height = 6.5, width = 6.5, units = 'in')
 
 #Winter plot
 
