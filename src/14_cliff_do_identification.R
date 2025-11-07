@@ -382,12 +382,20 @@ ggplotly(cliff_plt_22)
 cliff <- cliff_2019_mean %>% 
   bind_rows(cliff_2020_mean, cliff_2021_mean, cliff_2022_mean) %>% 
   select(1:9, 11) %>%
-  #pivot_longer(cols = 3:9, names_to = 'depth', values_to = 'temp_c') %>% 
-  #Below for DO timeseries figure
-  select(
-    lake, date, do_mg_l, 
-    temp_c = temp_24
+  pivot_longer(cols = 3:9, names_to = 'depth', values_to = 'temp_c') %>%
+  mutate(
+    lake = as.factor(lake),
+    depth = as.factor(sub('temp_', '', depth))
   )
+write_csv(
+  cliff,
+  here('data/processed/cliff/cliff_clean_update_2025.11.06')
+)
+  #Below for DO timeseries figure
+  # select(
+  #   lake, date, do_mg_l, 
+  #   temp_c = temp_24
+  # )
 
 #write_csv(cliff, here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
 #write_csv(cliff, here('data/processed/cliff/clf_hypox_plt.csv'))
@@ -396,10 +404,16 @@ cliff <- cliff_2019_mean %>%
 
 #Temperature plot
 
-cliff <- read_csv(here('data/processed/cliff/cliff_clean_agg_data_daily.csv'))
+cliff <- read_csv(
+  here('data/processed/cliff/cliff_clean_update_2025.11.06')
+) %>% 
+  mutate(
+    lake = as.factor(lake),
+    depth = as.factor(depth)
+  )
 
 cliff_temp_plt <- ggplot(data = cliff)+
-  #geom_line(aes(x = date, y = temp_c, color = depth))+
+  geom_line(aes(x = date, y = temp_c, color = depth))+
   geom_line(aes(x = date, y = do_mg_l))+
   theme_classic()+
   xlab("Date")+
@@ -410,8 +424,6 @@ cliff_temp_plt
 ggplotly(cliff_temp_plt)
 
 # 6. Final plot for Cliff---------------------------------------------
-
-coeff = 1
 
 cliff_avg_plt <- ggplot()+ 
   geom_rect(aes(
@@ -438,31 +450,54 @@ cliff_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  #geom_line(data = cliff, aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
-  geom_line(data = cliff, aes(x = date, y = do_mg_l), size = 1.2)+
-  scale_color_grey(name = 'Depth   ')+
+  geom_line(
+    data = cliff, 
+    aes(x = date, y = temp_c/2, color = depth), 
+    linewidth = 1, 
+    alpha = 0.7
+  )+
+  geom_line(
+    data = cliff, 
+    aes(x = date, y = do_mg_l), 
+    linewidth = 1
+  )+
+  # scale_color_grey(name = 'Depth   ')+
   theme_classic()+
   xlab('')+ 
   ylab('')+
-  #ylab('Dissolved Oxygen (mg/L)\nTemperature (°C)')+
-  # scale_y_continuous(
-  #   name = '', #Alt+0176 for degree symbol
-  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  # )+
-  theme(legend.position = 'none',
-        legend.title = element_text(size = 13),
-        axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
+  theme(legend.position = 'bottom',
+        # legend.title = element_text(size = 14),
+        legend.title = element_blank(),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size = 12),
         axis.text.x = element_blank()
-        )+
-  scale_x_date(date_breaks = '1 year', date_labels = '%Y')+
+  )+
+  scale_color_viridis_d()+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
-  scale_y_continuous(breaks = c(0,10,20))
+  scale_y_continuous(
+    name = expression("Dissolved Oxygen (mg L"^{-1}*")"),
+    breaks = seq(0,12,3),
+    sec.axis = sec_axis(
+      ~. *2,
+      name = 'Temperature (\u00b0C)',
+      breaks = seq(0,24,6)
+    )
+  )+
+  guides(
+    color = guide_legend(nrow = 1)
+  )
 cliff_avg_plt
 #ggplotly(cliff_avg_plt)
 
 #ggsave(here('output/lake_final_plts/cliff_do_plt_w_temp.jpeg'), dpi = 300)
-
+ggsave(
+  # here('output/lake_final_plts/castle_do_plt_w_temp_update_pdf.png'), 
+  # here('output/lake_final_plts/do_ts_fig/update/castle_do_plt_w_temp_update.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/update/cliff_do_plt_w_temp_update_NAs.pdf'), 
+  dpi = 300,
+  width = 6.5,
+  height = 3.75
+)
 
 # 7. Write Cliff data to CSV ----------------------------------------------
 

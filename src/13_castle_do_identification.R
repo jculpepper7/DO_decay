@@ -251,8 +251,21 @@ cal_all_depths <- bind_rows(cal_03m_daily, cal_10m_daily, cal_20m_daily, cal_30m
 #write_csv(cal_all_depths, here('data/processed/cal_hypox_plt.csv'))
 
 # 10. Final plot for Castle-------------------------------------
+library(padr)
 
-coeff <- 1
+cal_all_depths <- read_csv(here('data/processed/cal_hypox_plt.csv')) %>% 
+  mutate(
+    depth = as.factor(depth),
+    lake = as.factor(lake)
+  ) %>% 
+  na.omit() %>% 
+  group_by(depth) %>%
+  pad(
+    interval = 'day'
+  ) %>%
+  ungroup
+
+# coeff <- 1
 
 castle_avg_plt <- ggplot()+ 
   geom_rect(aes(
@@ -285,24 +298,53 @@ castle_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = cal_all_depths %>% filter(date>='2017-10-01'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
-  geom_line(data = cal_all_depths %>% filter(depth =='30m', date>='2017-10-01'), aes(x = date, y = do_mg_l), size = 1.2)+
-  scale_color_grey(name = 'Depth   ')+
+  geom_line(
+    data = cal_all_depths %>% filter(date>='2017-10-01'), 
+    aes(x = date, y = temp_c/2, color = depth), 
+    linewidth = 1, 
+    alpha = 0.7
+  )+ #%>% filter(depth == '03m' | depth == '10m' | depth == '20m' |
+  geom_line(
+    data = cal_all_depths %>% filter(depth =='30m', date>='2017-10-01'), 
+    aes(x = date, y = do_mg_l), 
+    linewidth = 1
+  )+
+  #scale_color_grey(name = 'Depth   ')+
+  scale_color_viridis_d()+
   theme_classic()+
   xlab('')+ 
   ylab('')+
-  scale_y_continuous(breaks = seq(0,12,2))+
-  theme(legend.position = 'none',
-        legend.title = element_text(size = 13),
-        axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
+  theme(legend.position = 'bottom',
+        # legend.title = element_text(size = 14),
+        legend.title = element_blank(),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size = 12),
         axis.text.x = element_blank()
         )+
-  scale_y_continuous(breaks = c(0,10,20))
+  #scale_y_continuous(breaks = c(0,10,20))
+  scale_y_continuous(
+    name = expression("Dissolved Oxygen (mg L"^{-1}*")"),
+    breaks = seq(0,12,3),
+    sec.axis = sec_axis(
+      ~. *2,
+      name = 'Temperature (\u00b0C)',
+      breaks = seq(0,24,6)
+    )
+  )+
+  guides(
+    color = guide_legend(nrow = 1)
+  )
 castle_avg_plt
-ggplotly(castle_avg_plt)
+#ggplotly(castle_avg_plt)
 
-#ggsave(here('output/lake_final_plts/castle_do_plt_w_temp.jpeg'), dpi = 300)
+ggsave(
+  # here('output/lake_final_plts/castle_do_plt_w_temp_update_pdf.png'), 
+  # here('output/lake_final_plts/do_ts_fig/update/castle_do_plt_w_temp_update.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/update/castle_do_plt_w_temp_update_NAs.pdf'), 
+  dpi = 300,
+  width = 6.5,
+  height = 3.75
+)
 
 
 #combine castle and cliff

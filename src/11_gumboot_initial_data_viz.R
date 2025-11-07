@@ -79,7 +79,7 @@ gumboot_w_avg <- gumboot %>%
 # 4. data viz of averaged data (daily average)
 
 #value for secondary axis (temperature)
-coeff <- 1
+# coeff <- 1
 
 gumboot_avg_plt <- ggplot()+ 
   geom_rect(aes(
@@ -109,10 +109,22 @@ gumboot_avg_plt <- ggplot()+
   #     as.Date("2021-12-12"), 
   #     as.Date("2022-04-02")
   #     )))+
-  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
-  geom_line(data = gumboot_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
-  geom_line(data = gumboot_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
-  scale_color_grey(name = 'Depth   ')+
+  geom_line(
+    data = gumboot_w_avg %>% filter(depth == '1m'  | depth == '2m'), 
+    aes(x = date, y = temp_c/2, color = depth), 
+    linewidth = 1, 
+    alpha = 0.7
+  )+
+  #geom_line(data = gumboot_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
+  geom_line(
+    data = gumboot_w_avg %>% filter(depth == '1m'), 
+    aes(x = date, y = do_mg_l), 
+    linewidth = 1
+  )+
+  # scale_color_grey(name = 'Depth   ')+
+  scale_color_viridis_d(
+    direction = -1
+  )+
   theme_classic()+
   labs(x = '', y = '')+ #Dissolved Oxygen (mg/L)\nTemperature(°C)
   # scale_y_continuous(
@@ -121,17 +133,39 @@ gumboot_avg_plt <- ggplot()+
   # )+
   #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
   #theme(legend.title = 'Depth')#+
-  theme(legend.position = 'none',
-        legend.title = element_text(size = 13),
-        axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22),
-        axis.text.x = element_blank())+
+  theme(
+    legend.position = 'bottom',
+    legend.title = element_blank(),
+    axis.title.y = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    axis.text.x = element_blank()
+  )+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
-  scale_y_continuous(breaks = c(0,10,20))
+  scale_y_continuous(
+    name = expression("Dissolved Oxygen (mg L"^{-1}*")"),
+    breaks = seq(0,12,3),
+    sec.axis = sec_axis(
+      ~. *2,
+      name = 'Temperature (\u00b0C)',
+      breaks = seq(0,24,6)
+    )
+  )+
+  guides(
+    color = guide_legend(nrow = 1)
+  )  
+  # scale_y_continuous(breaks = c(0,10,20))
 gumboot_avg_plt
-ggplotly(gumboot_avg_plt)
+# ggplotly(gumboot_avg_plt)
 
 #ggsave(here('output/lake_final_plts/gumboot_do_plt.jpeg'), dpi = 300)
+ggsave(
+  # here('output/lake_final_plts/castle_do_plt_w_temp_update_pdf.png'), 
+  # here('output/lake_final_plts/do_ts_fig/update/castle_do_plt_w_temp_update.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/update/gb_do_plt_w_temp_update_NAs.pdf'), 
+  dpi = 300,
+  width = 6.5,
+  height = 3.75
+)
 
 # 5. Alt visualizations
 

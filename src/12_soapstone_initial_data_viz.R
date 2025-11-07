@@ -74,7 +74,7 @@ soapstone_w_avg <- soapstone %>%
   ungroup() %>% 
   select(lake, date, depth, light_intensity_lux, temp_c, do_mg_l, do_sat)
 
-write_csv(soapstone_w_avg, here('data/processed/ss_hypox_plt.csv'))
+# write_csv(soapstone_w_avg, here('data/processed/ss_hypox_plt.csv'))
 
 # 4. data viz of averaged data (daily average)
 
@@ -97,30 +97,56 @@ soapstone_avg_plt <- ggplot()+
     ymin = -Inf,
     ymax = Inf
   ), fill = 'light blue', alpha = 0.5)+
-  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = temp_c, color = depth), size = 0.5, alpha = 0.5)+
-  geom_line(data = soapstone_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
-  geom_line(data = soapstone_w_avg %>% filter(depth == '1m'), aes(x = date, y = do_mg_l), size = 1.2)+
-  scale_color_grey(name = 'Depth   ')+
+  geom_line(
+    data = soapstone_w_avg %>% filter(depth == '1m' | depth == '1.5m'), 
+    aes(x = date, y = temp_c/2, color = depth), 
+    linewidth = 1, 
+    alpha = 0.7
+  )+
+  # geom_line(data = soapstone_w_avg %>% filter(depth == 'sediment'), aes(x = date, y = temp_c), size = 0.8, alpha = 0.5, color = 'light gray', linetype = 'dashed')+
+  geom_line(
+    data = soapstone_w_avg %>% filter(depth == '1m'), 
+    aes(x = date, y = do_mg_l), 
+    linewidth = 1
+  )+
+  # scale_color_grey(name = 'Depth   ')+
+  scale_color_viridis_d(
+    direction = -1
+  )+
   theme_classic()+
   labs(x = '', y = '')+
-  # scale_y_continuous(
-  #   name = '', #Alt+0176 for degree symbol
-  #   sec.axis = sec_axis(~.*coeff, name = '') #double y axis code from: https://r-graph-gallery.com/line-chart-dual-Y-axis-ggplot2.html
-  # )+
-  #labs(x = '', y = 'Dissolved Oxygen [mg/L]\nTemperature [C]')+
-  #theme(legend.title = 'Depth')#+
-  theme(legend.position = 'none',
-        legend.title = element_text(size = 13),
-        axis.title.y = element_text(size = 13),
-        axis.text = element_text(size = 22)#,
+  theme(legend.position = 'bottom',
+        legend.title = element_blank(),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size = 12)#,
         #axis.text.x = element_blank()
         )+
   xlim(ymd('2017-10-01'), ymd('2022-06-16'))+
-  scale_y_continuous(breaks = c(0,10,20))
+  scale_y_continuous(breaks = c(0,10,20))+
+  scale_y_continuous(
+    name = expression("Dissolved Oxygen (mg L"^{-1}*")"),
+    breaks = seq(0,12,3),
+    sec.axis = sec_axis(
+      ~. *2,
+      name = 'Temperature (\u00b0C)',
+      breaks = seq(0,24,6)
+    )
+  )+
+  guides(
+    color = guide_legend(nrow = 1)
+  )  
 soapstone_avg_plt
-ggplotly(soapstone_avg_plt)
+# ggplotly(soapstone_avg_plt)
 
 #ggsave(here('output/lake_final_plts/soapstone_do_plt.jpeg'), dpi = 300)
+ggsave(
+  # here('output/lake_final_plts/castle_do_plt_w_temp_update_pdf.png'), 
+  # here('output/lake_final_plts/do_ts_fig/update/castle_do_plt_w_temp_update.pdf'), 
+  here('output/lake_final_plts/do_ts_fig/update/ss_do_plt_w_temp_update_NAs2.pdf'), 
+  dpi = 300,
+  width = 6,
+  height = 1.5
+)
 
 # 5. Alt visualizations
 
@@ -154,4 +180,82 @@ ggplotly(soapstone_avg_plt)
 
 #ggsave(here('output/plots/soapstone_do_saturation_20_21.png'), dpi = 500)
 
+test <- soapstone_w_avg %>% 
+  select(-c(depth, temp_c, do_sat, do_mg_l)) %>% 
+  arrange(date) %>% 
+  na.omit()
+
+test2 <- soapstone_w_avg %>% 
+  select(-c(depth, temp_c, do_sat, light_intensity_lux)) %>% 
+  arrange(date) %>% 
+  na.omit()
+
+test3 <- test %>% 
+  inner_join(test2) %>% 
+  filter(
+    between(
+      date, 
+      ymd('2019-11-21'), 
+      ymd('2020-05-04')
+    ) |
+    between(
+      date, 
+      ymd('2020-11-06'), 
+      ymd('2021-04-24')
+    ) |
+    between(
+      date, 
+      ymd('2021-12-11'), 
+      ymd('2022-04-24')
+    )
+  ) %>% 
+  mutate(
+    year = as.factor(if_else(
+      month(date) >= 10, year(date)+1, year(date)
+    ))
+  ) %>% 
+  pad()
+
+
+
+
+ggplot(
+  data = test3, 
+  mapping = aes(x = light_intensity_lux, y = do_mg_l, color = year),
+  size = 2.5,
+  alpha = 0.7
+)+
+  geom_point()+
+  theme_classic()
+
+library(patchwork) 
+library(plotly)
+  
+p1 <- ggplot(data = test3)+
+  geom_line(
+    mapping = aes(x = date, y = light_intensity_lux)
+  )+
+  geom_vline(
+    xintercept = c(ymd('2020-02-07'), ymd('2022-02-13')),
+    linetype = 'dashed',
+    color = 'blue'
+  )
+p1
+ggplotly(p1)
+
+p2 <- ggplot(data = test3)+
+  geom_line(
+    mapping = aes(x = date, y = do_mg_l),
+    color = 'red'
+  )+
+  geom_vline(
+    xintercept = c(ymd('2020-02-07'), ymd('2022-02-13')),
+    linetype = 'dashed',
+    color = 'blue'
+  )
+p2
+ggplotly(p2)
+ 
+
+p1/p2
 
